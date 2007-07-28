@@ -21,16 +21,26 @@ void print_screen() {
 	printf("Eingenommen: %d Euro, Verkauft: %d Flaschen\n\n", money * 100, items_sold);
 	for (; i < num_items; ++i)
 		printf("Item %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
-	printf("\nBefehle: s) Save Data\n");
+	printf("\nBefehle: s) Save Data\tp) Toggle Printing\n");
 }
 
-/* Wird ausgelagert */
-void save_data() {
+/* Druckt eine entsprechende Zeile aus */
+void print_log(uc n, int einheiten, char *nickname) {
+	/* Format: 
+	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
+	   Uhrzeit (TODO)
+	   Eintragname (= Getränk)
+	   Preis (in Cents)
+	   Anzahl
+	   Nickname (falls es vom Guthaben abgezogen wird)
+	   */
+	printf("[%d] UHRZEIT - %s - %d - %d - an %s\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
 }
 
+/* Dialog, der einen durch's Abrechnen der Einträge führt */
 void buy(uc n) {
 	int negative = 1;
-	char entered[5] = {49, 0, 0, 0, 0};
+	char entered[5] = {'1', 0, 0, 0, 0};
 	uc i = 0;
 	uc c;
 	int einheiten;
@@ -51,6 +61,8 @@ void buy(uc n) {
 		status[n].times_sold += einheiten;
 		money += status[n].price * einheiten;
 		items_sold += einheiten;
+		// TODO: NULL in nickname des guthabenden ändern
+		print_log(n, einheiten, NULL);
 	}
 }
 
@@ -64,9 +76,15 @@ int main() {
 		/* und eventuell weitere Dialoge anzeigen */
 		if (c > 47 && c < 58)
 			buy(c - 48);
-		else if (c == 115)
-			save_data();
-		else if (c == 113)
+		else if (c == 's') {
+			save_state();
+			printf("Statefile saved, press ANYKEY to continue...\n");
+			getchar();
+		} else if (c == 'p') {
+			printing = (printing == 1 ? 0 : 1);
+			printf("Printing is now %s, press ANYKEY to continue...\n", (printing == 1 ? "on" : "off"));
+			getchar();
+		} else if (c == 'q')
 			break;
 	}
 	printf("BYEBYE\n");
