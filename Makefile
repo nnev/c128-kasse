@@ -25,5 +25,8 @@ test-package: test
 	c1541 -attach test.d64 -write test  || exit 0
 
 clean:
-	rm -rf *.o *.s kasse test 
+	rm -rf *.o *.s
+	
+dist-clean: clean
+	rm kasse test 
 	
