@@ -52,8 +52,8 @@ void load_items() {
 	strcpy(status[1].item_name, "mate");
 	status[1].price = 150;
 	status[1].times_sold = 0;
-/*	for (c = 2; c < MAX_ITEMS; ++c)
-		status[c].item_name = NULL;*/
+	for (c = 2; c < MAX_ITEMS; ++c)
+		status[c].item_name[0] = 0;
 }
 
 void load_state() {

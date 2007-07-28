@@ -5,7 +5,7 @@
 #include "general.h"
 #include "config.h"
 #include "kasse.h"
-//#include "credit_manager.h"
+#include "credit_manager.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 
@@ -71,12 +71,10 @@ int main() {
 	load_config();
 	/* Einträge (=Getränke) laden */
 	load_items();
-#if 0
 	/* Zustand laden */
 	load_state();
 	/* Guthaben laden */
 	load_credits();
-#endif
 	while (1) {
 		/* Bildschirm anzeigen */
 		print_screen();
@@ -98,7 +96,7 @@ int main() {
 			getchar();
 		} else if (c == 'g') {
 			/* Guthabenverwalter aufrufen */
-//			credit_manager();
+			credit_manager();
 		} else if (c == 'q')
 			break;
 	}
