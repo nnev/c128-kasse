@@ -4,6 +4,8 @@
 /* Eingenommes Geld in Cent */
 unsigned long int money = 0;
 unsigned long int num_items = 0;
+unsigned long int items_sold = 0;
+
 
 /* Datenstruktur der verkauften Einträge */
 struct status_t {

@@ -44,7 +44,6 @@ void buy(uc n) {
 		}
 		status[n].times_sold += einheiten;
 		money += status[n].price * einheiten;
-		money += status[n].preis * einheiten;
 		items_sold += einheiten;
 	}
 }
