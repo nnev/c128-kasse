@@ -18,7 +18,7 @@ struct status_t {
 };
 
 #define MAX_ITEMS 15
-static struct status_t status[MAX_ITEMS+1];
+extern struct status_t* status;
 
 // unklar bis jetzt was das tun wird
 void load_config();

@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <stdlib.h>
 
+#include "general.h"
 #include "config.h"
 #include "kasse.h"
 // conf

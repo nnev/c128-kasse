@@ -1,12 +1,16 @@
+#include <stdlib.h>
+#include "general.h"
 #include "config.h"
 
 unsigned long int money = 0;
 unsigned long int num_items = 0;
 unsigned long int items_sold = 0;
+struct status_t status[MAX_ITEMS+1];
 
 void load_config();
 
 void load_items(){
+	char c;
 	num_items=3;
 	status[0].item_name = "cola";
 	status[0].price = 230;
