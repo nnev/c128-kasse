@@ -64,7 +64,7 @@ void credit_manager() {
 				free(filter);
 				filter = NULL;
 			} else filter_len = strlen(filter);
-		} else if (c == 'z')
+		} else if (c == 'z' || c == 'q')
 			break;
 	}
 }

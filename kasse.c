@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "general.h"
 #include "config.h"
@@ -16,7 +17,7 @@ void print_screen() {
 	uc i = 0;
 	clrscr();
 	printf("C128-Kassenprogramm\n\n");
-	printf("Eingenommen: %ld Euro, Verkauft: %ld Flaschen, Drucken: %s\n\n", money * 100, items_sold, (printing == 1 ? "ein" : "aus"));
+	printf("Eingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\n\n", money, items_sold, (printing == 1 ? "ein" : "aus"));
 	for (; i < num_items; ++i)
 		printf("Eintrag %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
 	printf("\nBefehle: s) Daten sichern d) Drucken umschalten g) Guthabenverwaltung\n");
@@ -39,9 +40,10 @@ void print_log(uc n, int einheiten, char *nickname) {
 void buy(uc n) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
-	uc i = 0;
-	uc c;
+	uc i = 0, matches = 0;
+	uc c, nickname_len, single_match;
 	int einheiten;
+	char *nickname;
 	if (status[n].item_name == NULL)
 		printf("FEHLER: Diese Einheit existiert nicht.\n");
 	else {
@@ -56,12 +58,44 @@ void buy(uc n) {
 				entered[i++] = c;
 		}
 		einheiten = atoi(entered) * negative;
+		printf("\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\n");
+		nickname = get_input();
+		if (nickname[0] == '\0') {
+			free(nickname);
+			nickname = NULL;
+		} else {
+			nickname_len = strlen(nickname);
+			/* go through credits and remove the amount of money or set nickname
+			 * to NULL if no such credit could be found */
+			for (c = 0; c < num_credit_items; ++c)
+				if (strncmp(nickname, credits[c].nickname, nickname_len) == 0) {
+					if (++matches == 2)
+						break;
+					else single_match = c;
+				}
+			if (matches == 1) {
+				if (credits[single_match].credit < (status[n].price * einheiten)) {
+					printf("Sorry, %s hat nicht genug Geld :-(\n", nickname);
+					free(nickname);
+					return;
+				} else {
+					/* Geld abziehen */
+					credits[single_match].credit -= (status[n].price * einheiten);
+					printf("\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\n", nickname, credits[single_match].credit);
+					getchar();
+				}
+			} else {
+				free(nickname);
+				nickname = NULL;
+			}
+		}
 		status[n].times_sold += einheiten;
 		money += status[n].price * einheiten;
 		items_sold += einheiten;
-		// TODO: NULL in nickname des guthabenden ändern
 		if (printing == 1)
-			print_log(n, einheiten, NULL);
+			print_log(n, einheiten, nickname);
+		if (nickname != NULL)
+			free(nickname);
 	}
 }
 
