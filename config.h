@@ -2,9 +2,9 @@
 #define CONFIG_H_
 
 /* Eingenommes Geld in Cent */
-unsigned long int money = 0;
-unsigned long int num_items = 0;
-unsigned long int items_sold = 0;
+extern unsigned long int money;
+extern unsigned long int num_items;
+extern unsigned long int items_sold;
 
 
 /* Datenstruktur der verkauften Einträge */
