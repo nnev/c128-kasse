@@ -10,7 +10,6 @@ extern unsigned long int items_sold;
 
 /* Datenstruktur der verkauften Einträge */
 struct status_t {
-	char key;
 	char item_name[80];
 	/* Wieviel kostet der Eintrag (in Cent)? */
 	unsigned int price;
@@ -20,7 +19,6 @@ struct status_t {
 
 #define MAX_ITEMS 15
 extern struct status_t status[MAX_ITEMS+1];
-extern struct status_t* status;
 
 /* Datenstruktur für die Guthaben */
 struct credits_t {
