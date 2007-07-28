@@ -11,24 +11,26 @@ unsigned long int items_sold = 0;
 BYTE printer_port = 4;
 struct status_t status[MAX_ITEMS+1];
 struct credits_t credits[MAX_CREDIT_ITEMS+1];
-
+#define REAL_DATA
 #ifdef REAL_DATA
 void load_config();
 
 
 void load_items(){
-        FILE* f;
-        char line[80];
-        char * sep;
-        f = fopen("items", "r");
-        for (num_items=0; num_items < MAX_ITEMS && !feof(f); num_items++) {
-                fgets(line, 79, f);
-                sep = strchr(line, '=');
-                strncpy(status[num_items].item_name, line, sep-line);
-                status[num_items].price = atoi(sep+1);
-                status[num_items].times_sold = 0; 
-        }
-        
+    FILE* f;
+    char line[80];
+    char * sep;
+    BYTE lfn = 219;
+//  cbm_open(lfn, (BYTE)8, (BYTE)0, "items,r");
+    f = fopen("items","r");
+    for (num_items=0; num_items < MAX_ITEMS && !feof(f); num_items++) {
+        fgets(line, 79, f);
+        sep = strchr(line, '=');
+        strncpy(status[num_items].item_name, line, sep-line);
+        status[num_items].price = atoi(sep+1);
+        status[num_items].times_sold = 0; 
+    }
+    fclose(f);
 }
 
 /**
