@@ -15,6 +15,7 @@ struct credits_t credits[MAX_CREDIT_ITEMS+1];
 #ifdef REAL_DATA
 void load_config();
 
+
 void load_items(){
         FILE* f;
         char line[80];
@@ -30,10 +31,32 @@ void load_items(){
         
 }
 
+/**
+ * must be called after load_items()
+ */
 void load_state(){
-	status[0].times_sold=23;	
-	status[1].times_sold=42;	
+    FILE* f;
+    char line[80];
+    char * sep;
+    char i, j;
+    f = fopen("state", "r");
+    if (f==NULL){
+    	printf("cannot open state\n");
+    	return;
+    }
+    while (!feof(f)) {
+    	fgets(line, 79, f);
+    	sep = strchr(line, '=');
+    	*(line + (sep-line)) = 0;
+        for (i=0; i< MAX_ITEMS; i++) {
+        	if (strcmp(line, status[i].item_name)==0) {
+        		status[i].times_sold = atoi(sep+1);
+        		break;
+        	}
+        }
+    }
 }
+
 void save_state(){}
 
 void load_config() {
