@@ -10,9 +10,9 @@
  *
  */
 char *get_input() {
-	uc i = 0;
+	BYTE i = 0;
 	char *output = malloc(32 * sizeof(char));
-	uc c;
+	BYTE c;
 	if (output == NULL) {
 		perror("malloc()");
 		exit(1);
@@ -27,4 +27,8 @@ char *get_input() {
 		else output[i++] = c;
 	}
 	return output;
+}
+
+void c128_perror(BYTE c, char *msg) {
+	printf("\nError (Code %d) while: %s\nOS Error = %s\n", c, msg, _oserror);
 }

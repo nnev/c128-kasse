@@ -1,6 +1,7 @@
 #ifndef GENERAL_H_
 #define GENERAL_H_
-#define uc	unsigned char
-#define NULL 0
+typedef unsigned char BYTE;
 char *get_input();
+void c128_perror(BYTE, char*);
+extern BYTE _oserror;
 #endif /*GENERAL_H_*/

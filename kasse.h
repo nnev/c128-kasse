@@ -1,1 +1,1 @@
-uc printing = 1;
+BYTE printing = 1;

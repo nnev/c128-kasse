@@ -1,3 +1,5 @@
+#include "general.h"
+
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
@@ -6,6 +8,7 @@ extern unsigned long int money;
 extern unsigned long int num_items;
 extern unsigned char num_credit_items;
 extern unsigned long int items_sold;
+extern BYTE printer_port;
 
 
 /* Datenstruktur der verkauften Einträge */

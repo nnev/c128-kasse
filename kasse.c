@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cbm.h>
 
 #include "general.h"
 #include "config.h"
@@ -10,11 +11,11 @@
 // drucker 4 oder 5
 // graphic 4,0,10
 
-
+char print_buffer[81];
 
 /* Hauptbildschirm ausgeben */
 void print_screen() {
-	uc i = 0;
+	BYTE i = 0;
 	clrscr();
 	printf("C128-Kassenprogramm\n\n");
 	printf("Eingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\n\n", money, items_sold, (printing == 1 ? "ein" : "aus"));
@@ -24,7 +25,8 @@ void print_screen() {
 }
 
 /* Druckt eine entsprechende Zeile aus */
-void print_log(uc n, int einheiten, char *nickname) {
+void print_log(BYTE n, int einheiten, char *nickname) {
+	BYTE c;
 	/* Format: 
 	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
 	   Uhrzeit (TODO)
@@ -33,15 +35,28 @@ void print_log(uc n, int einheiten, char *nickname) {
 	   Anzahl
 	   Nickname (falls es vom Guthaben abgezogen wird)
 	   */
-	printf("[%d] UHRZEIT - %s - %d - %d - an %s\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
+	sprintf(print_buffer, "[%d] UHRZEIT - %s - %d - %d - an %s\r\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
+	c = cbm_open(4, 4, 0, NULL);
+	if (c != 0) {
+		c128_perror(c, "cbm_open(printer)");
+		save_state();
+		exit(1);
+	}
+	c = cbm_write(4, print_buffer, strlen(print_buffer));
+	if (c != strlen(print_buffer)) {
+		c128_perror(c, "write(printer)");
+		save_state();
+		exit(1);
+	}
+	cbm_close(4);
 }
 
 /* Dialog, der einen durch's Abrechnen der Einträge führt */
-void buy(uc n) {
+void buy(BYTE n) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
-	uc i = 0, matches = 0;
-	uc c, nickname_len, single_match;
+	BYTE i = 0, matches = 0;
+	BYTE c, nickname_len, single_match;
 	int einheiten;
 	char *nickname;
 	if (status[n].item_name == NULL)
@@ -100,7 +115,7 @@ void buy(uc n) {
 }
 
 int main() {
-	static uc c;
+	static BYTE c;
 	/* Konfigurationsdatei laden */
 	load_config();
 	/* Einträge (=Getränke) laden */

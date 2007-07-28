@@ -7,10 +7,10 @@
 #include "general.h"
 
 char *filter = NULL;
-uc filter_len;
+BYTE filter_len;
 
 void print_credit_screen() {
-	uc i = 0;
+	BYTE i = 0;
 	clrscr();
 	printf("C128-Kassenprogramm: Credit Manager\n\n");
 	for (; i < num_credit_items; ++i)
@@ -22,7 +22,7 @@ void print_credit_screen() {
 /* Guthabenverwalter */
 void credit_manager() {
 	int negative = 1;
-	uc c;
+	BYTE c;
 	char *nickname, *credits_input;
 	/* credits_int is a stupid name, but overlaps with struct credits_t credits; else */
 	int credits_int;
