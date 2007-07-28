@@ -10,7 +10,7 @@ extern unsigned long int items_sold;
 
 /* Datenstruktur der verkauften Einträge */
 struct status_t {
-	char item_name[80];
+	char item_name[10];
 	/* Wieviel kostet der Eintrag (in Cent)? */
 	unsigned int price;
 	/* Wie oft wurde er verkauft */
