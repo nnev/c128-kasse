@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <conio.h>
+#include <stdlib.h>
 
 #include "kasse.h"
 // conf
@@ -15,7 +16,7 @@ void print_screen() {
 	uc i = 0;
 	clrscr();
 	printf("C128-Kassenprogramm\n\n");
-	printf("Eingenommen: %.2d Euro, Verkauft: %d Flaschen\n\n", money * 100, items_sold);
+	printf("Eingenommen: %d Euro, Verkauft: %d Flaschen\n\n", money * 100, items_sold);
 	for (; i < NUM_ITEMS; ++i)
 		printf("Item %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].preis, status[i].times_sold);
 	printf("\nBefehle: s) Save Data\n");
@@ -26,19 +27,25 @@ void save_data() {
 }
 
 void buy(uc n) {
-	static uc einheiten = 1;
-	static uc c;
+	int negative = 1;
+	uc entered[5] = {49, 0, 0, 0, 0};
+	uc i = 0;
+	uc c;
+	int einheiten;
 	if (status[n].item_name == NULL)
 		printf("ERROR: No such item\n");
 	else {
 		printf("Wieviel Einheiten \"%s\"?\n", status[n].item_name);
 		while (1) {
 			c = getchar();
-			if (c == 32)
+			if (c == 13)
 				break;
+			else if (c == 45 && i == 0)
+				negative = -1;
 			else if (c > 47 && c < 58)
-				einheiten += (c - 48);
+				entered[i++] = c;
 		}
+		einheiten = atoi(entered) * negative;
 		status[n].times_sold += einheiten;
 		money += status[n].preis * einheiten;
 		items_sold += einheiten;
