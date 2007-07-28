@@ -6,6 +6,7 @@
 
 /* Eingenommes Geld in Cent */
 static unsigned long int money = 0;
+static unsigned long int items_sold = 0;
 
 /* Datenstruktur der verkauften Einträge */
 struct status_t {
