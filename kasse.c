@@ -55,15 +55,6 @@ void buy(uc n) {
 
 int main() {
 	static uc c;
-	/* TODO: remove */
-	status[0].item_name = "cola";
-	status[0].price = 230;
-	status[0].times_sold = 0;
-	status[1].item_name = "mate";
-	status[1].price = 150;
-	status[0].times_sold = 0;
-	for (c = 2; c < MAX_ITEMS; ++c)
-		status[c].item_name = NULL;
 	while (1) {
 		/* Bildschirm anzeigen */
 		print_screen();
