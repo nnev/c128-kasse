@@ -62,7 +62,8 @@ void buy(uc n) {
 		money += status[n].price * einheiten;
 		items_sold += einheiten;
 		// TODO: NULL in nickname des guthabenden ändern
-		print_log(n, einheiten, NULL);
+		if (printing == 1)
+			print_log(n, einheiten, NULL);
 	}
 }
 
