@@ -28,7 +28,7 @@ struct credits_t {
 };
 
 #define MAX_CREDIT_ITEMS 75
-extern struct credits_t *credits;
+extern struct credits_t credits[MAX_CREDIT_ITEMS+1];
 
 /* Lädt Dinge wie die Druckeradresse */
 void load_config();
