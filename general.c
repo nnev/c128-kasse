@@ -4,6 +4,11 @@
 
 #include "general.h"
 
+/*
+ * Liest (maximal 31) Zeichen ein, bis Enter gedrückt wird. Der zurückgegebene 
+ * char-pointer muss anschließend ge-free()d werden!
+ *
+ */
 char *get_input() {
 	uc i = 0;
 	char *output = malloc(32 * sizeof(char));

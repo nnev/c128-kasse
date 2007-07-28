@@ -16,10 +16,10 @@ void print_screen() {
 	uc i = 0;
 	clrscr();
 	printf("C128-Kassenprogramm\n\n");
-	printf("Eingenommen: %d Euro, Verkauft: %d Flaschen\n\n", money * 100, items_sold);
+	printf("Eingenommen: %ld Euro, Verkauft: %ld Flaschen, Drucken: %s\n\n", money * 100, items_sold, (printing == 1 ? "ein" : "aus"));
 	for (; i < num_items; ++i)
-		printf("Item %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
-	printf("\nBefehle: s) Save Data p) Toggle Printing\n");
+		printf("Eintrag %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
+	printf("\nBefehle: s) Daten sichern d) Drucken umschalten g) Guthabenverwaltung\n");
 }
 
 /* Druckt eine entsprechende Zeile aus */
@@ -43,7 +43,7 @@ void buy(uc n) {
 	uc c;
 	int einheiten;
 	if (status[n].item_name == NULL)
-		printf("ERROR: No such item\n");
+		printf("FEHLER: Diese Einheit existiert nicht.\n");
 	else {
 		printf("Wieviel Einheiten \"%s\"?\n", status[n].item_name);
 		while (1) {
@@ -87,12 +87,12 @@ int main() {
 			/* Zustandsdatei schreiben */
 			save_state();
 			save_credits();
-			printf("Statefile/Creditfile saved, press ANYKEY to continue...\n");
+			printf("Statefile/Creditfile gesichert, druecke ANYKEY...\n");
 			getchar();
-		} else if (c == 'p') {
+		} else if (c == 'd') {
 			/* Drucken an- oder ausschalten */
 			printing = (printing == 1 ? 0 : 1);
-			printf("Printing is now %s, press ANYKEY to continue...\n", (printing == 1 ? "on" : "off"));
+			printf("Drucken ist nun %s, druecke ANYKEY...\n", (printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
 			getchar();
 		} else if (c == 'g') {
 			/* Guthabenverwalter aufrufen */
