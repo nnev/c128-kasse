@@ -1,14 +1,10 @@
+.c.s: cc65 -t c128 $<
 
-kasse: kasse.o
-	cl65 -t c128 kasse.o
+.s.o: cc65 -t c128 $<
 
-kasse.o: kasse.s
-	ca65 -t c128 kasse.s
-
-kasse.s: kasse.c
-	cc65 -t c128 kasse.c
-
-all: kasse
+all: config.o kasse.o 
+	cl65 -t c128 kasse.o config.o -o kasse
 
 clean:
-	rm -f *.s *.o
+	rm -rf *.o *.s
+	
