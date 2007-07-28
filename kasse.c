@@ -5,10 +5,8 @@
 #include "general.h"
 #include "config.h"
 #include "kasse.h"
-// conf
+#include "credit_manager.h"
 // drucker 4 oder 5
-// pricee+getraenke
-//
 // graphic 4,0,10
 
 
@@ -21,7 +19,7 @@ void print_screen() {
 	printf("Eingenommen: %d Euro, Verkauft: %d Flaschen\n\n", money * 100, items_sold);
 	for (; i < num_items; ++i)
 		printf("Item %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
-	printf("\nBefehle: s) Save Data\tp) Toggle Printing\n");
+	printf("\nBefehle: s) Save Data p) Toggle Printing\n");
 }
 
 /* Druckt eine entsprechende Zeile aus */
@@ -52,7 +50,7 @@ void buy(uc n) {
 			c = getchar();
 			if (c == 13)
 				break;
-			else if (c == 45 && i == 0)
+			else if (c == '-'&& i == 0)
 				negative = -1;
 			else if (c > 47 && c < 58)
 				entered[i++] = c;
@@ -69,6 +67,15 @@ void buy(uc n) {
 
 int main() {
 	static uc c;
+	/* Konfigurationsdatei laden */
+	load_config();
+	/* Einträge (=Getränke) laden */
+
+	load_items();
+	/* Zustand laden */
+	load_state();
+	/* Guthaben laden */
+	load_credits();
 	while (1) {
 		/* Bildschirm anzeigen */
 		print_screen();
@@ -78,13 +85,19 @@ int main() {
 		if (c > 47 && c < 58)
 			buy(c - 48);
 		else if (c == 's') {
+			/* Zustandsdatei schreiben */
 			save_state();
-			printf("Statefile saved, press ANYKEY to continue...\n");
+			save_credits();
+			printf("Statefile/Creditfile saved, press ANYKEY to continue...\n");
 			getchar();
 		} else if (c == 'p') {
+			/* Drucken an- oder ausschalten */
 			printing = (printing == 1 ? 0 : 1);
 			printf("Printing is now %s, press ANYKEY to continue...\n", (printing == 1 ? "on" : "off"));
 			getchar();
+		} else if (c == 'g') {
+			/* Guthabenverwalter aufrufen */
+			credit_manager();
 		} else if (c == 'q')
 			break;
 	}
