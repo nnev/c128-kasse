@@ -41,5 +41,5 @@ char * format_euro(char * s, int maxlen, int cent){
 }
 
 void c128_perror(BYTE c, char *msg) {
-	printf("\nError (Code %d) while: %s\nOS Error = %s\n", c, msg, _oserror);
+	printf("\nError (Code %d) while: %s\nOS Error = %d\n", c, msg, _oserror);
 }

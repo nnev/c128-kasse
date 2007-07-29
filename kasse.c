@@ -38,19 +38,19 @@ void print_log(BYTE n, int einheiten, char *nickname) {
 	   Nickname (falls es vom Guthaben abgezogen wird)
 	   */
 	sprintf(print_buffer, "[%d] UHRZEIT - %s - %d - %d - an %s\r\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
-	c = cbm_open(4, 4, 0, NULL);
+	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
 		save_state();
 		exit(1);
 	}
-	c = cbm_write(4, print_buffer, strlen(print_buffer));
+	c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
 	if (c != strlen(print_buffer)) {
 		c128_perror(c, "write(printer)");
 		save_state();
 		exit(1);
 	}
-	cbm_close(4);
+	cbm_close((BYTE)4);
 }
 
 /* Dialog, der einen durch's Abrechnen der Einträge führt */
