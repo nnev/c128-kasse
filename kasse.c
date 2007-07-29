@@ -26,6 +26,17 @@ void print_screen() {
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\ng) Guthabenverwaltung z) Zeit setzen\r\n");
 }
 
+void log_file(char * s) {
+	FILE * f;
+	if (s==NULL)
+		return;
+	f = fopen("log", "a");
+	if (f==NULL)
+		c128_perror(23, "kann logfile nicht oeffnen");
+	fputs(f, s);
+	fclose(f);
+}
+
 /* Druckt eine entsprechende Zeile aus */
 void print_log(BYTE n, int einheiten, char *nickname) {
 	BYTE c;
@@ -51,6 +62,7 @@ void print_log(BYTE n, int einheiten, char *nickname) {
 		exit(1);
 	}
 	cbm_close((BYTE)4);
+	log_file(print_buffer);
 }
 
 /* Dialog, der einen durch's Abrechnen der Einträge führt */
