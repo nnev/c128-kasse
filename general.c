@@ -29,7 +29,13 @@ char *get_input() {
 	return output;
 }
 
-char * format_euro(char * s, int cent){
+char * format_euro(char * s, int maxlen, int cent){
+	int tmp = cent;
+	int len = 5; // 1 char at least + 4 (== strlen(",EUR"))
+	while ((tmp/=10) > 0)
+		len++;
+	if (len>maxlen)
+		return NULL;
 	sprintf(s, "%d,%dEUR", cent/100, cent%100);
 	return s;
 }
