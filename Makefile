@@ -2,7 +2,7 @@
 	cc65 -t c128 $<
 	ca65 -t c128 $$(basename $< .c).s
 
-all: config.o kasse.o general.o credit_manager.o
+all: config.o kasse.o general.o credit_manager.o time.o
 	cl65 -t c128 *.o -o kasse
 
 package: all

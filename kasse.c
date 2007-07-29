@@ -8,6 +8,7 @@
 #include "config.h"
 #include "kasse.h"
 #include "credit_manager.h"
+#include "time.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 
@@ -16,12 +17,13 @@ char print_buffer[81];
 /* Hauptbildschirm ausgeben */
 void print_screen() {
 	BYTE i = 0;
+	char *time = get_time();
 	clrscr();
-	printf("C128-Kassenprogramm\n\n");
-	printf("Eingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\n\n", money, items_sold, (printing == 1 ? "ein" : "aus"));
+	printf("C128-Kassenprogramm\n\nUhrzeit: %s (wird nicht aktualisiert\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\n\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
+	free(time);
 	for (; i < num_items; ++i)
 		printf("Eintrag %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
-	printf("\nBefehle: s) Daten sichern d) Drucken umschalten g) Guthabenverwaltung\n");
+	printf("\nBefehle: s) Daten sichern d) Drucken umschalten\ng) Guthabenverwaltung z) Zeit setzen\n");
 }
 
 /* Druckt eine entsprechende Zeile aus */
@@ -114,8 +116,33 @@ void buy(BYTE n) {
 	}
 }
 
+void set_time_interactive() {
+	BYTE part[3] = {'0', '0', '\0'};
+	BYTE tp1, tp2, tp3;
+	char *time_input, *time;
+	printf("Gib die aktuelle Uhrzeit ein (Format HHMMSS):\n");
+	time_input = get_input();
+	part[0] = time_input[0];
+	part[1] = time_input[1];
+	tp1 = atoi(part);
+	part[0] = time_input[2];
+	part[1] = time_input[3];
+	tp2 = atoi(part);
+	part[0] = time_input[4];
+	part[1] = time_input[5];
+	tp3 = atoi(part);
+	set_time(tp1, tp2, tp3);
+
+	time = get_time();
+	printf("Zeit gesetzt: %s\n", time);
+	free(time);
+}
+
 int main() {
-	static BYTE c;
+	BYTE c;
+	/* Zeit erstmalig setzen */
+	set_time_interactive();
+	POKE(216, 255);
 	/* Konfigurationsdatei laden */
 	load_config();
 	/* Einträge (=Getränke) laden */
@@ -123,7 +150,7 @@ int main() {
 	/* Zustand laden */
 	load_state();
 	/* Guthaben laden */
-	load_credits();
+//	load_credits();
 	while (1) {
 		/* Bildschirm anzeigen */
 		print_screen();
@@ -135,7 +162,7 @@ int main() {
 		else if (c == 's') {
 			/* Zustandsdatei schreiben */
 			save_state();
-			save_credits();
+//			save_credits();
 			printf("Statefile/Creditfile gesichert, druecke ANYKEY...\n");
 			getchar();
 		} else if (c == 'd') {
@@ -146,6 +173,9 @@ int main() {
 		} else if (c == 'g') {
 			/* Guthabenverwalter aufrufen */
 			credit_manager();
+		} else if (c == 'z') {
+			/* Zeit setzen */
+			set_time_interactive();
 		} else if (c == 'q')
 			break;
 	}
