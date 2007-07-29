@@ -18,7 +18,7 @@ char *get_time() {
 	h -= (hrs * 3600);
 	min = (h / 60);
 	h -= (min * 60);
-	sprintf(buffer, "%02d:%02d:%02d", hrs, min, (int)h);
+//	sprintf(buffer, "%02d:%02d:%02d", hrs, min, (int)h);
 	return buffer;
 }
 

@@ -43,7 +43,7 @@ void load_state(){
     char i, j;
     f = fopen("state", "r");
     if (f==NULL){
-    	printf("cannot open state\n");
+    	cprintf("cannot open state\r\n");
     	return;
     }
     while (!feof(f)) {

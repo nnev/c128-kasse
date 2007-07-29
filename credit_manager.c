@@ -12,11 +12,11 @@ BYTE filter_len;
 void print_credit_screen() {
 	BYTE i = 0;
 	clrscr();
-	printf("C128-Kassenprogramm: Credit Manager\n\n");
+	cprintf("C128-Kassenprogramm: Credit Manager\r\n\r\n");
 	for (; i < num_credit_items; ++i)
 		if (filter == NULL || strncmp(credits[i].nickname, filter, filter_len) == 0)
-			printf("Guthaben %s: %d Cents\n", credits[i].nickname, credits[i].credit);
-	printf("\nBefehle: n) Neues Guthaben f) Filtern z) Zurueck\n");
+			cprintf("Guthaben %s: %d Cents\r\n", credits[i].nickname, credits[i].credit);
+	cprintf("\r\nBefehle: n) Neues Guthaben f) Filtern z) Zurueck\r\n");
 }
 
 /* Guthabenverwalter */
@@ -30,13 +30,13 @@ void credit_manager() {
 		print_credit_screen();
 		c = getchar();
 		if (c == 'n') {
-			printf("Nickname eingeben:\n");
+			cprintf("Nickname eingeben:\r\n");
 			nickname = get_input();
 			if (nickname[0] == '\0') {
 				free(nickname);
 				continue;
 			}
-			printf("\nGuthaben eingeben:\n");
+			cprintf("\r\nGuthaben eingeben:\r\n");
 			credits_input = get_input();
 			if (credits_input[0] == '\0') {
 				free(credits_input);
@@ -56,7 +56,7 @@ void credit_manager() {
 				--credits_input;
 			free(credits_input);
 		} else if (c == 'f') {
-			printf("Filter eingeben:\n");
+			cprintf("Filter eingeben:\r\n");
 			if (filter != NULL)
 				free(filter);
 			filter = get_input();

@@ -36,10 +36,10 @@ char * format_euro(char * s, int maxlen, int cent){
 		len++;
 	if (len>maxlen)
 		return NULL;
-	sprintf(s, "%d,%dEUR", cent/100, cent%100);
+//	sprintf(s, "%d,%dEUR", cent/100, cent%100);
 	return s;
 }
 
 void c128_perror(BYTE c, char *msg) {
-	printf("\nError (Code %d) while: %s\nOS Error = %d\n", c, msg, _oserror);
+	cprintf("\r\nError (Code %d) while: %s/r\nOS Error = %d\r\n", c, msg, _oserror);
 }

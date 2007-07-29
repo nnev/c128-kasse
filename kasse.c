@@ -19,11 +19,11 @@ void print_screen() {
 	BYTE i = 0;
 	char *time = get_time();
 	clrscr();
-	printf("C128-Kassenprogramm\n\nUhrzeit: %s (wird nicht aktualisiert\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\n\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
+	cprintf("C128-Kassenprogramm\r\n\r\nUhrzeit: %s (wird nicht aktualisiert\r\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
 	free(time);
 	for (; i < num_items; ++i)
-		printf("Eintrag %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
-	printf("\nBefehle: s) Daten sichern d) Drucken umschalten\ng) Guthabenverwaltung z) Zeit setzen\n");
+		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n", i, status[i].item_name, status[i].price, status[i].times_sold);
+	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\ng) Guthabenverwaltung z) Zeit setzen\r\n");
 }
 
 /* Druckt eine entsprechende Zeile aus */
@@ -37,7 +37,7 @@ void print_log(BYTE n, int einheiten, char *nickname) {
 	   Anzahl
 	   Nickname (falls es vom Guthaben abgezogen wird)
 	   */
-	sprintf(print_buffer, "[%d] UHRZEIT - %s - %d - %d - an %s\r\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
+//	sprintf(print_buffer, "[%d] UHRZEIT - %s - %d - %d - an %s\r\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
@@ -62,9 +62,9 @@ void buy(BYTE n) {
 	int einheiten;
 	char *nickname;
 	if (status[n].item_name == NULL)
-		printf("FEHLER: Diese Einheit existiert nicht.\n");
+		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
 	else {
-		printf("Wieviel Einheiten \"%s\"?\n", status[n].item_name);
+		cprintf("Wieviel Einheiten \"%s\"?\r\n", status[n].item_name);
 		while (1) {
 			c = getchar();
 			if (c == 13)
@@ -75,7 +75,7 @@ void buy(BYTE n) {
 				entered[i++] = c;
 		}
 		einheiten = atoi(entered) * negative;
-		printf("\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\n");
+		cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
 		nickname = get_input();
 		if (nickname[0] == '\0') {
 			free(nickname);
@@ -92,15 +92,17 @@ void buy(BYTE n) {
 				}
 			if (matches == 1) {
 				if (credits[single_match].credit < (status[n].price * einheiten)) {
-					printf("Sorry, %s hat nicht genug Geld :-(\n", nickname);
+					cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
 					free(nickname);
 					return;
 				} else {
 					/* Geld abziehen */
 					credits[single_match].credit -= (status[n].price * einheiten);
-					printf("\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\n", nickname, credits[single_match].credit);
+					cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\r\n", nickname, credits[single_match].credit);
 					getchar();
 				}
+			} else if (matches == 0) {
+				// TODO
 			} else {
 				free(nickname);
 				nickname = NULL;
@@ -120,7 +122,7 @@ void set_time_interactive() {
 	BYTE part[3] = {'0', '0', '\0'};
 	BYTE tp1, tp2, tp3;
 	char *time_input, *time;
-	printf("Gib die aktuelle Uhrzeit ein (Format HHMMSS):\n");
+	cprintf("Gib die aktuelle Uhrzeit ein (Format HHMMSS):\r\n");
 	time_input = get_input();
 	part[0] = time_input[0];
 	part[1] = time_input[1];
@@ -134,7 +136,7 @@ void set_time_interactive() {
 	set_time(tp1, tp2, tp3);
 
 	time = get_time();
-	printf("Zeit gesetzt: %s\n", time);
+	cprintf("Zeit gesetzt: %s\r\n", time);
 	free(time);
 }
 
@@ -163,12 +165,12 @@ int main() {
 			/* Zustandsdatei schreiben */
 			save_state();
 //			save_credits();
-			printf("Statefile/Creditfile gesichert, druecke ANYKEY...\n");
+			cprintf("Statefile/Creditfile gesichert, druecke ANYKEY...\r\n");
 			getchar();
 		} else if (c == 'd') {
 			/* Drucken an- oder ausschalten */
 			printing = (printing == 1 ? 0 : 1);
-			printf("Drucken ist nun %s, druecke ANYKEY...\n", (printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
+			cprintf("Drucken ist nun %s, druecke ANYKEY...\r\n", (printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
 			getchar();
 		} else if (c == 'g') {
 			/* Guthabenverwalter aufrufen */
@@ -179,5 +181,5 @@ int main() {
 		} else if (c == 'q')
 			break;
 	}
-	printf("BYEBYE\n");
+	cprintf("BYEBYE\r\n");
 }
