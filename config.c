@@ -37,7 +37,7 @@ void load_items(){
  * must be called after load_items()
  */
 void load_state(){
-    FILE* f;
+    FILE * f;
     char line[80];
     char * sep;
     char i, j;
@@ -49,6 +49,8 @@ void load_state(){
     while (!feof(f)) {
     	fgets(line, 79, f);
     	sep = strchr(line, '=');
+    	if (sep==NULL)
+    		continue;
     	*(line + (sep-line)) = 0;
         for (i=0; i< MAX_ITEMS; i++) {
         	if (strcmp(line, status[i].item_name)==0) {
@@ -57,10 +59,38 @@ void load_state(){
         	}
         }
     }
+    fclose(f);
 }
 
-void save_state(){}
-
+void save_state(){
+	FILE * f;
+	int i;
+	
+	f = fopen("state", "w");
+    if (f==NULL){
+    	c128_perror(23, "cannot open state file");
+    	return;
+    }
+    for (i=0;i<num_items;i++)
+    	fprintf(f, "%s=%d\n",status[i].item_name, status[i].times_sold);
+    fclose(f);
+}
+/*
+void dump_state(){
+	FILE * f;
+	char buf[128];
+	int i, len;
+	memset(buf, 0, 128);
+	f = fopen("state", "r");
+	len = fread(buf, 1, 128, f);
+	printf("read %d bytes from state\n", len);
+	fclose(f);
+	for (i=0;i<len;i++)
+		printf("%x ", buf[i]);
+	printf("\n");
+	
+}
+*/
 void load_config() {
 }
 

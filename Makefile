@@ -13,8 +13,8 @@ package: all
 	c1541 -attach kasse.d64 -write items  || exit 0
 	c1541 -attach kasse.d64 -write kasse  || exit 0
 
-test: config.o test.o
-	cl65 -t c128 config.o test.o -o test
+test: config.o test.o general.o
+	cl65 -t c128 config.o test.o general.o -o test
 
 test-package: test
 	c1541 -attach test.d64 -delete state || exit 0 

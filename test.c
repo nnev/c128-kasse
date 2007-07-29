@@ -10,8 +10,21 @@
 
 int main(){
 	BYTE i=0;
+	char euro[10];
 	load_items();
 	load_state();
-	for (; i < num_items; ++i)
-		printf("Eintrag %x: %s (%d Cents, %d mal verkauft)\n", i, status[i].item_name, status[i].price, status[i].times_sold);
+	for (i=0; i < num_items; ++i) {
+		printf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
+		status[i].times_sold+=10;
+	}
+
+	save_state();
+	load_items();
+	load_state();
+	for (i=0; i < num_items; ++i) {
+		printf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
+	}
+	
+	printf("strlen(%s)==%d\n", status[1].item_name, strlen(status[1].item_name));
+	printf("%d %d %d\n", status[1].item_name[0], '\r', '\n');
 }

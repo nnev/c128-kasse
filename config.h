@@ -38,6 +38,7 @@ void load_config();
 void load_items();
 void load_state();
 void load_credits();
+//void dump_state();
 
 void save_state();
 void save_credits();
