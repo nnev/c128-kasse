@@ -33,7 +33,7 @@ void log_file(char * s) {
 	f = fopen("log", "a");
 	if (f==NULL)
 		c128_perror(23, "kann logfile nicht oeffnen");
-	fputs(f, s);
+	fputs(s, f);
 	fclose(f);
 }
 
