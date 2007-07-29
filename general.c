@@ -29,6 +29,11 @@ char *get_input() {
 	return output;
 }
 
+char * format_euro(char * s, int cent){
+	sprintf(s, "%d,%dEUR", cent/100, cent%100);
+	return s;
+}
+
 void c128_perror(BYTE c, char *msg) {
 	printf("\nError (Code %d) while: %s\nOS Error = %s\n", c, msg, _oserror);
 }
