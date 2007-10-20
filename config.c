@@ -15,28 +15,40 @@ struct credits_t credits[MAX_CREDIT_ITEMS+1];
 
 void load_config();
 
-void load_items(){
-    char line[80];
-    char *sep;
-    BYTE lfn = 8;
+void load_items() {
+	char line[80];
+	char *sep, *newl = NULL, *lp;
+	BYTE lfn = 8;
 	BYTE rc;
-	int count=1;
+	int count = 1;
 
-    rc=cbm_open(lfn, (BYTE)8, (BYTE)0, "items,r");
-	if(rc!=0)
-	{
+	if ((rc = cbm_open(lfn, (BYTE)8, (BYTE)0, "items,r")) != 0) {
 		cprintf("cannot open items\r\n");
 		return;
 	}
-    for (num_items=0; num_items < MAX_ITEMS && count>0; num_items++) {
-		count=cbm_read(lfn, line, 79);
-        //fgets(line, 79, f);
-        sep = strchr(line, '=');
-        strncpy(status[num_items].item_name, line, sep-line);
-        status[num_items].price = atoi(sep+1);
-        status[num_items].times_sold = 0; 
-    }
-    cbm_close(lfn);
+	for (num_items = 0; num_items < MAX_ITEMS && count > 0;) {
+		count = cbm_read(lfn, line, 79);
+		if (count < 0) {
+			cprintf("read error\r\n");
+			return;
+		}
+		line[count] = '\0';
+		lp = line;
+		do {
+			if (newl)
+				if (newl < ((line+count)-1))
+					lp = newl+1;
+				else break;
+			sep = strchr(lp, '=');
+			strncpy(status[num_items].item_name, lp, sep-lp);
+			if (newl)
+				*newl = '\0';
+			status[num_items].price = atoi(sep+1);
+			status[num_items].times_sold = 0; 
+			num_items++;
+		} while (newl = strchr(lp, '\n'));
+	}
+	cbm_close(lfn);
 }
 
 /**
