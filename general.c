@@ -36,7 +36,7 @@ char * format_euro(char * s, int maxlen, int cent){
 		len++;
 	if (len>maxlen)
 		return NULL;
-//	sprintf(s, "%d,%dEUR", cent/100, cent%100);
+	sprintf(s, "%d,%dEUR", cent/100, cent%100);
 	return s;
 }
 

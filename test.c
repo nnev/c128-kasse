@@ -14,7 +14,7 @@ int main(){
 	load_items();
 	load_state();
 	for (i=0; i < num_items; ++i) {
-		printf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
+		cprintf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
 		status[i].times_sold+=10;
 	}
 
@@ -22,9 +22,9 @@ int main(){
 	load_items();
 	load_state();
 	for (i=0; i < num_items; ++i) {
-		printf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
+		cprintf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
 	}
 	
-	printf("strlen(%s)==%d\n", status[1].item_name, strlen(status[1].item_name));
-	printf("%d %d %d\n", status[1].item_name[0], '\r', '\n');
+	cprintf("strlen(%s)==%d\n", status[1].item_name, strlen(status[1].item_name));
+	cprintf("%d %d %d\n", status[1].item_name[0], '\r', '\n');
 }

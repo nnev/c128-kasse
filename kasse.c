@@ -154,6 +154,7 @@ void set_time_interactive() {
 
 int main() {
 	BYTE c;
+	toggle_videomode();
 	/* Zeit erstmalig setzen */
 	set_time_interactive();
 	POKE(216, 255);
