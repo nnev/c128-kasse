@@ -20,7 +20,6 @@ void print_screen() {
 	char *time = get_time();
 	clrscr();
 	cprintf("C128-Kassenprogramm\r\n\r\nUhrzeit: %s (wird nicht aktualisiert)\r\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
-	free(time);
 	for (; i < status.num_items; ++i)
 		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n",
 			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
@@ -73,62 +72,54 @@ void buy(BYTE n) {
 	BYTE c, nickname_len, single_match;
 	int einheiten;
 	char *nickname;
-	if (status.status[n].item_name == NULL)
+
+	if (status.status[n].item_name == NULL) {
 		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
-	else {
-		cprintf("Wieviel Einheiten \"%s\"?\r\n", status.status[n].item_name);
-		while (1) {
-			c = getchar();
-			if (c == 13)
-				break;
-			else if (c == '-'&& i == 0)
-				negative = -1;
-			else if (c > 47 && c < 58)
-				entered[i++] = c;
-		}
-		einheiten = atoi(entered) * negative;
-		cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
-		nickname = get_input();
-		if (nickname[0] == '\0') {
-			free(nickname);
-			nickname = NULL;
-		} else {
-			nickname_len = strlen(nickname);
-			/* go through credits and remove the amount of money or set nickname
-			 * to NULL if no such credit could be found */
-			for (c = 0; c < credits.num_items; ++c)
-				if (strncmp(nickname, credits.credits[c].nickname, nickname_len) == 0) {
-					if (++matches == 2)
-						break;
-					else single_match = c;
-				}
-			if (matches == 1) {
+		return;
+	}
+	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", status.status[n].item_name);
+	while (1) {
+		c = getchar();
+		if (c == 13)
+			break;
+		else if (c == 27) {
+			cprintf("Kauf abgebrochen, druecke ANYKEY...\r\n");
+			getchar();
+			return;
+		} else if (c == '-' && i == 0)
+			negative = -1;
+		else if (c > 47 && c < 58)
+			entered[i++] = c;
+	}
+	einheiten = atoi(entered) * negative;
+	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
+	nickname = get_input();
+	if (nickname != NULL && nickname[0] != '\0') {
+		nickname_len = strlen(nickname);
+		/* go through credits and remove the amount of money or set nickname
+		 * to NULL if no such credit could be found */
+		for (c = 0; c < credits.num_items; ++c)
+			if (strncmp(nickname, credits.credits[c].nickname, nickname_len) == 0) {
 				if (credits.credits[single_match].credit < (status.status[n].price * einheiten)) {
 					cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
-					free(nickname);
 					return;
-				} else {
-					/* Geld abziehen */
-					credits.credits[single_match].credit -= (status.status[n].price * einheiten);
-					cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\r\n",
-						nickname, credits.credits[single_match].credit);
-					getchar();
 				}
-			} else if (matches == 0) {
-				// TODO
-			} else {
-				free(nickname);
-				nickname = NULL;
+				/* Geld abziehen */
+				credits.credits[single_match].credit -= (status.status[n].price * einheiten);
+				cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\r\n",
+					nickname, credits.credits[single_match].credit);
+				getchar();
+				break;
 			}
-		}
-		status.status[n].times_sold += einheiten;
-		money += status.status[n].price * einheiten;
-		items_sold += einheiten;
-		if (printing == 1)
-			print_log(n, einheiten, nickname);
-		if (nickname != NULL)
-			free(nickname);
+	} else {
+		/* Ensure that nickname is NULL if it's empty because it's used in print_log */
+		nickname = NULL;
 	}
+	status.status[n].times_sold += einheiten;
+	money += status.status[n].price * einheiten;
+	items_sold += einheiten;
+	if (printing == 1)
+		print_log(n, einheiten, nickname);
 }
 
 void set_time_interactive() {
@@ -150,15 +141,17 @@ void set_time_interactive() {
 
 	time = get_time();
 	cprintf("Zeit gesetzt: %s\r\n", time);
-	free(time);
 }
 
 int main() {
-	BYTE c;
+	char *c;
 	toggle_videomode();
 	/* Zeit erstmalig setzen */
 	set_time_interactive();
 	POKE(216, 255);
+	/* Variablen zurechtbiegen */
+	credits.num_items = 0;
+	status.num_items = 0;
 	/* Konfigurationsdatei laden */
 	load_config();
 	/* Einträge (=Getränke) und Zustand laden */
@@ -169,33 +162,34 @@ int main() {
 		/* Bildschirm anzeigen */
 		print_screen();
 		/* Tastatureingaben abfragen */
-		c = getchar();
+		c = get_input();
 		/* und eventuell weitere Dialoge anzeigen */
-		if (c > 47 && c < 58)
-			buy(c - 48);
-		else if (c == 's') {
+		if (*c > 47 && *c < 58)
+			buy((*c) - 48);
+		else if (*c == 's') {
 			/* Zustandsdatei schreiben */
 			save_items();
 			save_credits();
-			cprintf("Statefile/Creditfile gesichert, druecke ANYKEY...\r\n");
-			getchar();
-		} else if (c == 'd') {
+			cprintf("Statefile/Creditfile gesichert, druecke RETURN...\r\n");
+			get_input();
+		} else if (*c == 'd') {
 			/* Drucken an- oder ausschalten */
 			printing = (printing == 1 ? 0 : 1);
-			cprintf("Drucken ist nun %s, druecke ANYKEY...\r\n", (printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
-			getchar();
-		} else if (c == 'g') {
+			cprintf("Drucken ist nun %s, druecke RETURN...\r\n", 
+				(printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
+			get_input();
+		} else if (*c == 'g') {
 			/* Guthabenverwalter aufrufen */
 			credit_manager();
-		} else if (c == 'z') {
+		} else if (*c == 'z') {
 			/* Zeit setzen */
 			set_time_interactive();
-		} else if (c == 'n') {
+		} else if (*c == 'n') {
 			strcpy(status.status[status.num_items].item_name, "mate");
 			status.status[status.num_items].price = 23;
 			status.status[status.num_items].times_sold = 5;
 			status.num_items++;
-		} else if (c == 'q')
+		} else if (*c == 'q')
 			break;
 	}
 	cprintf("BYEBYE\r\n");

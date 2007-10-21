@@ -7,12 +7,8 @@ char *get_time() {
 	long int h = PEEK(0x00A0) * 65536,
 		m = PEEK(0x00A1) * 256,
 		s = PEEK(0x00A2);
-	char *buffer = malloc(9 * sizeof(char));
+	static char buffer[9];
 	BYTE hrs, min;
-	if (buffer == NULL) {
-		perror("malloc()");
-		exit(1);
-	}
 	h = (h + m + s) / 60;
 	hrs = (h / 3600);
 	h -= (hrs * 3600);
