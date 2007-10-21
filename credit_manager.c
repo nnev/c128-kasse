@@ -13,9 +13,9 @@ void print_credit_screen() {
 	BYTE i = 0;
 	clrscr();
 	cprintf("C128-Kassenprogramm: Credit Manager\r\n\r\n");
-	for (; i < num_credit_items; ++i)
-		if (filter == NULL || strncmp(credits[i].nickname, filter, filter_len) == 0)
-			cprintf("Guthaben %s: %d Cents\r\n", credits[i].nickname, credits[i].credit);
+	for (; i < credits.num_items; ++i)
+		if (filter == NULL || strncmp(credits.credits[i].nickname, filter, filter_len) == 0)
+			cprintf("Guthaben %s: %d Cents\r\n", credits.credits[i].nickname, credits.credits[i].credit);
 	cprintf("\r\nBefehle: n) Neues Guthaben f) Filtern z) Zurueck\r\n");
 }
 
@@ -48,9 +48,9 @@ void credit_manager() {
 			}
 			credits_int = atoi(credits_input) * negative;
 			if (credits_int > 0) {
-				strcpy(credits[num_credit_items].nickname, nickname);
-				credits[num_credit_items].credit = credits_int;
-				++num_credit_items;
+				strcpy(credits.credits[credits.num_items].nickname, nickname);
+				credits.credits[credits.num_items].credit = credits_int;
+				++credits.num_items;
 			}
 			if (negative == -1)
 				--credits_input;

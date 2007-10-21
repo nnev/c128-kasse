@@ -21,8 +21,9 @@ void print_screen() {
 	clrscr();
 	cprintf("C128-Kassenprogramm\r\n\r\nUhrzeit: %s (wird nicht aktualisiert)\r\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
 	free(time);
-	for (; i < num_items; ++i)
-		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n", i, status[i].item_name, status[i].price, status[i].times_sold);
+	for (; i < status.num_items; ++i)
+		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n",
+			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\ng) Guthabenverwaltung z) Zeit setzen\r\nn) Neues Getraenk\r\n");
 }
 
@@ -72,10 +73,10 @@ void buy(BYTE n) {
 	BYTE c, nickname_len, single_match;
 	int einheiten;
 	char *nickname;
-	if (status[n].item_name == NULL)
+	if (status.status[n].item_name == NULL)
 		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
 	else {
-		cprintf("Wieviel Einheiten \"%s\"?\r\n", status[n].item_name);
+		cprintf("Wieviel Einheiten \"%s\"?\r\n", status.status[n].item_name);
 		while (1) {
 			c = getchar();
 			if (c == 13)
@@ -95,21 +96,22 @@ void buy(BYTE n) {
 			nickname_len = strlen(nickname);
 			/* go through credits and remove the amount of money or set nickname
 			 * to NULL if no such credit could be found */
-			for (c = 0; c < num_credit_items; ++c)
-				if (strncmp(nickname, credits[c].nickname, nickname_len) == 0) {
+			for (c = 0; c < credits.num_items; ++c)
+				if (strncmp(nickname, credits.credits[c].nickname, nickname_len) == 0) {
 					if (++matches == 2)
 						break;
 					else single_match = c;
 				}
 			if (matches == 1) {
-				if (credits[single_match].credit < (status[n].price * einheiten)) {
+				if (credits.credits[single_match].credit < (status.status[n].price * einheiten)) {
 					cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
 					free(nickname);
 					return;
 				} else {
 					/* Geld abziehen */
-					credits[single_match].credit -= (status[n].price * einheiten);
-					cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\r\n", nickname, credits[single_match].credit);
+					credits.credits[single_match].credit -= (status.status[n].price * einheiten);
+					cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\r\n",
+						nickname, credits.credits[single_match].credit);
 					getchar();
 				}
 			} else if (matches == 0) {
@@ -119,8 +121,8 @@ void buy(BYTE n) {
 				nickname = NULL;
 			}
 		}
-		status[n].times_sold += einheiten;
-		money += status[n].price * einheiten;
+		status.status[n].times_sold += einheiten;
+		money += status.status[n].price * einheiten;
 		items_sold += einheiten;
 		if (printing == 1)
 			print_log(n, einheiten, nickname);
@@ -189,10 +191,10 @@ int main() {
 			/* Zeit setzen */
 			set_time_interactive();
 		} else if (c == 'n') {
-			strcpy(status[num_items].item_name, "mate");
-			status[num_items].price = 23;
-			status[num_items].times_sold = 5;
-			num_items++;
+			strcpy(status.status[status.num_items].item_name, "mate");
+			status.status[status.num_items].price = 23;
+			status.status[status.num_items].times_sold = 5;
+			status.num_items++;
 		} else if (c == 'q')
 			break;
 	}

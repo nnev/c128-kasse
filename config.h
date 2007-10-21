@@ -3,10 +3,11 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#define MAX_ITEMS 15
+#define MAX_CREDIT_ITEMS 75
+
 /* Eingenommes Geld in Cent */
 extern unsigned long int money;
-extern unsigned long int num_items;
-extern unsigned char num_credit_items;
 extern unsigned long int items_sold;
 extern BYTE printer_port;
 
@@ -20,8 +21,10 @@ struct status_t {
 	unsigned int times_sold;
 };
 
-#define MAX_ITEMS 15
-extern struct status_t status[MAX_ITEMS+1];
+struct status_array_t {
+	BYTE num_items;
+	struct status_t status[MAX_ITEMS];
+};
 
 /* Datenstruktur für die Guthaben */
 struct credits_t {
@@ -30,8 +33,15 @@ struct credits_t {
 	unsigned int credit;
 };
 
-#define MAX_CREDIT_ITEMS 75
-extern struct credits_t credits[MAX_CREDIT_ITEMS+1];
+struct credits_array_t {
+	BYTE num_items;
+	struct credits_t credits[MAX_CREDIT_ITEMS];
+};
+
+#ifndef _IS_CONFIG_C
+extern struct status_array_t status;
+extern struct credits_array_t credits;
+#endif
 
 /* Lädt Dinge wie die Druckeradresse */
 void load_config();
