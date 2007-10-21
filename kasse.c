@@ -18,46 +18,67 @@ char print_buffer[81];
 void print_screen() {
 	BYTE i = 0;
 	char *time = get_time();
+	char profit[10];
 	clrscr();
-	cprintf("C128-Kassenprogramm\r\n\r\nUhrzeit: %s (wird nicht aktualisiert)\r\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
+	if (format_euro(profit, 10, money) == NULL) {
+		cprintf("Einname %ld konnte nicht umgerechnet werden\r\n", money);
+		exit(1);
+	}
+	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r)\r\
+\r\nUhrzeit: %s (wird nicht aktualisiert)\r\
+Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", 
+	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
 	for (; i < status.num_items; ++i)
 		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n",
 			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
-	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\ng) Guthabenverwaltung z) Zeit setzen\r\nn) Neues Getraenk\r\n");
+	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
+g) Guthabenverwaltung     z) Zeit setzen\r\
+n) Neues Getraenk\r\n");
 }
 
-void log_file(char * s) {
-	FILE *f;
+void log_file(char *s) {
+	/*FILE *f;
 	if (s == NULL)
 		return;
 	if ((f = fopen("log", "a")) == NULL)
 		c128_perror(23, "kann logfile nicht oeffnen");
 	fputs(s, f);
-	fclose(f);
+	fclose(f);*/
 }
 
 /* Druckt eine entsprechende Zeile aus */
 void print_log(BYTE n, int einheiten, char *nickname) {
 	BYTE c;
+	char *time = get_time();
+	char price[10];
 	/* Format: 
 	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
-	   Uhrzeit (TODO)
+	   Uhrzeit
 	   Eintragname (= Getränk)
 	   Preis (in Cents)
 	   Anzahl
 	   Nickname (falls es vom Guthaben abgezogen wird)
 	   */
-//	sprintf(print_buffer, "[%d] UHRZEIT - %s - %d - %d - an %s\r\n", items_sold, status[n].item_name, status[n].price, einheiten, (nickname != NULL ? nickname : "Unbekannt"));
+	if (format_euro(price, 10, status.status[n].price) == NULL) {
+		cprintf("Preis %d konnte nicht umgerechnet werden\r\n", status.status[n].price);
+		exit(1);
+	}
+		
+	sprintf(print_buffer, "[%lu] %s - %s - %s - %d - an %s\r\n",
+		items_sold, time, status.status[n].item_name, price, 
+		einheiten, (nickname != NULL ? nickname : "Unbekannt"));
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
 		save_items();
+		save_credits();
 		exit(1);
 	}
 	c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
 	if (c != strlen(print_buffer)) {
 		c128_perror(c, "write(printer)");
 		save_items();
+		save_credits();
 		exit(1);
 	}
 	cbm_close((BYTE)4);
@@ -69,7 +90,7 @@ void buy(BYTE n) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
 	BYTE i = 0, matches = 0;
-	BYTE c, nickname_len, single_match;
+	BYTE c, nickname_len;
 	int einheiten;
 	char *nickname;
 
@@ -83,8 +104,8 @@ void buy(BYTE n) {
 		if (c == 13)
 			break;
 		else if (c == 27) {
-			cprintf("Kauf abgebrochen, druecke ANYKEY...\r\n");
-			getchar();
+			cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
+			get_input();
 			return;
 		} else if (c == '-' && i == 0)
 			negative = -1;
@@ -94,23 +115,28 @@ void buy(BYTE n) {
 	einheiten = atoi(entered) * negative;
 	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
 	nickname = get_input();
-	if (nickname != NULL && nickname[0] != '\0') {
+	if (nickname != NULL && *nickname != '\0' && *nickname != 32) {
 		nickname_len = strlen(nickname);
 		/* go through credits and remove the amount of money or set nickname
 		 * to NULL if no such credit could be found */
 		for (c = 0; c < credits.num_items; ++c)
 			if (strncmp(nickname, credits.credits[c].nickname, nickname_len) == 0) {
-				if (credits.credits[single_match].credit < (status.status[n].price * einheiten)) {
+				if (credits.credits[c].credit < (status.status[n].price * einheiten)) {
 					cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
 					return;
 				}
 				/* Geld abziehen */
-				credits.credits[single_match].credit -= (status.status[n].price * einheiten);
-				cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke ANYKEY...\r\n",
-					nickname, credits.credits[single_match].credit);
-				getchar();
+				credits.credits[c].credit -= (status.status[n].price * einheiten);
+				cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
+					nickname, credits.credits[c].credit);
+				get_input();
+				matches++;
 				break;
 			}
+		if (matches == 0) {
+			cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, druecke RETURN...\r\n");
+			get_input();
+		}
 	} else {
 		/* Ensure that nickname is NULL if it's empty because it's used in print_log */
 		nickname = NULL;
