@@ -48,7 +48,7 @@ void credit_manager() {
 			}
 			credits_int = atoi(credits_input) * negative;
 			if (credits_int > 0) {
-				credits[num_credit_items].nickname = nickname;
+				strcpy(credits[num_credit_items].nickname, nickname);
 				credits[num_credit_items].credit = credits_int;
 				++num_credit_items;
 			}

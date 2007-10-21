@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "general.h"
 #include "config.h"
 
@@ -12,100 +13,53 @@ unsigned long int items_sold = 0;
 BYTE printer_port = 4;
 struct status_t status[MAX_ITEMS+1];
 struct credits_t credits[MAX_CREDIT_ITEMS+1];
+static bool files_existing = false;
 
-void load_config();
+bool lookup_needed_files() {
+	BYTE lfn = 8;
+	BYTE files_existing = 0;
+	struct cbm_dirent *dirent;
+
+	if (cbm_opendir(lfn, (BYTE)8) != 0) {
+		cprintf("could not open directory\r\n");
+		return false;
+	}
+	while (cbm_readdir(lfn, dirent) == 0)
+		if (	strcasecmp(dirent->name, "items") == 0 ||
+			strcasecmp(dirent->name, "credits") == 0)
+			files_existing++;
+	cbm_closedir(lfn);
+	return (files_existing == 2);
+}
 
 void load_items() {
-	char line[80];
-	char *sep, *newl = NULL, *lp;
-	BYTE lfn = 8;
 	BYTE rc;
-	int count = 1;
-
-	if ((rc = cbm_open(lfn, (BYTE)8, (BYTE)0, "items,r")) != 0) {
-		cprintf("cannot open items\r\n");
-		return;
+	char *nn;
+	cprintf("load_items()\r\n");
+	if (files_existing) {
+		rc = cbm_load("items", (BYTE)8, status);
+		cprintf("rc = %d\r\n", rc);
+		nn = get_input();
 	}
-	for (num_items = 0; num_items < MAX_ITEMS && count > 0;) {
-		count = cbm_read(lfn, line, 79);
-		if (count < 0) {
-			cprintf("read error\r\n");
-			return;
-		}
-		line[count] = '\0';
-		lp = line;
-		do {
-			if (newl)
-				if (newl < ((line+count)-1))
-					lp = newl+1;
-				else break;
-			sep = strchr(lp, '=');
-			strncpy(status[num_items].item_name, lp, sep-lp);
-			if (newl)
-				*newl = '\0';
-			status[num_items].price = atoi(sep+1);
-			status[num_items].times_sold = 0; 
-			num_items++;
-		} while (newl = strchr(lp, '\n'));
-	}
-	cbm_close(lfn);
+//		cbm_load("items", (BYTE)8, NULL);
 }
 
-/**
- * must be called after load_items()
- */
-void load_state(){
-    char line[80];
-    char * sep;
-    char i;
-	BYTE lfn=8;
-	BYTE rc;
-	int count=1;
-
-	rc=cbm_open(lfn, (BYTE)8, (BYTE)0, "state,r");
-    if (rc!=0){
-    	cprintf("cannot open state\r\n");
-    	return;
-    }
-    while (count>0) {
-    	count=cbm_read(lfn,line,79);
-		//fgets(line, 79, f);
-    	sep = strchr(line, '=');
-    	if (sep==NULL)
-    		continue;
-    	*(line + (sep-line)) = 0;
-        for (i=0; i< MAX_ITEMS; i++) {
-        	if (strcmp(line, status[i].item_name)==0) {
-        		status[i].times_sold = atoi(sep+1);
-        		break;
-        	}
-        }
-    }
-    cbm_close(lfn);
+void save_items() {
+	cbm_save("items", (BYTE)8, status, sizeof(struct status_t) * MAX_ITEMS);
+	files_existing = true;
 }
 
-void save_state(){
-	int i;
-	BYTE lfn=8;
-	BYTE rc;
-	int count=1;
-	int size=1;
-	char line[81];
-	
-	rc=cbm_open(lfn, (BYTE)8, (BYTE)0, "state,w");
-    if (rc!=0){
-    	c128_perror(23, "cannot open state file");
-    	return;
-    }
-    for (i=0;i<num_items;i++)
-	{
-		memset(line,0, 81);
-		size=sprintf(line, "%s=%d\n", status[i].item_name, status[i].times_sold);
-		cbm_write(lfn, line, size);
-    	//fprintf(f, "%s=%d\n",status[i].item_name, status[i].times_sold);
-	}
-	cbm_close(lfn);
+void load_credits() {
+	if (files_existing)
+		cbm_load("credits", (BYTE)8, credits);
 }
+
+void save_credits() {
+	cbm_save("credits", (BYTE)8, credits, sizeof(struct credits_t) * MAX_CREDIT_ITEMS);
+	files_existing = true;
+}
+
+
 /*
 void dump_state(){
 	FILE * f;
@@ -123,4 +77,5 @@ void dump_state(){
 }
 */
 void load_config() {
+	files_existing = lookup_needed_files();
 }

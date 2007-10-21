@@ -19,19 +19,18 @@ void print_screen() {
 	BYTE i = 0;
 	char *time = get_time();
 	clrscr();
-	cprintf("C128-Kassenprogramm\r\n\r\nUhrzeit: %s (wird nicht aktualisiert\r\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
+	cprintf("C128-Kassenprogramm\r\n\r\nUhrzeit: %s (wird nicht aktualisiert)\r\nEingenommen: %ld Cents, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", time, money, items_sold, (printing == 1 ? "ein" : "aus"));
 	free(time);
 	for (; i < num_items; ++i)
 		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n", i, status[i].item_name, status[i].price, status[i].times_sold);
-	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\ng) Guthabenverwaltung z) Zeit setzen\r\n");
+	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\ng) Guthabenverwaltung z) Zeit setzen\r\nn) Neues Getraenk\r\n");
 }
 
 void log_file(char * s) {
-	FILE * f;
-	if (s==NULL)
+	FILE *f;
+	if (s == NULL)
 		return;
-	f = fopen("log", "a");
-	if (f==NULL)
+	if ((f = fopen("log", "a")) == NULL)
 		c128_perror(23, "kann logfile nicht oeffnen");
 	fputs(s, f);
 	fclose(f);
@@ -52,13 +51,13 @@ void print_log(BYTE n, int einheiten, char *nickname) {
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
-		save_state();
+		save_items();
 		exit(1);
 	}
 	c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
 	if (c != strlen(print_buffer)) {
 		c128_perror(c, "write(printer)");
-		save_state();
+		save_items();
 		exit(1);
 	}
 	cbm_close((BYTE)4);
@@ -160,12 +159,10 @@ int main() {
 	POKE(216, 255);
 	/* Konfigurationsdatei laden */
 	load_config();
-	/* Einträge (=Getränke) laden */
+	/* Einträge (=Getränke) und Zustand laden */
 	load_items();
-	/* Zustand laden */
-	load_state();
 	/* Guthaben laden */
-//	load_credits();
+	load_credits();
 	while (1) {
 		/* Bildschirm anzeigen */
 		print_screen();
@@ -176,8 +173,8 @@ int main() {
 			buy(c - 48);
 		else if (c == 's') {
 			/* Zustandsdatei schreiben */
-			save_state();
-//			save_credits();
+			save_items();
+			save_credits();
 			cprintf("Statefile/Creditfile gesichert, druecke ANYKEY...\r\n");
 			getchar();
 		} else if (c == 'd') {
@@ -191,6 +188,11 @@ int main() {
 		} else if (c == 'z') {
 			/* Zeit setzen */
 			set_time_interactive();
+		} else if (c == 'n') {
+			strcpy(status[num_items].item_name, "mate");
+			status[num_items].price = 23;
+			status[num_items].times_sold = 5;
+			num_items++;
 		} else if (c == 'q')
 			break;
 	}

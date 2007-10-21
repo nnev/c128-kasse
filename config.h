@@ -25,7 +25,7 @@ extern struct status_t status[MAX_ITEMS+1];
 
 /* Datenstruktur für die Guthaben */
 struct credits_t {
-	char *nickname;
+	char nickname[11];
 	/* Guthaben (in Cent) */
 	unsigned int credit;
 };
@@ -36,10 +36,9 @@ extern struct credits_t credits[MAX_CREDIT_ITEMS+1];
 /* Lädt Dinge wie die Druckeradresse */
 void load_config();
 void load_items();
-void load_state();
 void load_credits();
 //void dump_state();
 
-void save_state();
+void save_items();
 void save_credits();
 #endif /*CONFIG_H_*/
