@@ -15,10 +15,17 @@ test/%.o: test/%.c
 	${CC} -O -I include -t c128 $<
 	${CA} -I include -t c128 test/$$(basename $< .c).s
 
-all: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o
+kasse: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o
 	# See above, please just kill the PATH-definition
 	cp /tmp/cc65/lib/c128* .
 	PATH=${PATH}:~/customSoftware/cc65-2.11.0/src/ld65:/tmp/cc65/lib ${CL} -t c128 src/*.o -o kasse
+
+itemz: src/config.o src/itemz.o src/general.o
+	# See above, please just kill the PATH-definition
+	cp /tmp/cc65/lib/c128* .
+	PATH=${PATH}:~/customSoftware/cc65-2.11.0/src/ld65:/tmp/cc65/lib ${CL} -t c128 src/config.o src/itemz.o src/general.o -o itemz
+
+all: kasse itemz
 
 package: all
 	c1541 -attach kasse.d64 -delete state || exit 0 

@@ -1,3 +1,8 @@
+/*
+ * RGB2R-C128-Kassenprogramm
+ * (c) 2007 phil_fry, sECuRE, sur5r
+ *
+ */
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
