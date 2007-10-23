@@ -13,18 +13,22 @@ int main(){
 	char euro[10];
 	load_items();
 	load_state();
-	for (i=0; i < num_items; ++i) {
-		cprintf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
-		status[i].times_sold+=10;
+	for (i=0; i < status.num_items; ++i) {
+		cprintf("%x: %s (%s, %d mal)\n",
+			i, status.status[i].item_name, format_euro(euro, 9, status.status[i].price),
+			status.status[i].times_sold);
+		status.status[i].times_sold += 10;
 	}
 
 	save_state();
 	load_items();
 	load_state();
-	for (i=0; i < num_items; ++i) {
-		cprintf("%x: %s (%s, %d mal)\n", i, status[i].item_name, format_euro(euro, 9, status[i].price), status[i].times_sold);
+	for (i=0; i < status.num_items; ++i) {
+		cprintf("%x: %s (%s, %d mal)\n",
+			i, status.status[i].item_name, format_euro(euro, 9, status.status[i].price),
+			status.status[i].times_sold);
 	}
 	
-	cprintf("strlen(%s)==%d\n", status[1].item_name, strlen(status[1].item_name));
-	cprintf("%d %d %d\n", status[1].item_name[0], '\r', '\n');
+	cprintf("strlen(%s)==%d\n", status.status[1].item_name, strlen(status.status[1].item_name));
+	cprintf("%d %d %d\n", status.status[1].item_name[0], '\r', '\n');
 }

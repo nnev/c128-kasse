@@ -8,7 +8,7 @@
 #include "config.h"
 #include "kasse.h"
 #include "credit_manager.h"
-#include "time.h"
+#include "c128time.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 
