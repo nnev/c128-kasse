@@ -1,3 +1,9 @@
+/* 
+ * RGB2R-C128-Kassenprogramm
+ * (c) 2007 phil_fry, sECuRE, sur5r
+ * See LICENSE for license information
+ *
+ */
 #include <peekpoke.h>
 #include <stdlib.h>
 #include <stdio.h>

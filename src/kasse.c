@@ -1,6 +1,7 @@
-/*
+/* 
  * RGB2R-C128-Kassenprogramm
  * (c) 2007 phil_fry, sECuRE, sur5r
+ * See LICENSE for license information
  *
  */
 #include <stdio.h>
