@@ -15,7 +15,7 @@
 char print_buffer[81];
 
 /* Hauptbildschirm ausgeben */
-void print_screen() {
+static void print_screen() {
 	BYTE i = 0;
 	char *time = get_time();
 	char profit[10];
@@ -36,18 +36,20 @@ g) Guthabenverwaltung     z) Zeit setzen\r\
 n) Neues Getraenk\r\n");
 }
 
-void log_file(char *s) {
-	/*FILE *f;
-	if (s == NULL)
-		return;
-	if ((f = fopen("log", "a")) == NULL)
-		c128_perror(23, "kann logfile nicht oeffnen");
-	fputs(s, f);
-	fclose(f);*/
+static void log_file(const char *s) {
+	BYTE c = cbm_open((BYTE)8, (BYTE)8, (BYTE)1, "log");
+	if (c != 0) {
+		c128_perror(c, "cbm_open(log)");
+		save_items();
+		save_credits();
+		exit(1);
+	}
+	cbm_write((BYTE)8, s, strlen(s));
+	cbm_close((BYTE)8);
 }
 
 /* Druckt eine entsprechende Zeile aus */
-void print_log(BYTE n, int einheiten, char *nickname) {
+static void print_log(BYTE n, int einheiten, char *nickname) {
 	BYTE c;
 	char *time = get_time();
 	char price[10];
@@ -136,6 +138,7 @@ void buy(BYTE n) {
 		if (matches == 0) {
 			cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, druecke RETURN...\r\n");
 			get_input();
+			return;
 		}
 	} else {
 		/* Ensure that nickname is NULL if it's empty because it's used in print_log */
