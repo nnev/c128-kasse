@@ -8,6 +8,9 @@
 #include "general.h"
 #include "config.h"
 
+/* undocumented function which scratches files */
+unsigned char __fastcall__ _sysremove(const char *name);
+
 unsigned long int money = 0;
 unsigned long int items_sold = 0;
 BYTE printer_port = 4;
@@ -49,11 +52,15 @@ void load_credits() {
 }
 
 void save_items() {
+	if (files_existing)
+		_sysremove("items");
 	cbm_save("items", (BYTE)8, &status, sizeof(struct status_array_t));
 	files_existing = true;
 }
 
 void save_credits() {
+	if (files_existing)
+		_sysremove("credits");
 	cbm_save("credits", (BYTE)8, &credits, sizeof(struct credits_array_t));
 	files_existing = true;
 }

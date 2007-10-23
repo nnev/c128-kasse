@@ -44,7 +44,13 @@ static void log_file(const char *s) {
 		save_credits();
 		exit(1);
 	}
-	cbm_write((BYTE)8, s, strlen(s));
+	c = cbm_write((BYTE)8, s, strlen(s));
+	if (c != strlen(s)) {
+		cprintf("Could not save logfile, please make sure the floppy is not full!\n");
+		save_items();
+		save_credits();
+		exit(1);
+	}
 	cbm_close((BYTE)8);
 }
 
