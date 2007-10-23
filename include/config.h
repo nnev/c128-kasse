@@ -3,7 +3,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define MAX_ITEMS 15
+#define MAX_ITEMS 16
 #define MAX_CREDIT_ITEMS 75
 
 /* Eingenommes Geld in Cent */
