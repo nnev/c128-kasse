@@ -135,7 +135,7 @@ void buy(BYTE n) {
 		 * to NULL if no such credit could be found */
 		for (c = 0; c < credits.num_items; ++c)
 			if (strncmp(nickname, credits.credits[c].nickname, nickname_len) == 0) {
-				if (credits.credits[c].credit < (status.status[n].price * einheiten)) {
+				if ((signed int)credits.credits[c].credit < ((signed int)status.status[n].price * einheiten)) {
 					cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
 					return;
 				}
