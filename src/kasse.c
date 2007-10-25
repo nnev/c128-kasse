@@ -127,8 +127,17 @@ void buy(BYTE n) {
 			entered[i++] = c;
 	}
 	einheiten = atoi(entered) * negative;
+	
+	toggle_videomode();
+	cprintf("%dx %s fuer ", einheiten, status.status[n].item_name);
+	toggle_videomode();
+	
 	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
 	nickname = get_input();
+	toggle_videomode();
+	cprintf("%s\r\n", nickname);
+	toggle_videomode();
+
 	if (nickname != NULL && *nickname != '\0' && *nickname != 32) {
 		nickname_len = strlen(nickname);
 		/* go through credits and remove the amount of money or set nickname
@@ -143,6 +152,9 @@ void buy(BYTE n) {
 				credits.credits[c].credit -= (status.status[n].price * einheiten);
 				cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
 					nickname, credits.credits[c].credit);
+				toggle_videomode();
+				cprintf("\r\nDein verbleibendes Guthaben betraegt %d Cents.\r\n", credits.credits[c].credit);
+				toggle_videomode();
 				get_input();
 				matches++;
 				break;
@@ -156,6 +168,7 @@ void buy(BYTE n) {
 		/* Ensure that nickname is NULL if it's empty because it's used in print_log */
 		nickname = NULL;
 	}
+	
 	status.status[n].times_sold += einheiten;
 	money += status.status[n].price * einheiten;
 	items_sold += einheiten;
@@ -205,9 +218,12 @@ int main() {
 		/* Tastatureingaben abfragen */
 		c = get_input();
 		/* und eventuell weitere Dialoge anzeigen */
-		if (*c > 47 && *c < 58)
+		if (*c > 47 && *c < 58) {
 			buy((*c) - 48);
-		else if (*c == 's') {
+			toggle_videomode();
+			clrscr();
+			toggle_videomode();
+		}else if (*c == 's') {
 			/* Zustandsdatei schreiben */
 			save_items();
 			save_credits();
