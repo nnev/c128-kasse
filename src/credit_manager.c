@@ -29,16 +29,60 @@ static void credit_print_screen() {
 		current_credits_page = pages;
 	cprintf("Datei: CREDITS (Seite %d von %d)\r\n\r\n", current_credits_page, pages);
 	for (i = (current_credits_page * 16); i < credits.num_items && i < ((current_credits_page+1) * 16); i++) {
-		if (format_euro(buffer, 10, credits.credits[i].credit) != buffer) {
-			cprintf("Error: Could not format credit %d\r\n", credits.credits[i].credit);
-			exit(1);
+		if (filter == NULL || strncmp(credits.credits[i].nickname, filter, filter_len) == 0) {
+			if (format_euro(buffer, 10, credits.credits[i].credit) != buffer) {
+				cprintf("Error: Could not format credit %d\r\n", credits.credits[i].credit);
+				exit(1);
+			}
+	
+			cprintf("%d: %s: %s\r\n", i, credits.credits[i].nickname, buffer);
 		}
-
-		cprintf("%d: %s: %s\r\n", i, credits.credits[i].nickname, buffer);
 	}
-	cprintf("\r\nn) Neu d) Loeschen b) Seite hoch f) Seite runter\r\ne) Aendern s) Speichern z) Zurueck\r\n");
+	cprintf("\r\nn) Neu d) Loeschen p) Einzahlen b) Seite hoch f) Seite runter\r\ng) Filtern e) Aendern s) Speichern z) Zurueck\r\n");
 }
 
+static struct credits_t * find_credit(char * name){
+	int i;
+	for (i=0;i<credits.num_items;i++)
+		if (strncmp(name, credits.credits[i].nickname, 11) == 0) {
+			return &credits.credits[i];
+		}
+	return NULL;
+}
+
+/* this is currently broken and should not be used
+ *
+ * when depositing money with this and returning to the main menu, the program
+ * will crash with a message like the following:
+ * 
+ * break
+ * pc    sr ac xr yr sp
+ * e180b 31 27 0a 00 e8 ....
+ */
+static void deposit_credit() {
+	char * input;
+	struct credits_t * credit;
+	int deposit;
+
+	cprintf("\r\nName:\r\n");
+	if ((input = get_input()) == NULL || *input == '\0')
+		return; // no name given
+		
+	if (!(credit = find_credit(input)))
+		return; // cannot find named credit
+	
+	cprintf("\r\nEinzahlung in Cent:\r\n");
+	if ((input = get_input()) == NULL || *input == '\0' || (deposit = atoi(input)) == 0)
+		return;
+
+	credit->credit += deposit;
+	
+	toggle_videomode();
+	cprintf("%d Cent eingezahlt fuer %s. Restguthaben: %d\r\n", deposit, credit->nickname, credit->credit);
+	sleep(1);
+	clrscr();
+	toggle_videomode();
+}
 
 static void new_credit() {
 	char *input, *name;
@@ -108,6 +152,14 @@ void credit_manager(){
 			case 'b':
 				if (current_credits_page > 0)
 					current_credits_page--;
+				break;
+			case 'p':
+				deposit_credit(); break;
+			case 'g':
+				cprintf("Filter eingeben:\r\n");
+				filter = get_input();
+				if (filter == NULL || *filter == 32 || (filter_len = strlen(filter)) == 0)
+					filter = NULL;
 				break;
 			case 'z':
 				return; 
