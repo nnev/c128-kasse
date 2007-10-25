@@ -41,34 +41,29 @@ static void credit_print_screen() {
 	cprintf("\r\nn) Neu d) Loeschen p) Einzahlen b) Seite hoch f) Seite runter\r\ng) Filtern e) Aendern s) Speichern z) Zurueck\r\n");
 }
 
-static struct credits_t * find_credit(char * name){
+static struct credits_t *find_credit(char *name){
 	int i;
-	for (i=0;i<credits.num_items;i++)
-		if (strncmp(name, credits.credits[i].nickname, 11) == 0) {
+	for (i = 0; i < credits.num_items; i++)
+		if (strncasecmp(name, credits.credits[i].nickname, 11) == 0)
 			return &credits.credits[i];
-		}
 	return NULL;
 }
 
-/* this is currently broken and should not be used
- *
+/*
  * when depositing money with this and returning to the main menu, the program
  * will crash with a message like the following:
  * 
- * break
- * pc    sr ac xr yr sp
- * e180b 31 27 0a 00 e8 ....
  */
 static void deposit_credit() {
-	char * input;
-	struct credits_t * credit;
-	int deposit;
+	char *input;
+	struct credits_t *credit;
+	unsigned int deposit;
 
 	cprintf("\r\nName:\r\n");
 	if ((input = get_input()) == NULL || *input == '\0')
 		return; // no name given
 		
-	if (!(credit = find_credit(input)))
+	if ((credit = find_credit(input)) == NULL)
 		return; // cannot find named credit
 	
 	cprintf("\r\nEinzahlung in Cent:\r\n");
@@ -78,8 +73,11 @@ static void deposit_credit() {
 	credit->credit += deposit;
 	
 	toggle_videomode();
-	cprintf("%d Cent eingezahlt fuer %s. Restguthaben: %d\r\n", deposit, credit->nickname, credit->credit);
-	sleep(1);
+	cprintf("%d Cent eingezahlt fuer %s.\r\nRestguthaben: %d\r\n", deposit, credit->nickname, credit->credit);
+	toggle_videomode();
+	cprintf("\r\nEinzahlung durchgefuehrt, drucke RETURN...\r\n");
+	input = get_input();
+	toggle_videomode();
 	clrscr();
 	toggle_videomode();
 }
