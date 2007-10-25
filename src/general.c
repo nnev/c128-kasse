@@ -12,7 +12,7 @@
 #include "general.h"
 
 /*
- * Liest (maximal 31) Zeichen ein, bis Enter gedrückt wird.
+ * Liest (maximal 31) Zeichen ein, bis Enter gedrï¿½ckt wird.
  * Vorsicht: Es wird ein statischer Buffer benutzt, sodass man
  * das Ergebnis via strdup() retten muss, bevor man get_input()
  * erneut aufruft
@@ -41,7 +41,8 @@ char *format_euro(char *s, int maxlen, int cent){
 		++len;
 	if (len >= maxlen)
 		return NULL;
-	sprintf(s, "%d,%dEUR", cent / 100, cent % 100);
+	// workaround to produce a leading zero for cents.. %0.2d won't work 
+	sprintf(s, "%d,%s%dEUR", cent / 100, (cent<10?"0":""), cent % 100);
 	return s;
 }
 
