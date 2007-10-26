@@ -44,7 +44,7 @@ static void credit_print_screen() {
 struct credits_t *find_credit(char *name){
 	int i;
 	for (i = 0; i < credits.num_items; i++)
-		if (strncmp(name, credits.credits[i].nickname, 11) == 0)
+		if (strncmp(name, credits.credits[i].nickname, NICKNAME_MAX_LEN + 1) == 0)
 			return &credits.credits[i];
 	return NULL;
 }

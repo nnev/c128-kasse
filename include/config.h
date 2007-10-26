@@ -27,8 +27,9 @@ struct status_array_t {
 };
 
 /* Datenstruktur für die Guthaben */
+#define NICKNAME_MAX_LEN 10
 struct credits_t {
-	char nickname[11];
+	char nickname[NICKNAME_MAX_LEN + 1];
 	/* Guthaben (in Cent) */
 	unsigned int credit;
 };
