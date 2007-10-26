@@ -33,8 +33,8 @@ package: all
 	c1541 -attach kasse.d64 -delete items  || exit 0
 	c1541 -attach kasse.d64 -delete kasse  || exit 0
 	c1541 -attach kasse.d64 -delete itemz  || exit 0
-#	c1541 -attach kasse.d64 -write itemz  || exit 0
 	c1541 -attach kasse.d64 -write kasse  || exit 0
+	c1541 -attach kasse.d64 -write itemz  || exit 0
 #	c1541 -attach kasse.d64 -write state || exit 0 
 #	c1541 -attach kasse.d64 -write items  || exit 0
 
