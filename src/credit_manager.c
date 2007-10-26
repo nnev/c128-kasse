@@ -41,10 +41,10 @@ static void credit_print_screen() {
 	cprintf("\r\nn) Neu d) Loeschen p) Einzahlen b) Seite hoch f) Seite runter\r\ng) Filtern e) Aendern s) Speichern z) Zurueck\r\n");
 }
 
-static struct credits_t *find_credit(char *name){
+struct credits_t *find_credit(char *name){
 	int i;
 	for (i = 0; i < credits.num_items; i++)
-		if (strncasecmp(name, credits.credits[i].nickname, 11) == 0)
+		if (strncmp(name, credits.credits[i].nickname, 11) == 0)
 			return &credits.credits[i];
 	return NULL;
 }

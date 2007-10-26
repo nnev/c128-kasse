@@ -107,6 +107,7 @@ void buy(BYTE n) {
 	BYTE c, nickname_len;
 	int einheiten;
 	char *nickname;
+	struct credits_t *credit;
 
 	if (status.status[n].item_name == NULL) {
 		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
@@ -142,24 +143,22 @@ void buy(BYTE n) {
 		nickname_len = strlen(nickname);
 		/* go through credits and remove the amount of money or set nickname
 		 * to NULL if no such credit could be found */
-		for (c = 0; c < credits.num_items; ++c)
-			if (strncmp(nickname, credits.credits[c].nickname, nickname_len) == 0) {
-				if ((signed int)credits.credits[c].credit < ((signed int)status.status[n].price * einheiten)) {
-					cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
-					return;
-				}
-				/* Geld abziehen */
-				credits.credits[c].credit -= (status.status[n].price * einheiten);
-				cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
-					nickname, credits.credits[c].credit);
-				toggle_videomode();
-				cprintf("\r\nDein verbleibendes Guthaben betraegt %d Cents.\r\n", credits.credits[c].credit);
-				toggle_videomode();
-				get_input();
-				matches++;
-				break;
+		credit = find_credit(nickname);
+		if (credit != NULL) {
+			if ((signed int)credit->credit < ((signed int)status.status[n].price * einheiten)) {
+				cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
+				return;
 			}
-		if (matches == 0) {
+			/* Geld abziehen */
+			credit->credit -= (status.status[n].price * einheiten);
+			cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
+				nickname, credit->credit);
+			toggle_videomode();
+			cprintf("\r\nDein verbleibendes Guthaben betraegt %d Cents.\r\n", credit->credit);
+			toggle_videomode();
+			get_input();
+			matches++;
+		} else {
 			cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, druecke RETURN...\r\n");
 			get_input();
 			return;
