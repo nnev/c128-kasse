@@ -35,8 +35,8 @@ package: all
 	c1541 -attach kasse.d64 -delete itemz  || exit 0
 #	c1541 -attach kasse.d64 -write itemz  || exit 0
 	c1541 -attach kasse.d64 -write kasse  || exit 0
-	c1541 -attach kasse.d64 -write state || exit 0 
-	c1541 -attach kasse.d64 -write items  || exit 0
+#	c1541 -attach kasse.d64 -write state || exit 0 
+#	c1541 -attach kasse.d64 -write items  || exit 0
 
 test: src/config.o test/test.o src/general.o
 	${CL} -t c128 src/config.o test/test.o src/general.o -o test
