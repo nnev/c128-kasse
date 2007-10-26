@@ -39,7 +39,7 @@ Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n",
 			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
 g) Guthabenverwaltung     z) Zeit setzen\r\
-n) Neues Getraenk\r\n");
+n) Neues Getraenk q) Beenden\r\n");
 }
 
 static void log_file(const char *s) {
@@ -198,7 +198,8 @@ void set_time_interactive() {
 
 int main() {
 	char *c;
-	toggle_videomode();
+	if (VIDEOMODE == 40)
+		toggle_videomode();
 	/* Zeit erstmalig setzen */
 	set_time_interactive();
 	POKE(216, 255);

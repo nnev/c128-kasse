@@ -35,7 +35,7 @@ static void itemz_print_screen() {
 		cprintf("Eintrag %x: %s (%s, %d mal verkauft)\r\n",
 			i, status.status[i].item_name, buffer, status.status[i].times_sold);
 	}
-	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus\r\n");
+	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) Beenden\r\n");
 }
 
 static void new_item() {
@@ -107,6 +107,8 @@ static void itemz_manager(){
 				save_items(); break;
 			case 'm':
 				return; // switch to credit mode
+			case 'q':
+				exit(0);
 			default:
 				cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
 				get_input(); 
@@ -116,7 +118,8 @@ static void itemz_manager(){
 
 int main() {
 	char *c;
-	toggle_videomode();
+	if (VIDEOMODE == 40)
+		toggle_videomode();
 	credits.num_items = 0;
 	status.num_items = 0;
 	cprintf("itemz loading...\n");
