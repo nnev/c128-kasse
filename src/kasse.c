@@ -60,6 +60,15 @@ static void log_file(const char *s) {
 	cbm_close((BYTE)8);
 }
 
+static char retry_or_quit() {
+	char *c;
+	do {
+		cprintf("\r\nr)etry or q)uit?\r\n");
+		c = get_input();
+	} while ((*c != 'r') && (*c != 'q'));
+	return *c;
+}
+
 /* Druckt eine entsprechende Zeile aus */
 static void print_log(BYTE n, int einheiten, char *nickname) {
 	BYTE c;
@@ -78,22 +87,29 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 		exit(1);
 	}
 		
+	RETRY:;
 	sprintf(print_buffer, "[%lu] %s - %s - %s - %d - an %s\r\n",
-		items_sold, time, status.status[n].item_name, price, 
-		einheiten, (nickname != NULL ? nickname : "Unbekannt"));
+			items_sold, time, status.status[n].item_name, price, 
+			einheiten, (nickname != NULL ? nickname : "Unbekannt"));
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
-		save_items();
-		save_credits();
-		exit(1);
+		if (retry_or_quit() == 'q') {
+			save_items();
+			save_credits();
+			exit(1);
+		}
+		goto RETRY;
 	}
 	c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
 	if (c != strlen(print_buffer)) {
 		c128_perror(c, "write(printer)");
-		save_items();
-		save_credits();
-		exit(1);
+		if (retry_or_quit() == 'q') {
+			save_items();
+			save_credits();
+			exit(1);
+		}
+		goto RETRY;
 	}
 	cbm_close((BYTE)4);
 	log_file(print_buffer);
