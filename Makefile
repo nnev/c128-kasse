@@ -18,7 +18,7 @@ test/%.o: test/%.c
 kasse: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o
 	# See above, please just kill the PATH-definition
 	# cp /tmp/cc65/lib/c128* .
-	PATH=${PATH}:~/customSoftware/cc65-2.11.0/src/ld65:/tmp/cc65/lib ${CL} -t c128 src/*.o -o kasse
+	PATH=${PATH}:~/customSoftware/cc65-2.11.0/src/ld65:/tmp/cc65/lib ${CL} -t c128 src/c128time.o src/config.o src/kasse.o src/general.o src/credit_manager.o -o kasse
 
 itemz: src/config.o src/itemz.o src/general.o src/credit_manager.o
 	# See above, please just kill the PATH-definition
