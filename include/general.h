@@ -9,4 +9,6 @@ extern BYTE _oserror;
 #define POKEW(addr,val)    (*(unsigned*) (addr) = (val))
 #define PEEK(addr)         (*(unsigned char*) (addr))
 #define PEEKW(addr)        (*(unsigned*) (addr))
+
+#define VIDEOMODE (((* (BYTE *)0xD7) == 0x80) ? 80 : 40)
 #endif /*GENERAL_H_*/
