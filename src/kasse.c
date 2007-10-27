@@ -90,7 +90,7 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 	RETRY:;
 	sprintf(print_buffer, "[%lu] %s - %s - %s - %d - an %s\r\n",
 			items_sold, time, status.status[n].item_name, price, 
-			einheiten, (nickname != NULL ? nickname : "Unbekannt"));
+			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
@@ -122,7 +122,8 @@ void buy(BYTE n) {
 	BYTE i = 0, matches = 0;
 	BYTE c, nickname_len;
 	int einheiten;
-	char *nickname;
+	char *input;
+	char nickname[11];
 	struct credits_t *credit;
 
 	if (status.status[n].item_name == NULL) {
@@ -150,7 +151,8 @@ void buy(BYTE n) {
 	toggle_videomode();
 	
 	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
-	nickname = get_input();
+	input = get_input();
+	strncpy(nickname, input, 11);
 	toggle_videomode();
 	cprintf("%s\r\n", nickname);
 	toggle_videomode();
@@ -181,7 +183,7 @@ void buy(BYTE n) {
 		}
 	} else {
 		/* Ensure that nickname is NULL if it's empty because it's used in print_log */
-		nickname = NULL;
+		*nickname = '\0';
 	}
 	
 	status.status[n].times_sold += einheiten;
