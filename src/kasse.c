@@ -4,6 +4,7 @@
  * See LICENSE for license information
  *
  */
+#define _IS_KASSE
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -18,7 +19,6 @@
 // drucker 4 oder 5
 // graphic 4,0,10
 
-char print_buffer[81];
 
 /* Hauptbildschirm ausgeben */
 static void print_screen() {
@@ -39,12 +39,14 @@ Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n",
 			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
 g) Guthabenverwaltung     z) Zeit setzen\r\
-n) Neues Getraenk q) Beenden\r\n");
+q) Beenden\r\n");
 }
 
 static void log_file(const char *s) {
-	BYTE c = cbm_open((BYTE)8, (BYTE)8, (BYTE)1, "log");
-	if (c != 0) {
+	char filename[8];
+	BYTE c;
+	sprintf(filename, "log%4d", log_num++);
+	if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)1, filename)) != 0) {
 		c128_perror(c, "cbm_open(log)");
 		save_items();
 		save_credits();
@@ -87,10 +89,10 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 		exit(1);
 	}
 		
-	RETRY:;
 	sprintf(print_buffer, "[%lu] %s - %s - %s - %d - an %s\r\n",
 			items_sold, time, status.status[n].item_name, price, 
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
+	RETRY:;
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
@@ -153,9 +155,11 @@ void buy(BYTE n) {
 	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
 	input = get_input();
 	strncpy(nickname, input, 11);
-	toggle_videomode();
-	cprintf("%s\r\n", nickname);
-	toggle_videomode();
+	if (*nickname != '\0') {
+		toggle_videomode();
+		cprintf("%s\r\n", nickname);
+		toggle_videomode();
+	}
 
 	if (nickname != NULL && *nickname != '\0' && *nickname != 32) {
 		nickname_len = strlen(nickname);
@@ -216,16 +220,18 @@ void set_time_interactive() {
 
 int main() {
 	char *c;
+
 	if (VIDEOMODE == 40)
 		toggle_videomode();
 	/* Zeit erstmalig setzen */
 	set_time_interactive();
+
 	POKE(216, 255);
-	/* Variablen zurechtbiegen */
-	credits.num_items = 0;
-	status.num_items = 0;
+
 	/* Konfigurationsdatei laden */
 	load_config();
+	cprintf("got %d logfiles\r\n", log_num);
+
 	/* Einträge (=Getränke) und Zustand laden */
 	load_items();
 	/* Guthaben laden */
@@ -241,7 +247,7 @@ int main() {
 			toggle_videomode();
 			clrscr();
 			toggle_videomode();
-		}else if (*c == 's') {
+		} else if (*c == 's') {
 			/* Zustandsdatei schreiben */
 			save_items();
 			save_credits();
@@ -259,11 +265,6 @@ int main() {
 		} else if (*c == 'z') {
 			/* Zeit setzen */
 			set_time_interactive();
-		} else if (*c == 'n') {
-			strcpy(status.status[status.num_items].item_name, "mate");
-			status.status[status.num_items].price = 23;
-			status.status[status.num_items].times_sold = 5;
-			status.num_items++;
 		} else if (*c == 'q')
 			break;
 	}
