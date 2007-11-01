@@ -16,12 +16,11 @@
 #include "config.h"
 #include "credit_manager.h"
 
-enum itemz_mode { MODE_ITEMS, MODE_CREDITS };
-
-static enum itemz_mode mode = MODE_ITEMS;
+/* NOTE: dummy entry to fix linking */
+int log_num = 0;
 
 static void itemz_print_screen() {
-	BYTE i, pages;
+	BYTE i;
 	char buffer[10];
 
 	clrscr();
@@ -117,7 +116,6 @@ static void itemz_manager(){
 }
 
 int main() {
-	char *c;
 	if (VIDEOMODE == 40)
 		toggle_videomode();
 	credits.num_items = 0;
