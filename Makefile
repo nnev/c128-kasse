@@ -25,6 +25,9 @@ itemz: src/config.o src/itemz.o src/general.o src/credit_manager.o
 	# cp /tmp/cc65/lib/c128* .
 	PATH=${PATH}:~/customSoftware/cc65-2.11.0/src/ld65:/tmp/cc65/lib ${CL} -t c128 src/config.o src/itemz.o src/general.o src/credit_manager.o -o itemz
 
+cat: src/general.o src/cat.o
+	${CL} -t c128 src/general.o src/cat.o -o cat
+
 all: kasse itemz
 
 package: all
