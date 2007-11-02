@@ -2,7 +2,8 @@
 #include <conio.h>
 #include <string.h>
 #include <dirent.h>
-#include <cbm.h>
+#include <sys/types.h>
+#include <stdlib.h>
 
 #include "general.h"
 
@@ -15,36 +16,17 @@ int main() {
 	unsigned char i;
 	char buffer[8];
 	char readable[9];
-	struct cbm_dirent *dirent;
 
 	memset(readable, '\0', 9);
 
 	while (1) {
 		clrscr();
 		while (filename == NULL || *filename == '\0') {
-			printf("Please enter filename (q to exit, d for dirlist):\r\n");
+			printf("Please enter filename (q to exit):\r\n");
 			filename = get_input();
 		}
 		if (*filename == 'q')
 			return 0;
-		else if (*filename == 'd') {
-			c = 0;
-			if (cbm_opendir((BYTE)8, (BYTE)8) != 0) {
-				cprintf("could not open directory\r\n");
-				return 1;
-			}
-			while (cbm_readdir((BYTE)8, dirent) == 0) {
-				printf("file %d: %s\n", c, dirent->name);
-				get_input();
-			}
-			cbm_closedir((BYTE)8);
-
-			printf("Finished listing directory, press RETURN...\n");
-			get_input();
-
-			filename = NULL;
-			continue;
-		}
 		c = 0;
 		if ((file = fopen(filename, "r")) == NULL) {
 			printf("Could not open file\r\n");
