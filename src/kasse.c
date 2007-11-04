@@ -89,7 +89,7 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 		exit(1);
 	}
 		
-	sprintf(print_buffer, "[%lu] %s - %s - %s - %d - an %s\r\n",
+	sprintf(print_buffer, "%c[%lu] %s - %s - %s - %d - an %s\r\n",  17,
 			items_sold, time, status.status[n].item_name, price, 
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 	RETRY:;
