@@ -1,6 +1,6 @@
 /* 
  * RGB2R-C128-Kassenprogramm
- * (c) 2007 phil_fry, sECuRE, sur5r
+ * (c) 2007-2008 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  */
@@ -11,14 +11,16 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <unistd.h>
 
 #include "kasse.h"
 #include "general.h"
 #include "config.h"
 
-/* undocumented function which scratches files */
-//unsigned char __fastcall__ _sysremove(const char *name);
+/* NOTE: undocumented function which scratches files
+   We need to use this function because linking unistd.h
+   makes our program break at runtime.
+ */
+unsigned char __fastcall__ _sysremove(const char *name);
 
 unsigned long int money = 0;
 unsigned long int items_sold = 0;
@@ -69,14 +71,14 @@ void load_credits() {
 
 void save_items() {
 	if (items_exists)
-		unlink("items");
+		_sysremove("items");
 	cbm_save("items", (BYTE)8, &status, sizeof(struct status_array_t));
 	items_exists = true;
 }
 
 void save_credits() {
 	if (credits_exists)
-		unlink("credits");
+		_sysremove("credits");
 	cbm_save("credits", (BYTE)8, &credits, sizeof(struct credits_array_t));
 	credits_exists = true;
 }

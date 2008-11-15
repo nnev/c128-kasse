@@ -1,6 +1,6 @@
 /* 
  * RGB2R-C128-Kassenprogramm
- * (c) 2007 phil_fry, sECuRE, sur5r
+ * (c) 2007-2008 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  */
@@ -19,6 +19,17 @@
 // drucker 4 oder 5
 // graphic 4,0,10
 
+/* NOTE: undocumented function which scratches files
+   We need to use this function because linking unistd.h
+   makes our program break at runtime.
+ */
+unsigned char __fastcall__ _sysremove(const char *name);
+
+static void sane_exit() {
+	save_items();
+	save_credits();
+	exit(1);
+}
 
 /* Hauptbildschirm ausgeben */
 static void print_screen() {
@@ -27,7 +38,7 @@ static void print_screen() {
 	char profit[10];
 	clrscr();
 	if (format_euro(profit, 10, money) == NULL) {
-		cprintf("Einname %ld konnte nicht umgerechnet werden\r\n", money);
+		cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
 		exit(1);
 	}
 	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r)\r\
@@ -43,23 +54,43 @@ q) Beenden\r\n");
 }
 
 static void log_file(const char *s) {
+	/* A log-entry has usually 50 bytes, so we take 64 bytes.
+	   Because files are wrapped (log.0, log.1, ...) every 100
+	   lines, we don't need more than 100 * 64 bytes. */
+	char *buffer = malloc(sizeof(char) * 64 * 100);
 	char filename[8];
+	char read = 0;
 	BYTE c;
-	sprintf(filename, "log%4d", log_num++);
+	if (buffer == NULL) {
+		cprintf("No memory available\n");
+		}
+	buffer[0] = '\0';
+	if (((++log_lines_written) % 100) == 0)
+		log_num++;
+	sprintf(filename, "log-%d", log_num);
+	/* Don't read log if there were no lines written before */
+	if (log_lines_written != 1) {
+		if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)0, filename)) != 0) {
+			c128_perror(c, "cbm_open(log)");
+			sane_exit();
+		}
+		read = cbm_read((BYTE)8, buffer, sizeof(char) * 64 * 100);
+		cbm_close((BYTE)8);
+		_sysremove(filename);
+	}
 	if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)1, filename)) != 0) {
 		c128_perror(c, "cbm_open(log)");
-		save_items();
-		save_credits();
-		exit(1);
+		sane_exit();
 	}
-	c = cbm_write((BYTE)8, s, strlen(s));
-	if (c != strlen(s)) {
+	/* TODO: read  < 0? */
+	strcpy(buffer+read, s);
+	c = cbm_write((BYTE)8, buffer, read+strlen(s));
+	if (c != (read+strlen(s))) {
 		cprintf("Could not save logfile, please make sure the floppy is not full!\n");
-		save_items();
-		save_credits();
-		exit(1);
+		sane_exit();
 	}
 	cbm_close((BYTE)8);
+	free(buffer);
 }
 
 static char retry_or_quit() {
@@ -71,7 +102,7 @@ static char retry_or_quit() {
 	return *c;
 }
 
-/* Druckt eine entsprechende Zeile aus */
+/* Prints a line and logs it to file */
 static void print_log(BYTE n, int einheiten, char *nickname) {
 	BYTE c;
 	char *time = get_time();
@@ -92,15 +123,13 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 	sprintf(print_buffer, "%c[%lu] %s - %s - %s - %d - an %s\r\n",  17,
 			items_sold, time, status.status[n].item_name, price, 
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
-	RETRY:;
+RETRY:
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
 		c128_perror(c, "cbm_open(printer)");
-		if (retry_or_quit() == 'q') {
-			save_items();
-			save_credits();
-			exit(1);
-		}
+		if (retry_or_quit() == 'q')
+			sane_exit();
+
 		goto RETRY;
 	}
 	c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
@@ -117,7 +146,7 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 	log_file(print_buffer);
 }
 
-/* Dialog, der einen durch's Abrechnen der Einträge führt */
+/* dialog which is called for each bought item */
 void buy(BYTE n) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
@@ -128,8 +157,9 @@ void buy(BYTE n) {
 	char nickname[11];
 	struct credits_t *credit;
 
-	if (status.status[n].item_name == NULL) {
+	if (n >= status.num_items || status.status[n].item_name == NULL) {
 		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
+		get_input();
 		return;
 	}
 	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", status.status[n].item_name);
@@ -169,9 +199,10 @@ void buy(BYTE n) {
 		if (credit != NULL) {
 			if ((signed int)credit->credit < ((signed int)status.status[n].price * einheiten)) {
 				cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
+				get_input();
 				return;
 			}
-			/* Geld abziehen */
+			/* substract money */
 			credit->credit -= (status.status[n].price * einheiten);
 			cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
 				nickname, credit->credit);
@@ -223,47 +254,42 @@ int main() {
 
 	if (VIDEOMODE == 40)
 		toggle_videomode();
-	/* Zeit erstmalig setzen */
+	/* Set time initially, c128 doesn't know it */
 	set_time_interactive();
 
 	POKE(216, 255);
 
-	/* Konfigurationsdatei laden */
+	/* Load configuration */
 	load_config();
 	cprintf("got %d logfiles\r\n", log_num);
 
-	/* Einträge (=Getränke) und Zustand laden */
+	/* Load items (= drinks) */
 	load_items();
-	/* Guthaben laden */
+	/* Load credits */
 	load_credits();
 	while (1) {
-		/* Bildschirm anzeigen */
 		print_screen();
-		/* Tastatureingaben abfragen */
 		c = get_input();
-		/* und eventuell weitere Dialoge anzeigen */
+		/* ...display dialogs eventually */
 		if (*c > 47 && *c < 58) {
 			buy((*c) - 48);
 			toggle_videomode();
 			clrscr();
 			toggle_videomode();
 		} else if (*c == 's') {
-			/* Zustandsdatei schreiben */
 			save_items();
 			save_credits();
 			cprintf("Statefile/Creditfile gesichert, druecke RETURN...\r\n");
 			get_input();
 		} else if (*c == 'd') {
-			/* Drucken an- oder ausschalten */
+			/* enable/disable printing */
 			printing = (printing == 1 ? 0 : 1);
 			cprintf("Drucken ist nun %s, druecke RETURN...\r\n", 
 				(printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
 			get_input();
 		} else if (*c == 'g') {
-			/* Guthabenverwalter aufrufen */
 			credit_manager();
 		} else if (*c == 'z') {
-			/* Zeit setzen */
 			set_time_interactive();
 		} else if (*c == 'q')
 			break;
