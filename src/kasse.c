@@ -60,7 +60,7 @@ static void log_file(const char *s) {
 	char *buffer = malloc(sizeof(char) * 64 * 100);
 	char filename[8];
 	char read = 0;
-	BYTE c;
+	unsigned int c;
 	if (buffer == NULL) {
 		cprintf("No memory available\n");
 		}
@@ -86,7 +86,7 @@ static void log_file(const char *s) {
 	strcpy(buffer+read, s);
 	c = cbm_write((BYTE)8, buffer, read+strlen(s));
 	if (c != (read+strlen(s))) {
-		cprintf("Could not save logfile, please make sure the floppy is not full!\n");
+		cprintf("Could not save logfile (wrote %d bytes, wanted %d bytes), please make sure the floppy is not full!\n", c, (read+strlen(s)));
 		sane_exit();
 	}
 	cbm_close((BYTE)8);
