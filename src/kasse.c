@@ -50,7 +50,7 @@ Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n",
 			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
 g) Guthabenverwaltung     z) Zeit setzen\r\
-q) Beenden\r\n");
+f) Freitext verkaufen     q) Beenden\r\n");
 }
 
 static void log_file(const char *s) {
@@ -103,7 +103,7 @@ static char retry_or_quit() {
 }
 
 /* Prints a line and logs it to file */
-static void print_log(BYTE n, int einheiten, char *nickname) {
+static void print_log(char *name, int item_price, int einheiten, char *nickname) {
 	BYTE c;
 	char *time = get_time();
 	char price[10];
@@ -115,13 +115,13 @@ static void print_log(BYTE n, int einheiten, char *nickname) {
 	   Anzahl
 	   Nickname (falls es vom Guthaben abgezogen wird)
 	   */
-	if (format_euro(price, 10, status.status[n].price) == NULL) {
-		cprintf("Preis %d konnte nicht umgerechnet werden\r\n", status.status[n].price);
+	if (format_euro(price, 10, item_price) == NULL) {
+		cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
 		exit(1);
 	}
 		
-	sprintf(print_buffer, "%c[%lu] %s - %s - %s - %d - an %s\r\n",  17,
-			items_sold, time, status.status[n].item_name, price, 
+	sprintf(print_buffer, "%c[%lu] %s - %s - %s - %d - an %s\r",  17,
+			items_sold, time, name, price, 
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 RETRY:
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
@@ -147,7 +147,7 @@ RETRY:
 }
 
 /* dialog which is called for each bought item */
-void buy(BYTE n) {
+BYTE buy(char *name, unsigned int price) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
 	BYTE i = 0, matches = 0;
@@ -157,12 +157,7 @@ void buy(BYTE n) {
 	char nickname[11];
 	struct credits_t *credit;
 
-	if (n >= status.num_items || status.status[n].item_name == NULL) {
-		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
-		get_input();
-		return;
-	}
-	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", status.status[n].item_name);
+	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
 	while (1) {
 		c = getchar();
 		if (c == 13)
@@ -170,7 +165,7 @@ void buy(BYTE n) {
 		else if (c == 27) {
 			cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
 			get_input();
-			return;
+			return 1;
 		} else if (c == '-' && i == 0)
 			negative = -1;
 		else if (c > 47 && c < 58)
@@ -179,7 +174,7 @@ void buy(BYTE n) {
 	einheiten = atoi(entered) * negative;
 	
 	toggle_videomode();
-	cprintf("%dx %s fuer ", einheiten, status.status[n].item_name);
+	cprintf("%dx %s fuer ", einheiten, name);
 	toggle_videomode();
 	
 	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
@@ -197,13 +192,13 @@ void buy(BYTE n) {
 		 * to NULL if no such credit could be found */
 		credit = find_credit(nickname);
 		if (credit != NULL) {
-			if ((signed int)credit->credit < ((signed int)status.status[n].price * einheiten)) {
+			if ((signed int)credit->credit < ((signed int)price * einheiten)) {
 				cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
 				get_input();
-				return;
+				return 0;
 			}
 			/* substract money */
-			credit->credit -= (status.status[n].price * einheiten);
+			credit->credit -= (price * einheiten);
 			cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
 				nickname, credit->credit);
 			toggle_videomode();
@@ -214,18 +209,63 @@ void buy(BYTE n) {
 		} else {
 			cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, druecke RETURN...\r\n");
 			get_input();
-			return;
+			return 0;
 		}
 	} else {
 		/* Ensure that nickname is NULL if it's empty because it's used in print_log */
 		*nickname = '\0';
 	}
 	
-	status.status[n].times_sold += einheiten;
-	money += status.status[n].price * einheiten;
+	money += price * einheiten;
 	items_sold += einheiten;
 	if (printing == 1)
-		print_log(n, einheiten, nickname);
+		print_log(name, price, einheiten, nickname);
+
+	return einheiten;
+}
+
+void buy_stock(BYTE n) {
+	if (n >= status.num_items || status.status[n].item_name == NULL) {
+		cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
+		get_input();
+		return;
+	}
+
+	status.status[n].times_sold += buy(status.status[n].item_name, status.status[n].price);
+}
+
+void buy_custom() {
+	BYTE c = 0, i = 0;
+	int negative = 1;
+	char entered[5] = {'1', 0, 0, 0, 0};
+	char *input, name[10];
+	int price;
+
+	cprintf("\r\nWas soll gekauft werden?\r\n");
+	input = get_input();
+	strncpy(name, input, 10);
+	if (*name == '\0')
+		return;
+
+	cprintf("\r\nWie teuer ist \"%s\" (in cents)?\r\n", name);
+	while (1) {
+		c = getchar();
+		if (c == 13)
+			break;
+		else if (c == 27) {
+			cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
+			get_input();
+			return;
+		} else if (c == '-' && i == 0)
+			negative = -1;
+		else if (c > 47 && c < 58)
+			entered[i++] = c;
+	}
+	price = atoi(entered) * negative;
+
+	cprintf("\r\n");
+
+	buy(name, price);
 }
 
 void set_time_interactive() {
@@ -272,7 +312,12 @@ int main() {
 		c = get_input();
 		/* ...display dialogs eventually */
 		if (*c > 47 && *c < 58) {
-			buy((*c) - 48);
+			buy_stock((*c) - 48);
+			toggle_videomode();
+			clrscr();
+			toggle_videomode();
+		} else if (*c == 'f') {
+			buy_custom();
 			toggle_videomode();
 			clrscr();
 			toggle_videomode();
