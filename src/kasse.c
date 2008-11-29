@@ -238,7 +238,7 @@ void buy_custom() {
 	BYTE c = 0, i = 0;
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
-	char *input, name[10];
+	char *input, name[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int price;
 
 	cprintf("\r\nWas soll gekauft werden?\r\n");
