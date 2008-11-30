@@ -56,9 +56,14 @@ static void lookup_needed_files() {
 }
 
 void load_items() {
-	if (items_exists)
+	BYTE c;
+
+	if (items_exists) {
+		items_sold = 0;
 		cbm_load("items", (BYTE)8, &status);
-	else
+		for (c = 0; c < status.num_items; c++)
+			items_sold += status.status[c].times_sold;
+	} else
 		memset(&status, 0, sizeof(struct status_array_t));
 }
 
