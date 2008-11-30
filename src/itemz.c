@@ -41,7 +41,7 @@ static void new_item() {
 	char *input, *name;
 	int price;
 
-	if (status.num_items == 16) {
+	if (status.num_items == MAX_ITEMS) {
 		cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, druecke RETURN...\r\n");
 		input = get_input();
 		return;
@@ -57,7 +57,8 @@ static void new_item() {
 	cprintf("\r\nWie oft schon verkauft? [0] \r\n");
 	if ((input = get_input()) == NULL || *input == '\0')
 		return;
-	strcpy(status.status[status.num_items].item_name, name);
+	memset(status.status[status.num_items].item_name, '\0', MAX_ITEM_NAME_LENGTH+1);
+	strncpy(status.status[status.num_items].item_name, name, MAX_ITEM_NAME_LENGTH);
 	status.status[status.num_items].price = price;
 	status.status[status.num_items].times_sold = atoi(input);
 	status.num_items++;
@@ -65,7 +66,7 @@ static void new_item() {
 }
 
 static void _delete_item(BYTE num) {
-	memset(status.status[num].item_name, '\0', 10);
+	memset(status.status[num].item_name, '\0', MAX_ITEM_NAME_LENGTH);
 	status.status[num].price = 0;
 	status.status[num].times_sold = 0;
 }

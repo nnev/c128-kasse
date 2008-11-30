@@ -238,12 +238,13 @@ void buy_custom() {
 	BYTE c = 0, i = 0;
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
-	char *input, name[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	char *input, name[20];
 	int price;
 
+	memset(name, '\0', 20);
 	cprintf("\r\nWas soll gekauft werden?\r\n");
 	input = get_input();
-	strncpy(name, input, 10);
+	strncpy(name, input, 20);
 	if (*name == '\0')
 		return;
 
@@ -286,7 +287,7 @@ void set_time_interactive() {
 	set_time(tp1, tp2, tp3);
 
 	time = get_time();
-	cprintf("Zeit gesetzt: %s\r\n", time);
+	cprintf("\r\nZeit gesetzt: %s\r\n", time);
 }
 
 int main() {

@@ -4,6 +4,7 @@
 #define CONFIG_H_
 
 #define MAX_ITEMS 16
+#define MAX_ITEM_NAME_LENGTH 9
 #define MAX_CREDIT_ITEMS 75
 
 /* Eingenommes Geld in Cent */
@@ -14,7 +15,7 @@ extern BYTE printer_port;
 
 /* Datenstruktur der verkauften Einträge */
 struct status_t {
-	char item_name[10];
+	char item_name[MAX_ITEM_NAME_LENGTH+1];
 	/* Wieviel kostet der Eintrag (in Cent)? */
 	unsigned int price;
 	/* Wie oft wurde er verkauft */
