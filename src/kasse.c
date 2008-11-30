@@ -59,7 +59,7 @@ static void log_file(const char *s) {
 	   lines, we don't need more than 100 * 64 bytes. */
 	char *buffer = malloc(sizeof(char) * 64 * 100);
 	char filename[8];
-	char read = 0;
+	int read = 0;
 	unsigned int c;
 	if (buffer == NULL) {
 		cprintf("No memory available\n");
@@ -82,7 +82,10 @@ static void log_file(const char *s) {
 		c128_perror(c, "cbm_open(log)");
 		sane_exit();
 	}
-	/* TODO: read  < 0? */
+	if (read < 0) {
+		cprintf("Could not read existing logfile (read returned %d)\n", read);
+		sane_exit();
+	}
 	strcpy(buffer+read, s);
 	c = cbm_write((BYTE)8, buffer, read+strlen(s));
 	if (c != (read+strlen(s))) {
