@@ -23,12 +23,11 @@ static void credit_print_screen() {
 
 	clrscr();
 	cprintf("itemz (phil_fry, sECuRE, sur5r)\r\n\r\n");
-	/* 16 entries per page */
-	pages = (credits.num_items / 10);
+	pages = (credits.num_items / CREDITS_PER_PAGE);
 	if (current_credits_page > pages)
 		current_credits_page = pages;
 	cprintf("Datei: CREDITS (Seite %d von %d)\r\n\r\n", current_credits_page, pages);
-	for (i = (current_credits_page * 10); i < credits.num_items && i < ((current_credits_page+1) * 10); i++) {
+	for (i = (current_credits_page * CREDITS_PER_PAGE); i < credits.num_items && i < ((current_credits_page+1) * CREDITS_PER_PAGE); i++) {
 		if (filter == NULL || strncmp(credits.credits[i].nickname, filter, filter_len) == 0) {
 			if (format_euro(buffer, 10, credits.credits[i].credit) != buffer) {
 				cprintf("Error: Could not format credit %d\r\n", credits.credits[i].credit);
@@ -144,7 +143,7 @@ void credit_manager(){
 			case 's':
 				save_credits(); break;
 			case 'f':
-				if (current_credits_page < (credits.num_items / 16))
+				if (current_credits_page < (credits.num_items / CREDITS_PER_PAGE))
 						current_credits_page++;
 				break;
 			case 'b':
