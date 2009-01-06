@@ -38,18 +38,18 @@ struct credits_array_t credits;
  */
 static void lookup_needed_files() {
 	BYTE lfn = 8;
-	struct cbm_dirent *dirent;
+	struct cbm_dirent dirent;
 
 	if (cbm_opendir(lfn, (BYTE)8) != 0) {
 		cprintf("could not open directory\r\n");
 		return;
 	}
-	while (cbm_readdir(lfn, dirent) == 0) {
-		if (strncmp(dirent->name, "log", 3) == 0)
+	while (cbm_readdir(lfn, &dirent) == 0) {
+		if (strncmp(dirent.name, "log", 3) == 0)
 			log_num++;
-		if (strcasecmp(dirent->name, "items") == 0)
+		if (strcasecmp(dirent.name, "items") == 0)
 			items_exists = true;
-		if (strcasecmp(dirent->name, "credits") == 0)
+		if (strcasecmp(dirent.name, "credits") == 0)
 			credits_exists = true;
 	}
 	cbm_closedir(lfn);
