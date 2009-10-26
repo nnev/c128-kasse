@@ -1,4 +1,6 @@
-src/%.o: src/%.c include/%.h
+INCLUDES:=$(wildcard include/*.h)
+
+src/%.o: src/%.c ${INCLUDES}
 	cc65 -O -I include -t c128 $<
 	ca65 -I include -t c128 src/$$(basename $< .c).s
 
