@@ -1,6 +1,6 @@
 /* 
  * RGB2R-C128-Kassenprogramm
- * (c) 2007-2008 phil_fry, sECuRE, sur5r
+ * (c) 2007-2009 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  */
@@ -37,14 +37,25 @@ struct credits_array_t credits;
  *
  */
 static void lookup_needed_files() {
-	BYTE lfn = 8;
+	BYTE lfn = 8, c;
 	struct cbm_dirent dirent;
+	char *buffer = malloc(sizeof(char) * 64 * 100);
+	char *walk;
+	char filename[8];
+	int n;
+
+	if (buffer == NULL) {
+		cprintf("Not enough memory available\r\n");
+		exit(1);
+	}
 
 	if (cbm_opendir(lfn, (BYTE)8) != 0) {
 		cprintf("could not open directory\r\n");
 		return;
 	}
 	while (cbm_readdir(lfn, &dirent) == 0) {
+		/* NOTE: You MUST NOT delete any logfiles. This does only work
+		 * under the assumption that logfiles are named continuously */
 		if (strncmp(dirent.name, "log", 3) == 0)
 			log_num++;
 		if (strcasecmp(dirent.name, "items") == 0)
@@ -53,6 +64,31 @@ static void lookup_needed_files() {
 			credits_exists = true;
 	}
 	cbm_closedir(lfn);
+
+	/* Try to find out how many lines the last logfile got to seamlessly
+	 * append to it, if we got more than one logfile. */
+	if (log_num > 0) {
+		log_num--;
+
+		sprintf(filename, "log-%d", log_num);
+		if ((c = cbm_open(lfn, (BYTE)8, (BYTE)CBM_READ, filename)) != 0) {
+			c128_perror(c, "cbm_open(log) for reading");
+			exit(1);
+		}
+		n = cbm_read(lfn, buffer, sizeof(char) * 64 * 100);
+		if (n < 0) {
+			cprintf("error while cbm_read()ing the logfile\r\n");
+			exit(1);
+		}
+		buffer[n] = '\0';
+		for (walk = buffer; (walk - buffer) < n; walk++) {
+			if (*walk == '\r' || *walk == '\n')
+				log_lines_written++;
+		}
+		cbm_close(lfn);
+	}
+
+	free(buffer);
 }
 
 void load_items() {
