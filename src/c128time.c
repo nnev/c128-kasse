@@ -27,7 +27,7 @@ char *get_time() {
 	return buffer;
 }
 
-void set_time(BYTE hrs, min, sec) {
+void set_time(BYTE hrs, BYTE min, BYTE sec) {
 	uint32_t added = ((uint32_t)sec + ((uint32_t)min * (uint32_t)60) + ((uint32_t)hrs * (uint32_t)3600)) * (uint32_t)60;
 	uint32_t lowbit = (added & 0xFF);
 	uint32_t middlebit = (added >> 8) & 0xFF;

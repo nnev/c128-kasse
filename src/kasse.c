@@ -344,4 +344,6 @@ int main() {
 			break;
 	}
 	cprintf("BYEBYE\r\n");
+
+	return 0;
 }
