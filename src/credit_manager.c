@@ -91,6 +91,7 @@ static void new_credit() {
 		return;
 	}
 
+	clrscr();
 	cprintf("\rNickname:\r\n");
 	if ((input = get_input()) == NULL || *input == '\0')
 		return;
