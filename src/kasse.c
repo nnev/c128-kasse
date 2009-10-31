@@ -122,9 +122,9 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname)
 		cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
 		exit(1);
 	}
-		
-	sprintf(print_buffer, "%c[%lu] %s - %s - %s - %d - an %s\r",  17,
-			items_sold, time, name, price, 
+
+	sprintf(print_buffer, "%c[%lu] %s - %-9s - %s - r %s - %d - an %s\r",  17,
+			items_sold, time, name, price, rest,
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 RETRY:
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
