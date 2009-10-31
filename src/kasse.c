@@ -106,17 +106,21 @@ static char retry_or_quit() {
 }
 
 /* Prints a line and logs it to file */
-static void print_log(char *name, int item_price, int einheiten, char *nickname) {
+static void print_log(char *name, int item_price, int einheiten, char *nickname, char *rest) {
 	BYTE c;
 	char *time = get_time();
 	char price[10];
 	/* Format: 
-	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
-	   Uhrzeit
-	   Eintragname (= Getränk)
-	   Preis (in Cents)
-	   Anzahl
-	   Nickname (falls es vom Guthaben abgezogen wird)
+	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!) -- 6-stellig
+	   Uhrzeit -- 8-stellig
+	   Eintragname (= Getränk) -- 9-stellig
+	   Preis (in Cents) -- 7-stellig
+	   Anzahl -- 2-stellig
+	   Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig
+	   restguthaben (9-stellig)
+
+	   + 7 leerzeichen
+	   --> 48 zeichen
 	   */
 	if (format_euro(price, 10, item_price) == NULL) {
 		cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
@@ -158,7 +162,11 @@ BYTE buy(char *name, unsigned int price) {
 	int einheiten;
 	char *input;
 	char nickname[11];
+	char rest[9];
 	struct credits_t *credit;
+
+	memset(rest, ' ', sizeof(rest));
+	rest[8] = '\0';
 
 	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
 	while (1) {
@@ -202,10 +210,16 @@ BYTE buy(char *name, unsigned int price) {
 			}
 			/* substract money */
 			credit->credit -= (price * einheiten);
-			cprintf("\r\nVerbleibendes Guthaben fuer %s: %d Cents. Druecke RETURN...\r\n",
-				nickname, credit->credit);
+
+			if (format_euro(rest, 10, credit->credit) == NULL) {
+				cprintf("Preis %d konnte nicht umgerechnet werden\r\n", credit->credit);
+				exit(1);
+			}
+
+			cprintf("\r\nVerbleibendes Guthaben fuer %s: %s. Druecke RETURN...\r\n",
+				nickname, rest);
 			toggle_videomode();
-			cprintf("\r\nDein verbleibendes Guthaben betraegt %d Cents.\r\n", credit->credit);
+			cprintf("\r\nDein verbleibendes Guthaben betraegt %s.\r\n", rest);
 			toggle_videomode();
 			get_input();
 			matches++;
@@ -222,7 +236,7 @@ BYTE buy(char *name, unsigned int price) {
 	money += price * einheiten;
 	items_sold += einheiten;
 	if (printing == 1)
-		print_log(name, price, einheiten, nickname);
+		print_log(name, price, einheiten, nickname, rest);
 
 	return einheiten;
 }

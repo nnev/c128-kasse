@@ -42,7 +42,7 @@ char *format_euro(char *s, int maxlen, int cent){
 	if (len >= maxlen)
 		return NULL;
 	// workaround to produce a leading zero for cents.. %0.2d won't work 
-	sprintf(s, "%d,%s%dEUR", cent / 100, ((cent%100)<10?"0":""), cent % 100);
+	sprintf(s, "%2d,%s%dEUR", cent / 100, ((cent%100)<10?"0":""), cent % 100);
 	return s;
 }
 
