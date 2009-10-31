@@ -11,6 +11,7 @@
 
 #include "config.h"
 #include "general.h"
+#include "kasse.h"
 
 static char *filter = NULL;
 static BYTE filter_len;
@@ -72,9 +73,12 @@ static void deposit_credit() {
 	credit->credit += deposit;
 	
 	toggle_videomode();
-	cprintf("%d Cent eingezahlt fuer %s.\r\nRestguthaben: %d\r\n", deposit, credit->nickname, credit->credit);
+	cprintf("%d Cent eingezahlt fuer %s.\r\nRestguthaben: %d\r\n", deposit, credit->nickname);
+	sprintf(print_buffer, "%c%d Cent eingezahlt fuer %s. Restguthaben: %d Cent\r", 17, deposit, credit->nickname, credit->credit);
+	cprintf("%s", print_buffer);
 	toggle_videomode();
-	cprintf("\r\nEinzahlung durchgefuehrt, drucke RETURN...\r\n");
+	print_the_buffer();
+	cprintf("\r\nEinzahlung durchgefuehrt, druecke RETURN...\r\n");
 	input = get_input();
 	toggle_videomode();
 	clrscr();
@@ -101,6 +105,10 @@ static void new_credit() {
 		return;
 	strcpy(credits.credits[credits.num_items].nickname, name);
 	credits.credits[credits.num_items].credit = credit;
+
+	sprintf(print_buffer, "%cGuthaben mit %d Cent fuer %s angelegt\r", 17, credit, name);
+	print_the_buffer();
+
 	credits.num_items++;
 	free(name);
 }

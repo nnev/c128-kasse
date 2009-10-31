@@ -107,7 +107,6 @@ static char retry_or_quit() {
 
 /* Prints a line and logs it to file */
 static void print_log(char *name, int item_price, int einheiten, char *nickname, char *rest) {
-	BYTE c;
 	char *time = get_time();
 	char price[10];
 	/* Format: 
@@ -130,6 +129,11 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 	sprintf(print_buffer, "%c[%lu] %s - %-9s - %s - r %s - %d - an %s\r",  17,
 			items_sold, time, name, price, rest,
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
+	print_the_buffer();
+}
+
+void print_the_buffer() {
+	BYTE c;
 RETRY:
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
 	if (c != 0) {
