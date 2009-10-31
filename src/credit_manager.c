@@ -168,6 +168,7 @@ void credit_manager(){
 					filter = NULL;
 				break;
 			case 'z':
+				save_credits();
 				return; 
 			default:
 				cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
