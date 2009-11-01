@@ -317,6 +317,7 @@ int main() {
 
 	if (VIDEOMODE == 40)
 		toggle_videomode();
+	clrscr();
 	/* Set time initially, c128 doesn't know it */
 	set_time_interactive();
 
