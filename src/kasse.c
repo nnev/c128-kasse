@@ -41,7 +41,7 @@ static void print_screen() {
 Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", 
 	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
 	for (; i < status.num_items; ++i)
-		cprintf("Eintrag %x: %s (%d Cents, %d mal verkauft)\r\n",
+		cprintf("Eintrag %2d: %s (%d Cents, %d mal verkauft)\r\n",
 			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
 g) Guthabenverwaltung     z) Zeit setzen\r\
@@ -254,7 +254,9 @@ int main() {
 		c = get_input();
 		/* ...display dialogs eventually */
 		if (*c > 47 && *c < 58) {
-			buy_stock((*c) - 48);
+			/* if the input starts with a digit, we will interpret it as a number
+			 * for the item to be sold */
+			buy_stock(atoi(c));
 			toggle_videomode();
 			clrscr();
 			toggle_videomode();

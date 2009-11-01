@@ -28,7 +28,7 @@ static void itemz_print_screen() {
 			cprintf("Error: Could not format price %d\r\n", status.status[i].price);
 			exit(1);
 		}
-		cprintf("Eintrag %x: %s (%s, %d mal verkauft)\r\n",
+		cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n",
 			i, status.status[i].item_name, buffer, status.status[i].times_sold);
 	}
 	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) Beenden\r\n");
