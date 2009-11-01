@@ -262,6 +262,7 @@ void buy_custom() {
 	char *input, name[20];
 	int price;
 
+	clrscr();
 	memset(name, '\0', 20);
 	cprintf("\r\nWas soll gekauft werden?\r\n");
 	input = get_input();
