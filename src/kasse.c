@@ -41,7 +41,7 @@ static void print_screen() {
 		cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
 		exit(1);
 	}
-	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r)\r\
+	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) v:" GV "\r\
 \r\nUhrzeit: %s (wird nicht aktualisiert)\r\
 Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", 
 	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));

@@ -1,7 +1,10 @@
 INCLUDES:=$(wildcard include/*.h)
+GV:=$(shell git describe --tags --always)
+
+CFLAGS += -DGV=\"${GV}\"
 
 src/%.o: src/%.c ${INCLUDES}
-	cc65 -O -I include -t c128 $<
+	cc65 ${CFLAGS} -O -I include -t c128 $<
 	ca65 -I include -t c128 src/$$(basename $< .c).s
 
 test/%.o: test/%.c
