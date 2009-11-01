@@ -1,24 +1,22 @@
+CC=cc65
+AS=ca65
+LD=cl65
 INCLUDES:=$(wildcard include/*.h)
 GV:=$(shell git describe --tags --always)
 
 CFLAGS += -DGV=\"${GV}\"
 
-src/%.o: src/%.c ${INCLUDES}
-	cc65 ${CFLAGS} -O -I include -t c128 $<
-	ca65 -I include -t c128 src/$$(basename $< .c).s
+%.o: %.c ${INCLUDES}
+	${CC} ${CFLAGS} -O -I include -t c128 $< -o /dev/stdout | ${AS} -I include -t c128 /dev/stdin -o $@
 
-test/%.o: test/%.c
-	cc65 -O -I include -t c128 $<
-	ca65 -I include -t c128 test/$$(basename $< .c).s
+kasse: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o src/print.o
+	${LD} -t c128 $^ -o $@
 
-kasse: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o
-	cl65 -t c128 src/c128time.o src/config.o src/kasse.o src/general.o src/credit_manager.o -o kasse
-
-itemz: src/config.o src/itemz.o src/general.o src/credit_manager.o
-	cl65 -t c128 src/config.o src/itemz.o src/general.o src/credit_manager.o -o itemz
+itemz: src/config.o src/itemz.o src/general.o src/credit_manager.o src/c128time.o src/print.o
+	${LD} -t c128 $^ -o $@
 
 cat: src/general.o src/cat.o
-	cl65 -t c128 src/general.o src/cat.o -o cat
+	${LD} -t c128 $^ -o $@
 
 all: kasse itemz
 
