@@ -158,7 +158,7 @@ RETRY:
 }
 
 /* dialog which is called for each bought item */
-BYTE buy(char *name, unsigned int price) {
+static signed int buy(char *name, unsigned int price) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
 	BYTE i = 0, matches = 0;
