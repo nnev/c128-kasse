@@ -12,4 +12,11 @@ extern BYTE _oserror;
 #define PEEKW(addr)        (*(unsigned*) (addr))
 
 #define VIDEOMODE (((* (BYTE *)0xD7) == 0x80) ? 80 : 40)
+
+/* because there is no macro expansion when stringifying, we need to use two
+ * levels of macros to stringify the value of a macro (for example
+ * MAX_ITEM_NAME_LENGTH) */
+#define xstr(s) str(s)
+#define str(s) #s
+
 #endif /*GENERAL_H_*/

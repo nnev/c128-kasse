@@ -38,11 +38,17 @@ static void print_screen() {
 	}
 	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) v:" GV "\r\
 \r\nUhrzeit: %s (wird nicht aktualisiert)\r\
-Eingenommen: %s, Verkauft: %ld Flaschen, Drucken: %s\r\n\r\n", 
+Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n\r\n",
 	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
-	for (; i < status.num_items; ++i)
-		cprintf("Eintrag %2d: %s (%d Cents, %d mal verkauft)\r\n",
-			i, status.status[i].item_name, status.status[i].price, status.status[i].times_sold);
+	for (; i < status.num_items; ++i) {
+		if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
+			cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i].price);
+			exit(1);
+		}
+
+		cprintf("Eintrag %2d: %-" xstr(MAX_ITEM_NAME_LENGTH) "s (%s, %d mal verkauft)\r\n",
+			i, status.status[i].item_name, profit, status.status[i].times_sold);
+	}
 	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
 g) Guthabenverwaltung     z) Zeit setzen\r\
 f) Freitext verkaufen     q) Beenden\r\n");
@@ -69,7 +75,7 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 		exit(1);
 	}
 
-	sprintf(print_buffer, "%c[%lu] %s - %-9s - %s - r %s - %d - an %s\r",  17,
+	sprintf(print_buffer, "%c[%lu] %s - %-" xstr(MAX_ITEM_NAME_LENGTH) "s - %s - r %s - %d - an %s\r",  17,
 			items_sold, time, name, price, rest,
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 	print_the_buffer();
