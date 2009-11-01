@@ -96,12 +96,9 @@ void load_items() {
 
 	if (items_exists) {
 		items_sold = 0;
-		money = 0;
 		cbm_load("items", (BYTE)8, &status);
-		for (c = 0; c < status.num_items; c++) {
+		for (c = 0; c < status.num_items; c++)
 			items_sold += status.status[c].times_sold;
-			money += status.status[c].price * status.status[c].times_sold;
-		}
 	} else
 		memset(&status, 0, sizeof(struct status_array_t));
 }
