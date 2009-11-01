@@ -16,10 +16,6 @@
 #include "config.h"
 #include "credit_manager.h"
 
-/* NOTE: dummy entry to fix linking */
-int log_num = 0;
-int log_lines_written = 0;
-
 static void itemz_print_screen() {
 	BYTE i;
 	char buffer[10];

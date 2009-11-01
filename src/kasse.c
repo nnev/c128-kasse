@@ -16,14 +16,9 @@
 #include "kasse.h"
 #include "credit_manager.h"
 #include "c128time.h"
+#include "print.h"
 // drucker 4 oder 5
 // graphic 4,0,10
-
-/* NOTE: undocumented function which scratches files
-   We need to use this function because linking unistd.h
-   makes our program break at runtime.
- */
-unsigned char __fastcall__ _sysremove(const char *name);
 
 static void sane_exit() {
 	save_items();
@@ -53,58 +48,6 @@ g) Guthabenverwaltung     z) Zeit setzen\r\
 f) Freitext verkaufen     q) Beenden\r\n");
 }
 
-static void log_file(const char *s) {
-	/* A log-entry has usually 50 bytes, so we take 64 bytes.
-	   Because files are wrapped (log.0, log.1, ...) every 100
-	   lines, we don't need more than 100 * 64 bytes. */
-	char *buffer = malloc(sizeof(char) * 64 * 100);
-	char filename[8];
-	int read = 0;
-	unsigned int c;
-	if (buffer == NULL) {
-		cprintf("No memory available\n");
-		}
-	buffer[0] = '\0';
-	if (((++log_lines_written) % 100) == 0)
-		log_num++;
-	sprintf(filename, "log-%d", log_num);
-	/* Don't read log if there were no lines written before */
-	if (log_lines_written != 1) {
-		if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)0, filename)) != 0) {
-			c128_perror(c, "cbm_open(log)");
-			sane_exit();
-		}
-		read = cbm_read((BYTE)8, buffer, sizeof(char) * 64 * 100);
-		cbm_close((BYTE)8);
-		_sysremove(filename);
-	}
-	if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)1, filename)) != 0) {
-		c128_perror(c, "cbm_open(log)");
-		sane_exit();
-	}
-	if (read < 0) {
-		cprintf("Could not read existing logfile (read returned %d)\n", read);
-		sane_exit();
-	}
-	strcpy(buffer+read, s);
-	c = cbm_write((BYTE)8, buffer, read+strlen(s));
-	if (c != (read+strlen(s))) {
-		cprintf("Could not save logfile (wrote %d bytes, wanted %d bytes), please make sure the floppy is not full!\n", c, (read+strlen(s)));
-		sane_exit();
-	}
-	cbm_close((BYTE)8);
-	free(buffer);
-}
-
-static char retry_or_quit() {
-	char *c;
-	do {
-		cprintf("\r\nr)etry or q)uit?\r\n");
-		c = get_input();
-	} while ((*c != 'r') && (*c != 'q'));
-	return *c;
-}
-
 /* Prints a line and logs it to file */
 static void print_log(char *name, int item_price, int einheiten, char *nickname, char *rest) {
 	char *time = get_time();
@@ -130,31 +73,6 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 			items_sold, time, name, price, rest,
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 	print_the_buffer();
-}
-
-void print_the_buffer() {
-	BYTE c;
-RETRY:
-	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
-	if (c != 0) {
-		c128_perror(c, "cbm_open(printer)");
-		if (retry_or_quit() == 'q')
-			sane_exit();
-
-		goto RETRY;
-	}
-	c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
-	if (c != strlen(print_buffer)) {
-		c128_perror(c, "write(printer)");
-		if (retry_or_quit() == 'q') {
-			save_items();
-			save_credits();
-			exit(1);
-		}
-		goto RETRY;
-	}
-	cbm_close((BYTE)4);
-	log_file(print_buffer);
 }
 
 /* dialog which is called for each bought item */

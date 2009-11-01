@@ -34,6 +34,15 @@ char *get_input() {
 	return output;
 }
 
+char retry_or_quit() {
+	char *c;
+	do {
+		cprintf("\r\nr)etry or q)uit?\r\n");
+		c = get_input();
+	} while ((*c != 'r') && (*c != 'q'));
+	return *c;
+}
+
 char *format_euro(char *s, int maxlen, int cent){
 	int tmp = cent;
 	int len = strlen(",EUR");

@@ -15,6 +15,7 @@
 #include "kasse.h"
 #include "general.h"
 #include "config.h"
+#include "print.h"
 
 /* NOTE: undocumented function which scratches files
    We need to use this function because linking unistd.h

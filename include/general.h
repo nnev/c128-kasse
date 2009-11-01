@@ -2,7 +2,8 @@
 #define GENERAL_H_
 typedef unsigned char BYTE;
 char *get_input();
-char * format_euro(char * s, int maxlen, int cent);
+char retry_or_quit();
+char *format_euro(char * s, int maxlen, int cent);
 void c128_perror(BYTE, char*);
 extern BYTE _oserror;
 #define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
