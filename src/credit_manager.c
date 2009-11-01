@@ -12,6 +12,7 @@
 #include "config.h"
 #include "general.h"
 #include "kasse.h"
+#include "c128time.h"
 
 static char *filter = NULL;
 static BYTE filter_len;
