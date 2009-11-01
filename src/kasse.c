@@ -1,6 +1,6 @@
 /* 
  * RGB2R-C128-Kassenprogramm
- * (c) 2007-2008 phil_fry, sECuRE, sur5r
+ * Â© 2007-2009 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  */
@@ -53,9 +53,9 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 	char *time = get_time();
 	char price[10];
 	/* Format: 
-	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!) -- 6-stellig
+	   Transaction-ID (Anzahl verkaufter EintrÃ¤ge, inklusive des zu druckenden!) -- 6-stellig
 	   Uhrzeit -- 8-stellig
-	   Eintragname (= Getränk) -- 9-stellig
+	   Eintragname (= GetrÃ¤nk) -- 9-stellig
 	   Preis (in Cents) -- 7-stellig
 	   Anzahl -- 2-stellig
 	   Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig

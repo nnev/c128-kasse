@@ -1,6 +1,6 @@
 /* 
  * RGB2R-C128-Kassenprogramm
- * (c) 2007-2008 phil_fry, sECuRE, sur5r
+ * © 2007-2009 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  */
@@ -12,7 +12,7 @@
 #include "general.h"
 
 /*
- * Liest (maximal 31) Zeichen ein, bis Enter gedr�ckt wird.
+ * Liest (maximal 31) Zeichen ein, bis Enter gedrückt wird.
  * Vorsicht: Es wird ein statischer Buffer benutzt, sodass man
  * das Ergebnis via strdup() retten muss, bevor man get_input()
  * erneut aufruft

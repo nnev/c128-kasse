@@ -1,6 +1,6 @@
 /*
  * RGB2R-C128-Kassenprogramm
- * (c) 2007-2008 phil_fry, sECuRE, sur5r
+ * © 2007-2009 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  * itemz.c: Verwaltet die ITEMS- und CREDITS-datei
@@ -21,7 +21,7 @@ static void itemz_print_screen() {
 	char buffer[10];
 
 	clrscr();
-	cprintf("itemz (phil_fry, sECuRE, sur5r)\r\n\r\n");
+	cprintf("itemz (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
 	cprintf("Datei: ITEMS\r\n\r\n");
 	for (i = 0; i < status.num_items; i++) {
 		if (format_euro(buffer, 10, status.status[i].price) != buffer) {

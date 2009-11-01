@@ -1,6 +1,6 @@
 /* 
  * RGB2R-C128-Kassenprogramm
- * (c) 2007-2009 phil_fry, sECuRE, sur5r
+ * © 2007-2009 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
  *
  */
