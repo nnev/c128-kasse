@@ -55,6 +55,7 @@ struct credits_t *find_credit(char *name){
  * 
  */
 static void deposit_credit() {
+	char *time = get_time();
 	char *input;
 	struct credits_t *credit;
 	unsigned int deposit;
@@ -74,7 +75,7 @@ static void deposit_credit() {
 	
 	toggle_videomode();
 	cprintf("%d Cent eingezahlt fuer %s.\r\nRestguthaben: %d\r\n", deposit, credit->nickname);
-	sprintf(print_buffer, "%c%d Cent eingezahlt fuer %s. Restguthaben: %d Cent\r", 17, deposit, credit->nickname, credit->credit);
+	sprintf(print_buffer, "%c%s - %d Cent eingezahlt fuer %s. Restguthaben: %d Cent\r", 17, time, deposit, credit->nickname, credit->credit);
 	cprintf("%s", print_buffer);
 	toggle_videomode();
 	print_the_buffer();
