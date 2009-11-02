@@ -71,7 +71,7 @@ static void lookup_needed_files() {
 	if (log_num > 0) {
 		log_num--;
 
-		sprintf(filename, "log-%d", log_num);
+		sprintf(filename, "log-%u", log_num);
 		if ((c = cbm_open(lfn, (BYTE)8, (BYTE)CBM_READ, filename)) != 0) {
 			c128_perror(c, "cbm_open(log) for reading");
 			exit(1);

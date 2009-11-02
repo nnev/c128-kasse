@@ -41,6 +41,18 @@ RETRY:
 	log_file(print_buffer);
 }
 
+void print_header() {
+	sprintf(print_buffer, "%c-----------------------------------------------------------------\r", 17);
+	print_the_buffer();
+
+	sprintf(print_buffer, "%c#kauf Uhrzeit  - Ding      - Preis    - Restguthab - # - Nickname\r", 17);
+	print_the_buffer();
+
+	sprintf(print_buffer, "%c-----------------------------------------------------------------\r", 17);
+	print_the_buffer();
+
+}
+
 void log_file(const char *s) {
 	/* A log-entry has usually 50 bytes, so we take 64 bytes.
 	   Because files are wrapped (log.0, log.1, ...) every 100
