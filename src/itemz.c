@@ -23,7 +23,7 @@ static void itemz_print_screen() {
 	clrscr();
 	cprintf("itemz (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
 	cprintf("Datei: ITEMS\r\n\r\n");
-	for (i = 0; i < status.num_items; i++) {
+	for (i = 0; i < max(status.num_items, 15); i++) {
 		if (format_euro(buffer, 10, status.status[i].price) != buffer) {
 			cprintf("Error: Could not format price %d\r\n", status.status[i].price);
 			exit(1);

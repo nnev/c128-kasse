@@ -19,4 +19,7 @@ extern BYTE _oserror;
 #define xstr(s) str(s)
 #define str(s) #s
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) > (b) ? (b) : (a))
+
 #endif /*GENERAL_H_*/

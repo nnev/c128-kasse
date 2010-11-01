@@ -37,21 +37,34 @@ static void print_screen() {
 		exit(1);
 	}
 	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) " GV "\r\
-\r\nUhrzeit: %s (wird nicht aktualisiert)\r\
-Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n\r\n",
+\r\nUhrzeit:     %s (wird nicht aktualisiert)\r\
+Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
 	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
-	for (; i < status.num_items; ++i) {
+	cprintf("\xB0\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xAE\r\n");
+	for (; i < min(status.num_items, 15); ++i) {
 		if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
 			cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i].price);
 			exit(1);
 		}
 
-		cprintf("Eintrag %2d: %-" xstr(MAX_ITEM_NAME_LENGTH) "s (%s, %d mal verkauft)\r\n",
+		cprintf("\x7D%2d: %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
 			i, status.status[i].item_name, profit, status.status[i].times_sold);
+		if ((i+16) < status.num_items) {
+
+			if (format_euro(profit, sizeof(profit), status.status[i+16].price) == NULL) {
+				cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i+16].price);
+				exit(1);
+			}
+			cprintf("%2d: %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
+				i+16, status.status[i+16].item_name, profit, status.status[i+16].times_sold);
+		} else cprintf("              \x7D                \x7D");
+		cprintf("\r\n");
 	}
-	cprintf("\r\nBefehle: s) Daten sichern d) Drucken umschalten\r\
-g) Guthabenverwaltung     z) Zeit setzen\r\
-f) Freitext verkaufen     q) Beenden\r\n");
+	cprintf("\xAD\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xBD\r\n");
+	cprintf(
+"   s) Daten sichern                 d) Drucken umschalten\r\
+   g) Guthabenverwaltung            z) Zeit setzen\r\
+   f) Freitext verkaufen            q) Beenden\r\n");
 }
 
 /* Prints a line and logs it to file */
@@ -301,7 +314,8 @@ int main() {
 		} else if (*c == 'q')
 			break;
 	}
-	cprintf("BYEBYE\r\n");
+	clrscr();
+	cprintf("\r\nBYEBYE\r\n");
 
 	return 0;
 }
