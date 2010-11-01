@@ -103,18 +103,20 @@ static signed int buy(char *name, unsigned int price) {
 	int einheiten;
 	char *input;
 	char nickname[11];
-	char rest[9];
+	char rest[11];
 	struct credits_t *credit;
 
 	memset(rest, ' ', sizeof(rest));
 	rest[8] = '\0';
 
+	clrscr();
 	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
 	while (1) {
-		c = getchar();
+		c = cgetc();
 		if (c == 13)
 			break;
-		else if (c == 27) {
+		cputc(c);
+		if (c == 27) {
 			cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
 			get_input();
 			return 1;
@@ -126,7 +128,8 @@ static signed int buy(char *name, unsigned int price) {
 	einheiten = atoi(entered) * negative;
 	
 	toggle_videomode();
-	cprintf("%dx %s fuer ", einheiten, name);
+	cprintf("\r\n             *** VERKAUF ***\r\n\r\n");
+	cprintf("%dx %s", einheiten, name);
 	toggle_videomode();
 	
 	cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
@@ -134,11 +137,11 @@ static signed int buy(char *name, unsigned int price) {
 	strncpy(nickname, input, 11);
 	if (*nickname != '\0') {
 		toggle_videomode();
-		cprintf("%s\r\n", nickname);
+		cprintf(" fuer %s\r\n", nickname);
 		toggle_videomode();
 	}
 
-	if (nickname != NULL && *nickname != '\0' && *nickname != 32) {
+	if (*nickname != '\0' && *nickname != 32) {
 		nickname_len = strlen(nickname);
 		/* go through credits and remove the amount of money or set nickname
 		 * to NULL if no such credit could be found */
@@ -160,7 +163,7 @@ static signed int buy(char *name, unsigned int price) {
 			cprintf("\r\nVerbleibendes Guthaben fuer %s: %s. Druecke RETURN...\r\n",
 				nickname, rest);
 			toggle_videomode();
-			cprintf("\r\nDein verbleibendes Guthaben betraegt %s.\r\n", rest);
+			cprintf("\r\nDein Guthaben betraegt noch %s.\r\n", rest);
 			toggle_videomode();
 			get_input();
 			matches++;
@@ -209,10 +212,11 @@ void buy_custom() {
 
 	cprintf("\r\nWie teuer ist \"%s\" (in cents)?\r\n", name);
 	while (1) {
-		c = getchar();
+		c = cgetc();
 		if (c == 13)
 			break;
-		else if (c == 27) {
+		cputc(c);
+		if (c == 27) {
 			cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
 			get_input();
 			return;

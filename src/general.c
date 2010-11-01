@@ -20,8 +20,10 @@
  */
 char *get_input() {
 	BYTE i = 0;
+	BYTE c, x, y;
 	static char output[32];
-	BYTE c;
+	x = wherex();
+	y = wherey();
 	memset(output, '\0', 32);
 	while (1) {
 		if (i == 31)
@@ -29,6 +31,13 @@ char *get_input() {
 		c = cgetc();
 		if (c == 13)
 			break;
+		/* backspace? */
+		if (c == 20) {
+			i--;
+			cputcxy(x+i, y, ' ');
+			gotoxy(x+i, y);
+			continue;
+		}
 		cputc(c);
 		output[i++] = c;
 	}
