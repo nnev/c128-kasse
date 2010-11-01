@@ -3,7 +3,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define MAX_ITEMS 16
+#define MAX_ITEMS 32
 #define MAX_ITEM_NAME_LENGTH 9
 #define MAX_CREDIT_ITEMS 75
 #define CREDITS_PER_PAGE 10
