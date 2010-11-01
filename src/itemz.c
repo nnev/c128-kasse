@@ -52,7 +52,7 @@ static void new_item() {
 	if ((input = get_input()) == NULL || *input == '\0' || (price = atoi(input)) == 0)
 		return;
 	cprintf("\r\nWie oft schon verkauft? [0] \r\n");
-	if ((input = get_input()) == NULL || *input == '\0')
+	if ((input = get_input()) == NULL)
 		return;
 	memset(status.status[status.num_items].item_name, '\0', MAX_ITEM_NAME_LENGTH+1);
 	strncpy(status.status[status.num_items].item_name, name, MAX_ITEM_NAME_LENGTH);

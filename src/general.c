@@ -26,10 +26,11 @@ char *get_input() {
 	while (1) {
 		if (i == 31)
 			break;
-		c = getchar();
+		c = cgetc();
 		if (c == 13)
 			break;
-		else output[i++] = c;
+		cputc(c);
+		output[i++] = c;
 	}
 	return output;
 }
