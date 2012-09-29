@@ -25,6 +25,7 @@ struct status_t {
 
 struct status_array_t {
 	BYTE num_items;
+	unsigned int transaction_id;
 	struct status_t status[MAX_ITEMS];
 };
 

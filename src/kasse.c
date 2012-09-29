@@ -67,7 +67,10 @@ Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
    f) Freitext verkaufen            q) Beenden\r\n");
 }
 
-/* Prints a line and logs it to file */
+/*
+ * Prints a line and logs it to file. Every line can be at max 80 characters.
+ *
+ */
 static void print_log(char *name, int item_price, int einheiten, char *nickname, char *rest) {
 	char *time = get_time();
 	char price[10];
@@ -75,7 +78,7 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 	   Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!) -- 6-stellig
 	   Uhrzeit -- 8-stellig
 	   Eintragname (= Getränk) -- 9-stellig
-	   Preis (in Cents) -- 7-stellig
+	   Preis (in Cents) -- 9-stellig
 	   Anzahl -- 2-stellig
 	   Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig
 	   restguthaben (9-stellig)
@@ -88,8 +91,8 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 		exit(1);
 	}
 
-	sprintf(print_buffer, "%c[%3lu] %s - %-" xstr(MAX_ITEM_NAME_LENGTH) "s - %s - r %s - %d - an %s\r",  17,
-			items_sold, time, name, price, rest,
+	sprintf(print_buffer, "%c[%3lu] %s - %-" xstr(MAX_ITEM_NAME_LENGTH) "s - %s - %s - %d - an %s\r",  17,
+			status.transaction_id, time, name, price, rest,
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
 	print_the_buffer();
 }
