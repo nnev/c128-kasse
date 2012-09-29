@@ -57,17 +57,17 @@ Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
 		textcolor(TC_LIGHT_GRAY);
 		cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
 			status.status[i].item_name, profit, status.status[i].times_sold);
-		if ((i+16) < status.num_items) {
+		if ((i+15) < status.num_items) {
 
-			if (format_euro(profit, sizeof(profit), status.status[i+16].price) == NULL) {
-				cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i+16].price);
+			if (format_euro(profit, sizeof(profit), status.status[i+15].price) == NULL) {
+				cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i+15].price);
 				exit(1);
 			}
 			textcolor(TC_YELLOW);
-			cprintf("%2d", i+16);
+			cprintf("%2d", i+15);
 			textcolor(TC_LIGHT_GRAY);
 			cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
-				status.status[i+16].item_name, profit, status.status[i+16].times_sold);
+				status.status[i+15].item_name, profit, status.status[i+15].times_sold);
 		} else cprintf("              \x7D                \x7D");
 		cprintf("\r\n");
 	}
