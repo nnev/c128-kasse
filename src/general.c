@@ -33,7 +33,7 @@ char *get_input() {
 			break;
 		/* backspace? */
 		if (c == 20) {
-			i--;
+			output[--i] = '\0';
 			cputcxy(x+i, y, ' ');
 			gotoxy(x+i, y);
 			continue;
