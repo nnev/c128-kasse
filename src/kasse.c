@@ -199,15 +199,19 @@ static signed int buy(char *name, unsigned int price) {
 				exit(1);
 			}
 
+			textcolor(TC_LIGHT_GREEN);
 			cprintf("\r\nVerbleibendes Guthaben fuer %s: %s. Druecke RETURN...\r\n",
 				nickname, rest);
+			textcolor(TC_LIGHT_GRAY);
 			toggle_videomode();
 			cprintf("\r\nDein Guthaben betraegt noch %s.\r\n", rest);
 			toggle_videomode();
 			get_input();
 			matches++;
 		} else {
+			textcolor(TC_LIGHT_RED);
 			cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, druecke RETURN...\r\n");
+			textcolor(TC_LIGHT_GRAY);
 			get_input();
 			return 0;
 		}
