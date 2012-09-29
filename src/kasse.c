@@ -152,7 +152,11 @@ static signed int buy(char *name, unsigned int price) {
 		credit = find_credit(nickname);
 		if (credit != NULL) {
 			while ((signed int)credit->credit < ((signed int)price * einheiten)) {
-				cprintf("%s hat nicht genug Geld. e) einzahlen a) abbruch \r\n", nickname);
+				if (format_euro(rest, 10, credit->credit) == NULL) {
+					cprintf("Preis %d konnte nicht umgerechnet werden\r\n", credit->credit);
+					exit(1);
+				}
+				cprintf("\r\n%s hat nicht genug Geld (%s). e) einzahlen a) abbruch \r\n", nickname, rest);
 				c = cgetc();
 				if (c == 'e') {
 					deposit_credit(nickname);
