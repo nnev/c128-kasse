@@ -13,24 +13,24 @@ extern BYTE _oserror;
 
 /* C128 color codes, see PDF page 127 of
  * http://www.pagetable.com/docs/Commodore%20128%20Programmer%27s%20Reference%20Guide.pdf */
-#define TC_BLACK        1
-#define TC_WHITE        2
-#define TC_RED          3
-#define TC_CYAN         4
-#define TC_PURPLE       5
-#define TC_GREEN        6
-#define TC_BLUE         7
-#define TC_YELLOW       8
-#define TC_ORANGE       9
-#define TC_BROWN       10
+#define TC_BLACK        0
+#define TC_WHITE        1
+#define TC_RED          2
+#define TC_CYAN         3
+#define TC_PURPLE       4
+#define TC_GREEN        5
+#define TC_BLUE         6
+#define TC_YELLOW       7
+#define TC_ORANGE       8
+#define TC_BROWN        9
 /* This is the good red */
-#define TC_LIGHT_RED   11
-#define TC_DARK_GRAY   12
-#define TC_MEDIUM_GRAY 13
+#define TC_LIGHT_RED   10
+#define TC_DARK_GRAY   11
+#define TC_MEDIUM_GRAY 12
 /* This is the good green */
-#define TC_LIGHT_GREEN 14
-#define TC_LIGHT_BLUE  15
-#define TC_LIGHT_GRAY  16
+#define TC_LIGHT_GREEN 13
+#define TC_LIGHT_BLUE  14
+#define TC_LIGHT_GRAY  15
 
 #define VIDEOMODE (((* (BYTE *)0xD7) == 0x80) ? 80 : 40)
 
