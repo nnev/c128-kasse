@@ -94,6 +94,7 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 	sprintf(print_buffer, "%c[%3u] %s - %-" xstr(MAX_ITEM_NAME_LENGTH) "s - %s - %s - %d - an %s\r",  17,
 			status.transaction_id, time, name, price, rest,
 			einheiten, (*nickname != '\0' ? nickname : "Unbekannt"));
+	status.transaction_id++;
 	print_the_buffer();
 }
 
