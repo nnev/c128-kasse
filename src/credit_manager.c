@@ -25,7 +25,7 @@ static void credit_print_screen() {
 	char buffer[10];
 
 	clrscr();
-	cprintf("itemz (phil_fry, sECuRE, sur5r)\r\n\r\n");
+	cprintf("credit_manager (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
 	pages = (credits.num_items / CREDITS_PER_PAGE);
 	if (current_credits_page > pages)
 		current_credits_page = pages;
