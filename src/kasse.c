@@ -36,35 +36,62 @@ static void print_screen() {
 		cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
 		exit(1);
 	}
-	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) " GV "\r\
+	textcolor(TC_CYAN);
+	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) " GV "\r");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf("\
 \r\nUhrzeit:     %s (wird nicht aktualisiert)\r\
 Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
 	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
-	cprintf("\xB0\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xAE\r\n");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf("      \xB0\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xAE\r\n");
 	for (; i < min(status.num_items, 15); ++i) {
 		if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
 			cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i].price);
 			exit(1);
 		}
 
-		cprintf("\x7D%2d: %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
-			i, status.status[i].item_name, profit, status.status[i].times_sold);
+		cprintf("      \x7D");
+		textcolor(TC_YELLOW);
+		cprintf("%2d", i);
+		textcolor(TC_LIGHT_GRAY);
+		cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
+			status.status[i].item_name, profit, status.status[i].times_sold);
 		if ((i+16) < status.num_items) {
 
 			if (format_euro(profit, sizeof(profit), status.status[i+16].price) == NULL) {
 				cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i+16].price);
 				exit(1);
 			}
-			cprintf("%2d: %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
-				i+16, status.status[i+16].item_name, profit, status.status[i+16].times_sold);
+			textcolor(TC_YELLOW);
+			cprintf("%2d", i+16);
+			textcolor(TC_LIGHT_GRAY);
+			cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
+				status.status[i+16].item_name, profit, status.status[i+16].times_sold);
 		} else cprintf("              \x7D                \x7D");
 		cprintf("\r\n");
 	}
-	cprintf("\xAD\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xBD\r\n");
-	cprintf(
-"   s) Daten sichern                 d) Drucken umschalten\r\
-   g) Guthabenverwaltung            z) Zeit setzen\r\
-   f) Freitext verkaufen            q) Beenden\r\n");
+	cprintf("      \xAD\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xBD\r\n");
+	textcolor(TC_YELLOW);
+	cprintf("   s");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf(") Daten sichern                                  ");
+	textcolor(TC_YELLOW);
+	cprintf("g");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf(") Guthabenverwaltung\r\n");
+	textcolor(TC_YELLOW);
+	cprintf("   z");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf(") Zeit setzen         ");
+	textcolor(TC_YELLOW);
+	cprintf("f");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf(") Freitext verkaufen      ");
+	textcolor(TC_YELLOW);
+	cprintf("q");
+	textcolor(TC_LIGHT_GRAY);
+	cprintf(") Beenden\r\n");
 }
 
 /*
@@ -316,12 +343,6 @@ int main() {
 			save_items();
 			save_credits();
 			cprintf("Statefile/Creditfile gesichert, druecke RETURN...\r\n");
-			get_input();
-		} else if (*c == 'd') {
-			/* enable/disable printing */
-			printing = (printing == 1 ? 0 : 1);
-			cprintf("Drucken ist nun %s, druecke RETURN...\r\n", 
-				(printing == 1 ? "eingeschaltet" : "ausgeschaltet"));
 			get_input();
 		} else if (*c == 'g') {
 			credit_manager();
