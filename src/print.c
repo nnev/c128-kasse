@@ -45,7 +45,7 @@ void print_header() {
 	sprintf(print_buffer, "%c--------------------------------------------------------------------------------\r", 17);
 	print_the_buffer();
 
-	sprintf(print_buffer, "%c#kauf Uhrzeit  - Ding      - Preis     - Restguthbn - # - Nickname\r", 17);
+	sprintf(print_buffer, "%c#kauf Uhrzeit  - Ding      -     Preis - Restguthbn - # - Nickname\r", 17);
 	print_the_buffer();
 
 	sprintf(print_buffer, "%c--------------------------------------------------------------------------------\r", 17);
