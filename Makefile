@@ -8,6 +8,7 @@ CFLAGS += -DGV=\"${GV}\"
 
 %.o: %.c ${INCLUDES}
 	${CC} ${CFLAGS} -O -I include -t c128 $< -o /dev/stdout | ${AS} -I include -t c128 /dev/stdin -o $@
+all: kasse itemz
 
 kasse: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o src/print.o
 	${LD} -t c128 $^ -o $@
@@ -17,8 +18,6 @@ itemz: src/config.o src/itemz.o src/general.o src/credit_manager.o src/c128time.
 
 cat: src/general.o src/cat.o
 	${LD} -t c128 $^ -o $@
-
-all: kasse itemz
 
 package: all
 	cp images/kasse.d64 .
