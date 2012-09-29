@@ -277,7 +277,7 @@ int main() {
 	load_credits();
 
 	time = get_time();
-	sprintf(print_buffer, "%c-----------------------------------------------------------------\r", 17);
+	sprintf(print_buffer, "%c--------------------------------------------------------------------------------\r", 17);
 	print_the_buffer();
 	sprintf(print_buffer, "%cC128-Kasse Version " GV "\r", 17);
 	print_the_buffer();
