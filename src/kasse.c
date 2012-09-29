@@ -151,10 +151,14 @@ static signed int buy(char *name, unsigned int price) {
 		 * to NULL if no such credit could be found */
 		credit = find_credit(nickname);
 		if (credit != NULL) {
-			if ((signed int)credit->credit < ((signed int)price * einheiten)) {
-				cprintf("Sorry, %s hat nicht genug Geld :-(\r\n", nickname);
-				get_input();
-				return 0;
+			while ((signed int)credit->credit < ((signed int)price * einheiten)) {
+				cprintf("%s hat nicht genug Geld. e) einzahlen a) abbruch \r\n", nickname);
+				c = cgetc();
+				if (c == 'e') {
+					deposit_credit(nickname);
+				} else {
+					return 0;
+				}
 			}
 			/* substract money */
 			credit->credit -= (price * einheiten);

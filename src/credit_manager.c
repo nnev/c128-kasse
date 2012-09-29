@@ -52,20 +52,22 @@ struct credits_t *find_credit(char *name){
 }
 
 /*
- * when depositing money with this and returning to the main menu, the program
- * will crash with a message like the following:
+ * Deposits credit for a user. Called in the credit manager (with input ==
+ * NULL) or interactively when the user does not have enough money for his
+ * intended purchase (with input == nickname).
  * 
  */
-static void deposit_credit() {
+void deposit_credit(char *input) {
 	char *time = get_time();
-	char *input;
 	struct credits_t *credit;
 	unsigned int deposit;
 
-	cprintf("\r\nName:\r\n");
-	if ((input = get_input()) == NULL || *input == '\0')
-		return; // no name given
-		
+	if (input == NULL) {
+		cprintf("\r\nName:\r\n");
+		if ((input = get_input()) == NULL || *input == '\0')
+			return; // no name given
+	}
+
 	if ((credit = find_credit(input)) == NULL)
 		return; // cannot find named credit
 	
@@ -163,7 +165,7 @@ void credit_manager(){
 					current_credits_page--;
 				break;
 			case 'p':
-				deposit_credit(); break;
+				deposit_credit(NULL); break;
 			case 'g':
 				cprintf("Filter eingeben:\r\n");
 				filter = get_input();
