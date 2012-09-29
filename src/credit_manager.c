@@ -92,6 +92,7 @@ void deposit_credit(char *input) {
 
 static void new_credit() {
 	char *input, *name;
+	char *time;
 	int credit;
 
 	if (credits.num_items == 75) {
@@ -111,7 +112,8 @@ static void new_credit() {
 	strcpy(credits.credits[credits.num_items].nickname, name);
 	credits.credits[credits.num_items].credit = credit;
 
-	sprintf(print_buffer, "%cGuthaben mit %d Cent fuer %s angelegt\r", 17, credit, name);
+	time = get_time();
+	sprintf(print_buffer, "%c%s - Guthaben mit %d Cent fuer %s angelegt\r", 17, time, credit, name);
 	print_the_buffer();
 
 	credits.num_items++;
