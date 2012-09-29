@@ -33,6 +33,9 @@ char *get_input() {
 			break;
 		/* backspace? */
 		if (c == 20) {
+			/* If you are at the left-most position, do nothing */
+			if (i == 0)
+				continue;
 			output[--i] = '\0';
 			cputcxy(x+i, y, ' ');
 			gotoxy(x+i, y);
