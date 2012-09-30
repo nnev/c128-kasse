@@ -19,6 +19,22 @@
  */
 unsigned char __fastcall__ _sysremove(const char *name);
 
+/* 8192 bytes of log buffer on the heap used for storing one entire logfile in
+ * memory before writing (unless flushed). */
+char *log_heap_buf;
+int log_heap_offset = 0;
+int log_heap_flushed = 0;
+
+const int LOG_SIZE = 8192;
+
+void init_log() {
+	log_heap_buf = malloc(sizeof(char) * LOG_SIZE);
+	if (log_heap_buf == NULL) {
+		cprintf("malloc(log_heap_buf) failed");
+		exit(1);
+	}
+}
+
 void print_the_buffer() {
 	BYTE c;
 RETRY:
@@ -53,48 +69,50 @@ void print_header() {
 
 }
 
-void log_file(const char *s) {
-	/* A log-entry has usually 50 bytes, so we take 64 bytes.
-	   Because files are wrapped (log.0, log.1, ...) every 100
-	   lines, we don't need more than 100 * 64 bytes. */
-	char *buffer = malloc(sizeof(char) * 64 * 100);
-	char filename[8];
-	int read = 0;
-	unsigned int c;
-
-	if (buffer == NULL) {
-		cprintf("No memory available\n");
-		exit(1);
-	}
-
-	buffer[0] = '\0';
-	if (((++log_lines_written) % 100) == 0)
-		log_num++;
+/*
+ * Flushes the current log buffer to disk. Called either by log_file() when one
+ * entire log file is completed or interactively.
+ *
+ */
+void log_flush(void) {
+	int c;
+	static char filename[8];
 	sprintf(filename, "log-%d", log_num);
-	/* Don't read log if there were no lines written before */
-	if (log_lines_written != 1) {
-		if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)0, filename)) != 0) {
-			c128_perror(c, "cbm_open(log)");
-			exit(1);
-		}
-		read = cbm_read((BYTE)8, buffer, sizeof(char) * 64 * 100);
-		cbm_close((BYTE)8);
+
+	/* If we have written to this logfile before, we need to remove it first */
+	if (log_heap_flushed > 0)
 		_sysremove(filename);
-	}
+
 	if ((c = cbm_open((BYTE)8, (BYTE)8, (BYTE)1, filename)) != 0) {
 		c128_perror(c, "cbm_open(log)");
 		exit(1);
 	}
-	if (read < 0) {
-		cprintf("Could not read existing logfile (read returned %d)\n", read);
-		exit(1);
-	}
-	strcpy(buffer+read, s);
-	c = cbm_write((BYTE)8, buffer, read+strlen(s));
-	if (c != (read+strlen(s))) {
-		cprintf("Could not save logfile (wrote %d bytes, wanted %d bytes), please make sure the floppy is not full!\n", c, (read+strlen(s)));
+	c = cbm_write((BYTE)8, log_heap_buf, log_heap_offset);
+	if (c != log_heap_offset) {
+		textcolor(TC_LIGHT_RED);
+		cprintf("\r\nCould not save logfile (wrote %d bytes, wanted %d bytes), please make sure the floppy is not full!\n", c, log_heap_offset);
+		c128_perror(c, "cbm_write");
 		exit(1);
 	}
 	cbm_close((BYTE)8);
-	free(buffer);
+
+	log_heap_flushed = log_heap_offset;
+}
+
+/*
+ * Logs to memory and eventually to file (log_flush() is called when one entire
+ * logfile was completed in memory).
+ *
+ */
+void log_file(const char *s) {
+	strcpy(log_heap_buf+log_heap_offset, s);
+	log_heap_offset += strlen(s);
+
+	/* Force a flush when there are only five lines left */
+	if (log_heap_offset > (LOG_SIZE - (5 * 80))) {
+		log_flush();
+		log_num++;
+		log_heap_offset = 0;
+		log_heap_flushed = 0;
+	}
 }

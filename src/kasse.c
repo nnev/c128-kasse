@@ -303,6 +303,10 @@ int main() {
 	if (VIDEOMODE == 40)
 		toggle_videomode();
 	clrscr();
+
+	/* Allocate logging buffer memory */
+	init_log();
+
 	/* Set time initially, c128 doesn't know it */
 	set_time_interactive();
 
@@ -322,7 +326,7 @@ int main() {
 	sprintf(print_buffer, "%cC128-Kasse Version " GV "\r", 17);
 	print_the_buffer();
 
-	sprintf(print_buffer, "%cKasse gestartet um %s. Nutze logfile log-%u, zeile %d.\r", 17, time, log_num, log_lines_written);
+	sprintf(print_buffer, "%cKasse gestartet um %s. Nutze logfile log-%u, offset %d.\r", 17, time, log_num, log_heap_offset);
 	print_the_buffer();
 
 	print_header();
@@ -346,7 +350,8 @@ int main() {
 		} else if (*c == 's') {
 			save_items();
 			save_credits();
-			cprintf("Statefile/Creditfile gesichert, druecke RETURN...\r\n");
+			log_flush();
+			cprintf("\r\nStatefile/Creditfile/Log gesichert, druecke RETURN...\r\n");
 			get_input();
 		} else if (*c == 'g') {
 			credit_manager();

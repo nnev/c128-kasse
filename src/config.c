@@ -40,15 +40,7 @@ struct credits_array_t credits;
 static void lookup_needed_files() {
 	BYTE lfn = 8, c;
 	struct cbm_dirent dirent;
-	char *buffer = malloc(sizeof(char) * 64 * 100);
-	char *walk;
 	char filename[8];
-	int n;
-
-	if (buffer == NULL) {
-		cprintf("Not enough memory available\r\n");
-		exit(1);
-	}
 
 	if (cbm_opendir(lfn, (BYTE)8) != 0) {
 		cprintf("could not open directory\r\n");
@@ -76,20 +68,15 @@ static void lookup_needed_files() {
 			c128_perror(c, "cbm_open(log) for reading");
 			exit(1);
 		}
-		n = cbm_read(lfn, buffer, sizeof(char) * 64 * 100);
-		if (n < 0) {
+		log_heap_offset = cbm_read(lfn, log_heap_buf, LOG_SIZE);
+		if (log_heap_offset < 0) {
 			cprintf("error while cbm_read()ing the logfile\r\n");
 			exit(1);
 		}
-		buffer[n] = '\0';
-		for (walk = buffer; (walk - buffer) < n; walk++) {
-			if (*walk == '\r' || *walk == '\n')
-				log_lines_written++;
-		}
+		log_heap_flushed = log_heap_offset;
+		log_heap_buf[log_heap_offset] = '\0';
 		cbm_close(lfn);
 	}
-
-	free(buffer);
 }
 
 void load_items() {
