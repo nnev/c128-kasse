@@ -6,7 +6,7 @@
 
 #include "general.h"
 
-#define x2(x) (buffer[x] < 10 ? "0" : ""), buffer[x]
+#define x2(x) (buffer[x] <= 0xF ? "0" : ""), buffer[x]
 
 int main() {
 	char *filename = NULL;
