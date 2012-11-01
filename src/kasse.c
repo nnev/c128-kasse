@@ -130,7 +130,7 @@ static signed int buy(char *name, unsigned int price) {
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
 	BYTE i = 0, matches = 0;
-	BYTE c, nickname_len;
+	BYTE c, x, y, nickname_len;
 	int einheiten;
 	char *input;
 	char nickname[11];
@@ -142,21 +142,48 @@ static signed int buy(char *name, unsigned int price) {
 
 	clrscr();
 	cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
+	x = wherex();
+	y = wherey();
 	while (1) {
+		/* Buffer-Ende erreicht? */
+		if (i == 4)
+			break;
+
 		c = cgetc();
+		/* Enter */
 		if (c == 13)
 			break;
-		cputc(c);
+		/* Backspace */
+		if (c == 20) {
+			if (i == 0)
+				continue;
+			entered[--i] = '\0';
+			cputcxy(x+i, y, ' ');
+			gotoxy(x+i, y);
+			continue;
+		}
 		if (c == 27) {
 			cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
 			get_input();
 			return 1;
-		} else if (c == '-' && i == 0)
+		}
+		if (c == '-' && i == 0) {
 			negative = -1;
-		else if (c > 47 && c < 58)
+			cputc(c);
+		} else if (c > 47 && c < 58) {
 			entered[i++] = c;
+			cputc(c);
+		}
+
+		/* Ungültige Eingabe (keine Ziffer), einfach ignorieren */
 	}
 	einheiten = atoi(entered) * negative;
+
+	if (einheiten > 100 || einheiten < -100 || einheiten == 0) {
+		cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, druecke RETURN...\r\n");
+		cgetc();
+		return 1;
+	}
 	
 	toggle_videomode();
 	cprintf("\r\n             *** VERKAUF ***\r\n\r\n");
