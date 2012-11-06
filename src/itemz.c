@@ -15,6 +15,7 @@
 #include "general.h"
 #include "config.h"
 #include "credit_manager.h"
+#include "version.h"
 
 static void itemz_print_screen() {
 	BYTE i;

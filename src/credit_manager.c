@@ -14,6 +14,7 @@
 #include "kasse.h"
 #include "c128time.h"
 #include "print.h"
+#include "version.h"
 
 static char *filter = NULL;
 static BYTE filter_len;

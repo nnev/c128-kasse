@@ -17,6 +17,7 @@
 #include "credit_manager.h"
 #include "c128time.h"
 #include "print.h"
+#include "version.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 

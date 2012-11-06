@@ -6,3 +6,4 @@ kasse
 *.P00
 itemz
 *.d64
+include/version.h

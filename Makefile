@@ -1,14 +1,20 @@
 CC=cc65
 AS=ca65
 LD=cl65
-INCLUDES:=$(wildcard include/*.h)
+INCLUDES:=$(wildcard include/*.h) include/version.h
 GV:=$(shell git describe --tags --always)
+CFLAGS= -I include -t c128
 
-CFLAGS += -DGV=\"${GV}\"
+.PHONY: include/version.h clean dist-clean
+
+all: kasse itemz
 
 %.o: %.c ${INCLUDES}
-	${CC} ${CFLAGS} -O -I include -t c128 $< -o /dev/stdout | ${AS} -I include -t c128 /dev/stdin -o $@
-all: kasse itemz
+	${CC} ${CFLAGS} -O $<
+	${AS} ${CFLAGS} $(addsuffix .s,$(basename $< ))
+
+include/version.h:
+	echo "#define GV \"${GV}\"" > $@
 
 kasse: src/config.o src/kasse.o src/general.o src/credit_manager.o src/c128time.o src/print.o
 	${LD} -t c128 $^ -o $@
@@ -43,6 +49,6 @@ test-package: test
 
 clean:
 	rm -rf src/*.o src/*.s test/*.o test/*.s
-	
+
 dist-clean: clean
 	rm kasse itemz kasse.d64
