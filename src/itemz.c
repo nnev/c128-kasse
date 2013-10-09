@@ -32,7 +32,7 @@ static void itemz_print_screen() {
 		cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n",
 			i, status.status[i].item_name, buffer, status.status[i].times_sold);
 	}
-	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) Beenden\r\n");
+	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) Beenden\r\nr) Reset des Verkauft-Zaehlers\r\n");
 }
 
 static void new_item() {
@@ -91,6 +91,14 @@ static void delete_item() {
 	status.num_items--;
 }
 
+static void reset_counters(void) {
+	BYTE i;
+
+	for (i = 0; i < status.num_items; i++) {
+		status.status[i].times_sold = 0;
+	}
+}
+
 static void itemz_manager(){
 	char *c;
 	while(1){
@@ -103,6 +111,8 @@ static void itemz_manager(){
 				delete_item(); break;
 			case 's':
 				save_items(); break;
+			case 'r':
+				reset_counters(); break;
 			case 'm':
 				return; // switch to credit mode
 			case 'q':
