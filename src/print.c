@@ -27,7 +27,7 @@ int log_heap_flushed = 0;
 
 const int LOG_SIZE = 8192;
 
-void init_log() {
+void init_log(void) {
 	log_heap_buf = malloc(sizeof(char) * LOG_SIZE);
 	if (log_heap_buf == NULL) {
 		cprintf("malloc(log_heap_buf) failed");
@@ -35,7 +35,7 @@ void init_log() {
 	}
 }
 
-void print_the_buffer() {
+void print_the_buffer(void) {
 	BYTE c;
 RETRY:
 	c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
@@ -57,7 +57,7 @@ RETRY:
 	log_file(print_buffer);
 }
 
-void print_header() {
+void print_header(void) {
 	sprintf(print_buffer, "%c--------------------------------------------------------------------------------\r", 17);
 	print_the_buffer();
 

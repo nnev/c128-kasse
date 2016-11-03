@@ -48,11 +48,11 @@ extern struct credits_array_t credits;
 #endif
 
 /* Lädt Dinge wie die Druckeradresse */
-void load_config();
-void load_items();
-void load_credits();
-//void dump_state();
+void load_config(void);
+void load_items(void);
+void load_credits(void);
+//void dump_state(void);
 
-void save_items();
-void save_credits();
+void save_items(void);
+void save_credits(void);
 #endif /*CONFIG_H_*/

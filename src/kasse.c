@@ -21,14 +21,8 @@
 // drucker 4 oder 5
 // graphic 4,0,10
 
-static void sane_exit() {
-	save_items();
-	save_credits();
-	exit(1);
-}
-
 /* Hauptbildschirm ausgeben */
-static void print_screen() {
+static void print_screen(void) {
 	BYTE i = 0;
 	char *time = get_time();
 	char profit[10];
@@ -266,7 +260,7 @@ void buy_stock(BYTE n) {
 	status.status[n].times_sold += buy(status.status[n].item_name, status.status[n].price);
 }
 
-void buy_custom() {
+void buy_custom(void) {
 	BYTE c = 0, i = 0;
 	int negative = 1;
 	char entered[5] = {'1', 0, 0, 0, 0};
@@ -303,7 +297,7 @@ void buy_custom() {
 	buy(name, price);
 }
 
-void set_time_interactive() {
+void set_time_interactive(void) {
 	BYTE part[3] = {'0', '0', '\0'};
 	BYTE tp1, tp2, tp3;
 	char *time_input, *time;
@@ -324,7 +318,7 @@ void set_time_interactive() {
 	cprintf("\r\nZeit gesetzt: %s\r\n", time);
 }
 
-int main() {
+int main(void) {
 	char *c;
 	char *time;
 

@@ -18,7 +18,7 @@
  * erneut aufruft
  *
  */
-char *get_input() {
+char *get_input(void) {
 	BYTE i = 0;
 	BYTE c, x, y;
 	static char output[32];
@@ -47,7 +47,7 @@ char *get_input() {
 	return output;
 }
 
-char retry_or_quit() {
+char retry_or_quit(void) {
 	char *c;
 	do {
 		cprintf("\r\nr)etry or q)uit?\r\n");

@@ -17,7 +17,7 @@
 #include "credit_manager.h"
 #include "version.h"
 
-static void itemz_print_screen() {
+static void itemz_print_screen(void) {
 	BYTE i;
 	char buffer[10];
 
@@ -35,7 +35,7 @@ static void itemz_print_screen() {
 	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) Beenden\r\nr) Reset des Verkauft-Zaehlers\r\n");
 }
 
-static void new_item() {
+static void new_item(void) {
 	char *input, *name;
 	int price;
 
@@ -69,7 +69,7 @@ static void _delete_item(BYTE num) {
 	status.status[num].times_sold = 0;
 }
 
-static void delete_item() {
+static void delete_item(void) {
 	char *input;
 	BYTE num, last;
 
@@ -124,7 +124,7 @@ static void itemz_manager(){
 	}
 }
 
-int main() {
+int main(void) {
 	if (VIDEOMODE == 40)
 		toggle_videomode();
 	credits.num_items = 0;

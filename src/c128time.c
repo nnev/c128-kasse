@@ -10,7 +10,7 @@
 #include "general.h"
 #include <stdint.h>
 
-char *get_time() {
+char *get_time(void) {
 	uint32_t h = PEEK(0x00A0) * 65536,
 		m = PEEK(0x00A1) * 256,
 		s = PEEK(0x00A2);

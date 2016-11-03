@@ -8,7 +8,7 @@
 
 #define x2(x) (buffer[x] <= 0xF ? "0" : ""), buffer[x]
 
-int main() {
+int main(void) {
 	char *filename = NULL;
 	FILE *file;
 	unsigned int c;

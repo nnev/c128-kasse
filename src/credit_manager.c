@@ -21,7 +21,7 @@ static BYTE filter_len;
 
 static BYTE current_credits_page = 0;
 
-static void credit_print_screen() {
+static void credit_print_screen(void) {
 	BYTE i, pages;
 	char buffer[10];
 
@@ -91,7 +91,7 @@ void deposit_credit(char *input) {
 	toggle_videomode();
 }
 
-static void new_credit() {
+static void new_credit(void) {
 	char *input, *name;
 	char *time;
 	int credit;
@@ -126,7 +126,7 @@ static void _delete_credit(BYTE num) {
 	credits.credits[num].credit = 0;
 }
 
-static void delete_credit() {
+static void delete_credit(void) {
 	char *input;
 	BYTE num, last;
 

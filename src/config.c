@@ -37,7 +37,7 @@ struct credits_array_t credits;
  * files directly)
  *
  */
-static void lookup_needed_files() {
+static void lookup_needed_files(void) {
 	BYTE lfn = 8, c;
 	struct cbm_dirent dirent;
 	char filename[8];
@@ -79,7 +79,7 @@ static void lookup_needed_files() {
 	}
 }
 
-void load_items() {
+void load_items(void) {
 	BYTE c;
 
 	if (items_exists) {
@@ -91,27 +91,27 @@ void load_items() {
 		memset(&status, 0, sizeof(struct status_array_t));
 }
 
-void load_credits() {
+void load_credits(void) {
 	if (credits_exists)
 		cbm_load("credits", (BYTE)8, &credits);
 	else
 		memset(&credits, 0, sizeof(struct credits_array_t));
 }
 
-void save_items() {
+void save_items(void) {
 	if (items_exists)
 		_sysremove("items");
 	cbm_save("items", (BYTE)8, &status, sizeof(struct status_array_t));
 	items_exists = true;
 }
 
-void save_credits() {
+void save_credits(void) {
 	if (credits_exists)
 		_sysremove("credits");
 	cbm_save("credits", (BYTE)8, &credits, sizeof(struct credits_array_t));
 	credits_exists = true;
 }
 
-void load_config() {
+void load_config(void) {
 	lookup_needed_files();
 }

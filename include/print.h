@@ -1,9 +1,9 @@
 #ifndef _PRINT_H
 #define _PRINT_H
 
-void init_log();
-void print_the_buffer();
-void print_header();
+void init_log(void);
+void print_the_buffer(void);
+void print_header(void);
 void log_file(const char *s);
 void log_flush(void);
 
