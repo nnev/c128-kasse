@@ -103,14 +103,14 @@ static void new_credit(void) {
 	}
 
 	clrscr();
-	cprintf("\rNickname:\r\n");
+	cprintf("\rNickname (max. 10 Zeichen):\r\n");
 	if ((input = get_input()) == NULL || *input == '\0')
 		return;
 	name = strdup(input);
 	cprintf("\r\nGuthaben in Cents:\r\n");
 	if ((input = get_input()) == NULL || *input == '\0' || (credit = atoi(input)) == 0)
 		return;
-	strcpy(credits.credits[credits.num_items].nickname, name);
+	strncpy(credits.credits[credits.num_items].nickname, name, NICKNAME_MAX_LEN);
 	credits.credits[credits.num_items].credit = credit;
 
 	time = get_time();
