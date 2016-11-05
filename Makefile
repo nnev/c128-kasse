@@ -51,4 +51,4 @@ clean:
 	rm -rf src/*.o src/*.s test/*.o test/*.s
 
 dist-clean: clean
-	rm kasse itemz kasse.d64
+	rm -f kasse itemz kasse.d64
