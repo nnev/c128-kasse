@@ -26,25 +26,19 @@ cat: src/general.o src/cat.o
 	${LD} -t c128 $^ -o $@
 
 package: all
-	cp images/kasse.d64 .
-	c1541 -attach kasse.d64 -delete state || exit 0 
-	c1541 -attach kasse.d64 -delete items || exit 0
-	c1541 -attach kasse.d64 -delete kasse || exit 0
-	c1541 -attach kasse.d64 -delete itemz || exit 0
+	c1541 -format "${GV}",KA d64 kasse.d64
 	c1541 -attach kasse.d64 -write kasse || exit 0
 	c1541 -attach kasse.d64 -write itemz || exit 0
-#	c1541 -attach kasse.d64 -write state || exit 0 
-#	c1541 -attach kasse.d64 -write items || exit 0
+	[ -e state ] && c1541 -attach kasse.d64 -write state
+	[ -e items ] && c1541 -attach kasse.d64 -write items
 
 test: src/config.o test/test.o src/general.o
 	cl65 -t c128 src/config.o test/test.o src/general.o -o test
 
 test-package: test
-	c1541 -attach test.d64 -delete state || exit 0 
-	c1541 -attach test.d64 -delete items || exit 0
-	c1541 -attach test.d64 -delete test || exit 0
+	c1541 -format "test",TE d64 test.d64
 	c1541 -attach test.d64 -write test || exit 0
-	c1541 -attach test.d64 -write state || exit 0 
+	c1541 -attach test.d64 -write state || exit 0
 	c1541 -attach test.d64 -write items || exit 0
 
 clean:
