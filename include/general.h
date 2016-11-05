@@ -1,6 +1,12 @@
 #ifndef GENERAL_H_
 #define GENERAL_H_
 typedef unsigned char BYTE;
+typedef enum {
+	INPUT_TERMINATOR_RETURN       = (1 << 0),
+	INPUT_TERMINATOR_SPACE        = (1 << 1),
+} input_terminator_t;
+typedef input_terminator_t input_terminator_mask_t;
+input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators, char *out, BYTE outlen);
 char *get_input(void);
 char retry_or_quit(void);
 char *format_euro(char * s, int maxlen, int cent);
@@ -31,6 +37,23 @@ extern BYTE _oserror;
 #define TC_LIGHT_GREEN 13
 #define TC_LIGHT_BLUE  14
 #define TC_LIGHT_GRAY  15
+
+/* Carriage return */
+#define PETSCII_CR  13
+/* Delete */
+#define PETSCII_DEL 20
+/* Space */
+#define PETSCII_SP  32
+#define PETSCII_0   48
+#define PETSCII_1   49
+#define PETSCII_2   50
+#define PETSCII_3   51
+#define PETSCII_4   52
+#define PETSCII_5   53
+#define PETSCII_6   54
+#define PETSCII_7   55
+#define PETSCII_8   56
+#define PETSCII_9   57
 
 #define VIDEOMODE (((* (BYTE *)0xD7) == 0x80) ? 80 : 40)
 

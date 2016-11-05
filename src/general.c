@@ -12,6 +12,42 @@
 #include "general.h"
 
 /*
+ * get_input_terminated_by() reads input (handling backspace correctly) until
+ * a terminator of |terminators| is encountered or |out| is full (outlen-1
+ * characters were read).
+ *
+ * get_input_terminated_by() returns the terminator it encountered.
+ *
+ */
+input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators, char *out, BYTE outlen) {
+	BYTE i = strlen(out);
+	BYTE c, x, y;
+	x = wherex() - i;
+	y = wherey();
+	while (1) {
+		c = cgetc();
+		if (((terminators & INPUT_TERMINATOR_RETURN) == INPUT_TERMINATOR_RETURN) && (c == PETSCII_CR)) {
+			return INPUT_TERMINATOR_RETURN;
+		} else if (((terminators & INPUT_TERMINATOR_SPACE) == INPUT_TERMINATOR_SPACE) && (c == PETSCII_SP)) {
+			return INPUT_TERMINATOR_SPACE;
+		} else if (c == PETSCII_DEL) {
+			/* If you are at the left-most position, do nothing */
+			if (i == 0)
+				continue;
+			out[--i] = '\0';
+			cputcxy(x+i, y, ' ');
+			gotoxy(x+i, y);
+			continue;
+		}
+		if (i == (outlen-1)) {
+			continue;
+		}
+		cputc(c);
+		out[i++] = c;
+	}
+}
+
+/*
  * Liest (maximal 31) Zeichen ein, bis Enter gedrückt wird.
  * Vorsicht: Es wird ein statischer Buffer benutzt, sodass man
  * das Ergebnis via strdup() retten muss, bevor man get_input()
@@ -19,31 +55,9 @@
  *
  */
 char *get_input(void) {
-	BYTE i = 0;
-	BYTE c, x, y;
 	static char output[32];
-	x = wherex();
-	y = wherey();
-	memset(output, '\0', 32);
-	while (1) {
-		if (i == 31)
-			break;
-		c = cgetc();
-		if (c == 13)
-			break;
-		/* backspace? */
-		if (c == 20) {
-			/* If you are at the left-most position, do nothing */
-			if (i == 0)
-				continue;
-			output[--i] = '\0';
-			cputcxy(x+i, y, ' ');
-			gotoxy(x+i, y);
-			continue;
-		}
-		cputc(c);
-		output[i++] = c;
-	}
+	memset(output, '\0', sizeof(output));
+	get_input_terminated_by(INPUT_TERMINATOR_RETURN, output, sizeof(output));
 	return output;
 }
 
