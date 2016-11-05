@@ -27,10 +27,10 @@ cat: src/general.o src/cat.o
 
 package: all
 	c1541 -format "${GV}",KA d64 kasse.d64
-	c1541 -attach kasse.d64 -write kasse || exit 0
-	c1541 -attach kasse.d64 -write itemz || exit 0
-	[ -e state ] && c1541 -attach kasse.d64 -write state
-	[ -e items ] && c1541 -attach kasse.d64 -write items
+	c1541 -attach kasse.d64 -write kasse
+	c1541 -attach kasse.d64 -write itemz
+	[ -e state ] && c1541 -attach kasse.d64 -write state || exit 0
+	[ -e items ] && c1541 -attach kasse.d64 -write items || exit 0
 
 test: src/config.o test/test.o src/general.o
 	cl65 -t c128 src/config.o test/test.o src/general.o -o test
