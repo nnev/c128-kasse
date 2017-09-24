@@ -18,126 +18,135 @@
 #include "version.h"
 
 static void itemz_print_screen(void) {
-	BYTE i;
-	char buffer[10];
+  BYTE i;
+  char buffer[10];
 
-	clrscr();
-	cprintf("itemz (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
-	cprintf("Datei: ITEMS\r\n\r\n");
-	for (i = 0; i < max(status.num_items, 15); i++) {
-		if (format_euro(buffer, 10, status.status[i].price) != buffer) {
-			cprintf("Error: Could not format price %d\r\n", status.status[i].price);
-			exit(1);
-		}
-		cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n",
-			i, status.status[i].item_name, buffer, status.status[i].times_sold);
-	}
-	cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) Beenden\r\nr) Reset des Verkauft-Zaehlers\r\n");
+  clrscr();
+  cprintf("itemz (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
+  cprintf("Datei: ITEMS\r\n\r\n");
+  for (i = 0; i < max(status.num_items, 15); i++) {
+    if (format_euro(buffer, 10, status.status[i].price) != buffer) {
+      cprintf("Error: Could not format price %d\r\n", status.status[i].price);
+      exit(1);
+    }
+    cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n", i,
+            status.status[i].item_name, buffer, status.status[i].times_sold);
+  }
+  cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) "
+          "Beenden\r\nr) Reset des Verkauft-Zaehlers\r\n");
 }
 
 static void new_item(void) {
-	char *input, *name;
-	int price;
+  char *input, *name;
+  int price;
 
-	if (status.num_items == MAX_ITEMS) {
-		cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, druecke RETURN...\r\n");
-		input = get_input();
-		return;
-	}
+  if (status.num_items == MAX_ITEMS) {
+    cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, "
+            "druecke RETURN...\r\n");
+    input = get_input();
+    return;
+  }
 
-	cprintf("\rName des Eintrags:\r\n");
-	if ((input = get_input()) == NULL || *input == '\0')
-		return;
-	name = strdup(input);
-	cprintf("\r\nPreis in Cents:\r\n");
-	if ((input = get_input()) == NULL || *input == '\0' || (price = atoi(input)) == 0)
-		return;
-	cprintf("\r\nWie oft schon verkauft? [0] \r\n");
-	if ((input = get_input()) == NULL)
-		return;
-	memset(status.status[status.num_items].item_name, '\0', MAX_ITEM_NAME_LENGTH+1);
-	strncpy(status.status[status.num_items].item_name, name, MAX_ITEM_NAME_LENGTH);
-	status.status[status.num_items].price = price;
-	status.status[status.num_items].times_sold = atoi(input);
-	status.num_items++;
-	free(name);
+  cprintf("\rName des Eintrags:\r\n");
+  if ((input = get_input()) == NULL || *input == '\0')
+    return;
+  name = strdup(input);
+  cprintf("\r\nPreis in Cents:\r\n");
+  if ((input = get_input()) == NULL || *input == '\0' ||
+      (price = atoi(input)) == 0)
+    return;
+  cprintf("\r\nWie oft schon verkauft? [0] \r\n");
+  if ((input = get_input()) == NULL)
+    return;
+  memset(status.status[status.num_items].item_name, '\0',
+         MAX_ITEM_NAME_LENGTH + 1);
+  strncpy(status.status[status.num_items].item_name, name,
+          MAX_ITEM_NAME_LENGTH);
+  status.status[status.num_items].price = price;
+  status.status[status.num_items].times_sold = atoi(input);
+  status.num_items++;
+  free(name);
 }
 
 static void _delete_item(BYTE num) {
-	memset(status.status[num].item_name, '\0', MAX_ITEM_NAME_LENGTH);
-	status.status[num].price = 0;
-	status.status[num].times_sold = 0;
+  memset(status.status[num].item_name, '\0', MAX_ITEM_NAME_LENGTH);
+  status.status[num].price = 0;
+  status.status[num].times_sold = 0;
 }
 
 static void delete_item(void) {
-	char *input;
-	BYTE num, last;
+  char *input;
+  BYTE num, last;
 
-	cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
-	if ((input = get_input()) == NULL || *input == '\0')
-		return;
-	num = atoi(input);
-	if (status.num_items > 1) {
-		/* Swap last item with this one and delete the last one to avoid holes */
-		last = (status.num_items - 1);
-		strcpy(status.status[num].item_name, status.status[last].item_name);
-		status.status[num].price = status.status[last].price;
-		status.status[num].times_sold = status.status[last].times_sold;
-		_delete_item(last);
-	} else {
-		/* Just delete it */
-		_delete_item(num);
-	}
-	status.num_items--;
+  cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
+  if ((input = get_input()) == NULL || *input == '\0')
+    return;
+  num = atoi(input);
+  if (status.num_items > 1) {
+    /* Swap last item with this one and delete the last one to avoid holes */
+    last = (status.num_items - 1);
+    strcpy(status.status[num].item_name, status.status[last].item_name);
+    status.status[num].price = status.status[last].price;
+    status.status[num].times_sold = status.status[last].times_sold;
+    _delete_item(last);
+  } else {
+    /* Just delete it */
+    _delete_item(num);
+  }
+  status.num_items--;
 }
 
 static void reset_counters(void) {
-	BYTE i;
+  BYTE i;
 
-	for (i = 0; i < status.num_items; i++) {
-		status.status[i].times_sold = 0;
-	}
+  for (i = 0; i < status.num_items; i++) {
+    status.status[i].times_sold = 0;
+  }
 }
 
-static void itemz_manager(){
-	char *c;
-	while(1){
-		itemz_print_screen();
-		c = get_input();
-		switch (*c) {
-			case 'n':
-				new_item(); break;
-			case 'd':
-				delete_item(); break;
-			case 's':
-				save_items(); break;
-			case 'r':
-				reset_counters(); break;
-			case 'm':
-				return; // switch to credit mode
-			case 'q':
-				exit(0);
-			default:
-				cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
-				get_input(); 
-		}
-	}
+static void itemz_manager() {
+  char *c;
+  while (1) {
+    itemz_print_screen();
+    c = get_input();
+    switch (*c) {
+    case 'n':
+      new_item();
+      break;
+    case 'd':
+      delete_item();
+      break;
+    case 's':
+      save_items();
+      break;
+    case 'r':
+      reset_counters();
+      break;
+    case 'm':
+      return; // switch to credit mode
+    case 'q':
+      exit(0);
+    default:
+      cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
+      get_input();
+    }
+  }
 }
 
 int main(void) {
-	if (VIDEOMODE == 40)
-		toggle_videomode();
-	credits.num_items = 0;
-	status.num_items = 0;
-	cprintf("itemz loading...\n");
-	load_config();
-	cprintf("itemz: loading ITEMS...\n");
-	load_items();
-	cprintf("itemz: loading CREDITS...\n");
-	load_credits();
-	while (1) {
-		itemz_manager();
-		credit_manager();
-	}
-	return 0;
+  if (VIDEOMODE == 40)
+    toggle_videomode();
+  credits.num_items = 0;
+  status.num_items = 0;
+  cprintf("itemz loading...\n");
+  load_config();
+  cprintf("itemz: loading ITEMS...\n");
+  load_items();
+  cprintf("itemz: loading CREDITS...\n");
+  load_credits();
+  while (1) {
+    itemz_manager();
+    credit_manager();
+  }
+  return 0;
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * RGB2R-C128-Kassenprogramm
  * © 2007-2009 phil_fry, sECuRE, sur5r
  * See LICENSE for license information
@@ -19,32 +19,36 @@
  * get_input_terminated_by() returns the terminator it encountered.
  *
  */
-input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators, char *out, BYTE outlen) {
-	BYTE i = strlen(out);
-	BYTE c, x, y;
-	x = wherex() - i;
-	y = wherey();
-	while (1) {
-		c = cgetc();
-		if (((terminators & INPUT_TERMINATOR_RETURN) == INPUT_TERMINATOR_RETURN) && (c == PETSCII_CR)) {
-			return INPUT_TERMINATOR_RETURN;
-		} else if (((terminators & INPUT_TERMINATOR_SPACE) == INPUT_TERMINATOR_SPACE) && (c == PETSCII_SP)) {
-			return INPUT_TERMINATOR_SPACE;
-		} else if (c == PETSCII_DEL) {
-			/* If you are at the left-most position, do nothing */
-			if (i == 0)
-				continue;
-			out[--i] = '\0';
-			cputcxy(x+i, y, ' ');
-			gotoxy(x+i, y);
-			continue;
-		}
-		if (i == (outlen-1)) {
-			continue;
-		}
-		cputc(c);
-		out[i++] = c;
-	}
+input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators,
+                                           char *out, BYTE outlen) {
+  BYTE i = strlen(out);
+  BYTE c, x, y;
+  x = wherex() - i;
+  y = wherey();
+  while (1) {
+    c = cgetc();
+    if (((terminators & INPUT_TERMINATOR_RETURN) == INPUT_TERMINATOR_RETURN) &&
+        (c == PETSCII_CR)) {
+      return INPUT_TERMINATOR_RETURN;
+    } else if (((terminators & INPUT_TERMINATOR_SPACE) ==
+                INPUT_TERMINATOR_SPACE) &&
+               (c == PETSCII_SP)) {
+      return INPUT_TERMINATOR_SPACE;
+    } else if (c == PETSCII_DEL) {
+      /* If you are at the left-most position, do nothing */
+      if (i == 0)
+        continue;
+      out[--i] = '\0';
+      cputcxy(x + i, y, ' ');
+      gotoxy(x + i, y);
+      continue;
+    }
+    if (i == (outlen - 1)) {
+      continue;
+    }
+    cputc(c);
+    out[i++] = c;
+  }
 }
 
 /*
@@ -55,33 +59,35 @@ input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators, 
  *
  */
 char *get_input(void) {
-	static char output[32];
-	memset(output, '\0', sizeof(output));
-	get_input_terminated_by(INPUT_TERMINATOR_RETURN, output, sizeof(output));
-	return output;
+  static char output[32];
+  memset(output, '\0', sizeof(output));
+  get_input_terminated_by(INPUT_TERMINATOR_RETURN, output, sizeof(output));
+  return output;
 }
 
 char retry_or_quit(void) {
-	char *c;
-	do {
-		cprintf("\r\nr)etry or q)uit?\r\n");
-		c = get_input();
-	} while ((*c != 'r') && (*c != 'q'));
-	return *c;
+  char *c;
+  do {
+    cprintf("\r\nr)etry or q)uit?\r\n");
+    c = get_input();
+  } while ((*c != 'r') && (*c != 'q'));
+  return *c;
 }
 
-char *format_euro(char *s, int maxlen, int cent){
-	int tmp = cent;
-	int len = strlen(",EUR");
-	while ((tmp /= 10) > 0)
-		++len;
-	if (len >= maxlen)
-		return NULL;
-	// workaround to produce a leading zero for cents.. %0.2d won't work 
-	sprintf(s, "%3d,%s%dEUR", cent / 100, ((cent%100)<10?"0":""), cent % 100);
-	return s;
+char *format_euro(char *s, int maxlen, int cent) {
+  int tmp = cent;
+  int len = strlen(",EUR");
+  while ((tmp /= 10) > 0)
+    ++len;
+  if (len >= maxlen)
+    return NULL;
+  // workaround to produce a leading zero for cents.. %0.2d won't work
+  sprintf(s, "%3d,%s%dEUR", cent / 100, ((cent % 100) < 10 ? "0" : ""),
+          cent % 100);
+  return s;
 }
 
 void c128_perror(BYTE c, char *msg) {
-	cprintf("\r\nError (Code %d) while: %s\r\nOS Error = %d\r\n", c, msg, _oserror);
+  cprintf("\r\nError (Code %d) while: %s\r\nOS Error = %d\r\n", c, msg,
+          _oserror);
 }

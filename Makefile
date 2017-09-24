@@ -5,7 +5,7 @@ INCLUDES:=$(wildcard include/*.h) include/version.h
 GV:=$(shell git describe --tags --always)
 CFLAGS= -I include -t c128
 
-.PHONY: include/version.h clean dist-clean
+.PHONY: include/version.h clean dist-clean format
 
 all: kasse itemz
 
@@ -46,3 +46,6 @@ clean:
 
 dist-clean: clean
 	rm -f kasse itemz kasse.d64
+
+format:
+	clang-format-3.9 -i **/*.[ch]
