@@ -1,5 +1,8 @@
 #ifndef GENERAL_H_
 #define GENERAL_H_
+
+#include <peekpoke.h>
+
 typedef unsigned char BYTE;
 typedef enum {
 	INPUT_TERMINATOR_RETURN       = (1 << 0),
@@ -12,10 +15,6 @@ char retry_or_quit(void);
 char *format_euro(char * s, int maxlen, int cent);
 void c128_perror(BYTE, char*);
 extern BYTE _oserror;
-#define POKE(addr,val)     (*(unsigned char*) (addr) = (val))
-#define POKEW(addr,val)    (*(unsigned*) (addr) = (val))
-#define PEEK(addr)         (*(unsigned char*) (addr))
-#define PEEKW(addr)        (*(unsigned*) (addr))
 
 /* C128 color codes, see PDF page 127 of
  * http://www.pagetable.com/docs/Commodore%20128%20Programmer%27s%20Reference%20Guide.pdf */
