@@ -197,11 +197,6 @@ static signed int buy(char *name, unsigned int price) {
     return 1;
   }
 
-  toggle_videomode();
-  cprintf("\r\n             *** VERKAUF ***\r\n\r\n");
-  cprintf("%dx %s", einheiten, name);
-  toggle_videomode();
-
   cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
   {
     BYTE i;
@@ -276,11 +271,6 @@ static signed int buy(char *name, unsigned int price) {
       }
     }
   }
-  if (*nickname != '\0') {
-    toggle_videomode();
-    cprintf(" fuer %s\r\n", nickname);
-    toggle_videomode();
-  }
 
   if (*nickname != '\0' && *nickname != 32) {
     nickname_len = strlen(nickname);
@@ -316,9 +306,6 @@ static signed int buy(char *name, unsigned int price) {
       cprintf("\r\nVerbleibendes Guthaben fuer %s: %s. Druecke RETURN...\r\n",
               nickname, rest);
       textcolor(TC_LIGHT_GRAY);
-      toggle_videomode();
-      cprintf("\r\nDein Guthaben betraegt noch %s.\r\n", rest);
-      toggle_videomode();
       get_input();
       matches++;
     } else {
@@ -417,7 +404,11 @@ int main(void) {
   char *time;
 
   if (VIDEOMODE == 40)
-    toggle_videomode();
+    videomode(80);
+
+  /* clock CPU at double the speed (a whopping 2 Mhz!) */
+  fast();
+
   clrscr();
 
   /* Allocate logging buffer memory */
@@ -426,7 +417,8 @@ int main(void) {
   /* Set time initially, c128 doesn't know it */
   set_time_interactive();
 
-  POKE(216, 255);
+  /* disable interrupt driven VIC screen editor */
+  POKE(0xD8, 255);
 
   /* Load configuration */
   load_config();
@@ -459,14 +451,8 @@ int main(void) {
       /* if the input starts with a digit, we will interpret it as a number
        * for the item to be sold */
       buy_stock(atoi(c));
-      toggle_videomode();
-      clrscr();
-      toggle_videomode();
     } else if (*c == 'f') {
       buy_custom();
-      toggle_videomode();
-      clrscr();
-      toggle_videomode();
     } else if (*c == 's') {
       save_items();
       save_credits();
