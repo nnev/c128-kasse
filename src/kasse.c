@@ -21,6 +21,19 @@
 // drucker 4 oder 5
 // graphic 4,0,10
 
+void print_item(BYTE i) {
+    char profit[10];
+    if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
+        cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i].price);
+        exit(1);
+    }
+    textcolor(TC_YELLOW);
+    cprintf("%2d", i);
+    textcolor(TC_LIGHT_GRAY);
+    cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%s, %3dx ",
+        status.status[i].item_name, profit, status.status[i].times_sold);
+}
+
 /* Hauptbildschirm ausgeben */
 static void print_screen(void) {
 	BYTE i = 0;
@@ -32,41 +45,38 @@ static void print_screen(void) {
 		exit(1);
 	}
 	textcolor(TC_CYAN);
-	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) " GV "\r");
+	cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) " GV "\r\n");
 	textcolor(TC_LIGHT_GRAY);
-	cprintf("\
-\r\nUhrzeit:     %s (wird nicht aktualisiert)\r\
-Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
-	time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
+	cprintf("\r\nUhrzeit:     %s (wird nicht aktualisiert)\r\n"
+            "Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
+            time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
 	textcolor(TC_LIGHT_GRAY);
-	cprintf("      \xB0\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB2\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xAE\r\n");
+	cprintf("      \xB0"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB2"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB2"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB2"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xAE\r\n");
 	for (; i < min(status.num_items, 15); ++i) {
-		if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
-			cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i].price);
-			exit(1);
-		}
 
-		cprintf("      \x7D");
-		textcolor(TC_YELLOW);
-		cprintf("%2d", i);
-		textcolor(TC_LIGHT_GRAY);
-		cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
-			status.status[i].item_name, profit, status.status[i].times_sold);
+        cprintf("      \xDD");
+        print_item(i);
+        cprintf("\xDD");
+
+        /* if we have more than 15 items, use the second column */
 		if ((i+15) < status.num_items) {
+            print_item(i+15);
+            cprintf("\xDD");
+		} else {
+            cprintf("              \xDD                \xDD");
+        }
 
-			if (format_euro(profit, sizeof(profit), status.status[i+15].price) == NULL) {
-				cprintf("Preis %ld konnte nicht umgerechnet werden\r\n", status.status[i+15].price);
-				exit(1);
-			}
-			textcolor(TC_YELLOW);
-			cprintf("%2d", i+15);
-			textcolor(TC_LIGHT_GRAY);
-			cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \x7D%s, %3dx \x7D",
-				status.status[i+15].item_name, profit, status.status[i+15].times_sold);
-		} else cprintf("              \x7D                \x7D");
 		cprintf("\r\n");
 	}
-	cprintf("      \xAD\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xB1\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\x60\xBD\r\n");
+	cprintf("      \xAD"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB1"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB1"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB1"
+            "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xBD\r\n");
 	textcolor(TC_YELLOW);
 	cprintf("   s");
 	textcolor(TC_LIGHT_GRAY);
