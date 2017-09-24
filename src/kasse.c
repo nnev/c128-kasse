@@ -137,7 +137,6 @@ static signed int buy(char *name, unsigned int price) {
 	BYTE i = 0, matches = 0;
 	BYTE c, x, y, nickname_len;
 	int einheiten;
-	char *input;
 	char nickname[NICKNAME_MAX_LEN+1];
 	char rest[11];
 	struct credits_t *credit;
