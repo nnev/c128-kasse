@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cbm.h>
+#include <c128.h>
 
 #include "general.h"
 #include "config.h"
@@ -403,8 +404,7 @@ int main(void) {
   char *c;
   char *time;
 
-  if (VIDEOMODE == 40)
-    videomode(80);
+  videomode(VIDEOMODE_80x25);
 
   /* clock CPU at double the speed (a whopping 2 Mhz!) */
   fast();

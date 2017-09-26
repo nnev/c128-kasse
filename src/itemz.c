@@ -134,9 +134,7 @@ static void itemz_manager() {
 }
 
 int main(void) {
-  if (VIDEOMODE == 40) {
-    videomode(80);
-  }
+  videomode(VIDEOMODE_80x25);
 
   /*  clock CPU at double the speed (a whopping 2 Mhz!) */
   fast();
