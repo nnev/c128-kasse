@@ -86,20 +86,9 @@ void deposit_credit(char *input) {
 
   credit->credit += deposit;
 
-  toggle_videomode();
-  cprintf("%d Cent eingezahlt fuer %s.\r\nRestguthaben: %d\r\n", deposit,
-          credit->nickname, credit->credit);
-  sprintf(print_buffer,
-          "%c%s - %d Cent eingezahlt fuer %s. Restguthaben: %d Cent\r", 17,
-          time, deposit, credit->nickname, credit->credit);
-  cprintf("%s", print_buffer);
-  toggle_videomode();
   print_the_buffer();
   cprintf("\r\nEinzahlung durchgefuehrt, druecke RETURN...\r\n");
   input = get_input();
-  toggle_videomode();
-  clrscr();
-  toggle_videomode();
 }
 
 static void new_credit(void) {

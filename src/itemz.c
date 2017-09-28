@@ -134,8 +134,11 @@ static void itemz_manager() {
 }
 
 int main(void) {
-  if (VIDEOMODE == 40)
-    toggle_videomode();
+  videomode(VIDEOMODE_80x25);
+
+  /*  clock CPU at double the speed (a whopping 2 Mhz!) */
+  fast();
+
   credits.num_items = 0;
   status.num_items = 0;
   cprintf("itemz loading...\n");
