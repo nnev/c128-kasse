@@ -18,13 +18,13 @@ include/version.h:
 	echo "#define GV \"${GV}\"" > $@
 
 kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o
-	${LD} -t c128 $^ -o $@
+	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 itemz: build/config.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o
-	${LD} -t c128 $^ -o $@
+	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 cat: build/general.o build/cat.o
-	${LD} -t c128 $^ -o $@
+	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 package: all
 	c1541 -format "${GV}",KA d64 kasse.d64
