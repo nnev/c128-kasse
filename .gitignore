@@ -9,3 +9,5 @@ itemz
 include/version.h
 tags
 items
+cat
+*.lbl
