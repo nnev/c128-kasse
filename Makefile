@@ -7,7 +7,7 @@ CFLAGS= -I include -t c128 -g
 
 .PHONY: include/version.h clean dist-clean format
 
-all: kasse itemz
+all: kasse itemz cat
 
 build/%.o: src/%.c ${INCLUDES}
 	${CC} ${CFLAGS} -O $< -o build/$(addsuffix .s,$(shell basename $< .c))
@@ -46,7 +46,7 @@ clean:
 	rm -rf build/*.o build/*.s test/*.o test/*.s
 
 dist-clean: clean
-	rm -f kasse itemz kasse.d64
+	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d64
 
 format:
 	clang-format-3.9 -i **/*.[ch]
