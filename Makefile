@@ -3,7 +3,7 @@ AS=ca65
 LD=cl65
 INCLUDES:=$(wildcard include/*.h) include/version.h
 GV:=$(shell git describe --tags --always)
-CFLAGS= -I include -t c128
+CFLAGS= -I include -t c128 -g
 
 .PHONY: include/version.h clean dist-clean format
 
