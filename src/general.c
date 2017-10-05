@@ -10,6 +10,7 @@
 #include <conio.h>
 
 #include "general.h"
+#include "vdc_patch_charset.h"
 
 /*
  * get_input_terminated_by() reads input (handling backspace correctly) until
@@ -75,7 +76,7 @@ char retry_or_quit(void) {
 }
 
 char *format_euro(char *s, int maxlen, int cent) {
-  if (snprintf(s, maxlen, "%3d,%02dEUR", cent / 100, cent % 100) > maxlen)
+  if (snprintf(s, maxlen, "%3d,%02d" EURSYM, cent / 100, cent % 100) > maxlen)
     return NULL;
   return s;
 }
