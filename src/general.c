@@ -75,15 +75,8 @@ char retry_or_quit(void) {
 }
 
 char *format_euro(char *s, int maxlen, int cent) {
-  int tmp = cent;
-  int len = strlen(",EUR");
-  while ((tmp /= 10) > 0)
-    ++len;
-  if (len >= maxlen)
+  if(snprintf(s,maxlen,"%3d,%02dEUR", cent/100, cent%100) > maxlen)
     return NULL;
-  // workaround to produce a leading zero for cents.. %0.2d won't work
-  sprintf(s, "%3d,%s%dEUR", cent / 100, ((cent % 100) < 10 ? "0" : ""),
-          cent % 100);
   return s;
 }
 
