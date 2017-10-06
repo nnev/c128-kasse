@@ -1,0 +1,13 @@
+sudo: false
+language: c
+addons:
+  apt:
+    packages:
+    - clang-format-3.8
+
+install: true
+
+# TODO(https://bugs.debian.org/255572): install cc65 once available in Debian,
+# verify the source compiles
+script:
+  - ./travis/check-formatting.sh
