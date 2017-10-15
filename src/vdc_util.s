@@ -17,12 +17,12 @@
 ;;; - Programming the VDC
 ;;;     - Chapter 10 of http: //www.pagetable.com/docs/Commodore%20128%20Programmer%27s%20Reference%20Guide.pdf
 
-VDC_ADDR_REG    := 19
+VDC_ADDR_REG    := 18
 VDC_MEM_REG     := 31
 
 ;;; unsigned char __fastcall__ vdc_read_reg (unsigned char reg);
 _vdc_read_reg:
-        ldx #0                  ; clear high byte
+        ldx #0                  ; clear high byte of return register
 vdc_read_reg:       
         sta VDC_INDEX
 
@@ -34,10 +34,10 @@ vdc_read_reg:
 
 ;;; unsigned __fastcall__ vdc_read_addr (unsigned char reg);
 _vdc_read_addr:
-        tay                     ; save copy of vdc reg
+        tay                     ; copy vdc register
+        iny                     ; next register is high byte of addr
         jsr vdc_read_reg
-        tax                     ; save high byte
-        dey                     ; set low byte vdc reg
+        tax                     ; save high byte in x return register
         tya
         jsr vdc_read_reg
         rts
@@ -60,13 +60,15 @@ vdc_write_reg:
 ;;; void __fastcall__ vdc_write_addr (unsigned char reg, unsigned addr);
 _vdc_write_addr:
         pha
-        jsr popa
-        tay
+        jsr popa                ; this mustn't touch x (libsrc/runtime/popa.s)
+        tay                     ; vdc register
         pla
 vdc_write_addr:
-        jsr vdc_write_reg
+        pha
         txa                     ; get high byte of addr
-        dey
+        jsr vdc_write_reg
+        iny                     ; next vdc register is high byte of addr
+        pla
         jsr vdc_write_reg
         rts
 
