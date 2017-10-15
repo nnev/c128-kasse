@@ -412,6 +412,10 @@ int main(void) {
   /* clock CPU at double the speed (a whopping 2 Mhz!) */
   fast();
 
+  /* Manipulate the VDC with IRQs turned off.
+   * KERNALs default IRQ handler will also try to read the VDC status
+   * register, which could interfere with our code trying to read it.
+   */
   SEI();
   vdc_patch_charset();
   CLI();
