@@ -15,6 +15,7 @@
 #include "c128time.h"
 #include "print.h"
 #include "version.h"
+#include "vdc_patch_charset.h"
 
 static char *filter = NULL;
 static BYTE filter_len;
@@ -47,8 +48,9 @@ static void credit_print_screen(void) {
       cprintf("%d: %s: %s\r\n", i, credits.credits[i].nickname, buffer);
     }
   }
-  cprintf("\r\nn) Neu d) Loeschen p) Einzahlen b) Seite hoch f) Seite "
-          "runter\r\ng) Filtern e) Aendern s) Speichern z) Zurueck\r\n");
+  cprintf("\r\nn) Neu d) L" oUML "schen p) Einzahlen b) Seite hoch "
+          "f) Seite runter\r\ng) Filtern e) " AUML "ndern s) Speichern "
+          "z) Zur" uUML "ck\r\n");
 }
 
 struct credits_t *find_credit(char *name) {
@@ -87,7 +89,7 @@ void deposit_credit(char *input) {
   credit->credit += deposit;
 
   print_the_buffer();
-  cprintf("\r\nEinzahlung durchgefuehrt, druecke RETURN...\r\n");
+  cprintf("\r\nEinzahlung durchgef" uUML "hrt, dr" uUML "cke RETURN...\r\n");
   input = get_input();
 }
 
@@ -97,8 +99,8 @@ static void new_credit(void) {
   int credit;
 
   if (credits.num_items == 75) {
-    cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, "
-            "druecke RETURN...\r\n");
+    cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
+            "gen erreicht, dr" uUML "cke RETURN...\r\n");
     input = get_input();
     return;
   }
@@ -116,8 +118,8 @@ static void new_credit(void) {
   credits.credits[credits.num_items].credit = credit;
 
   time = get_time();
-  sprintf(print_buffer, "%c%s - Guthaben mit %d Cent fuer %s angelegt\r", 17,
-          time, credit, name);
+  sprintf(print_buffer, "%c%s - Guthaben mit %d Cent f" uUML "r %s angelegt\r",
+          17, time, credit, name);
   print_the_buffer();
 
   credits.num_items++;
@@ -133,7 +135,7 @@ static void delete_credit(void) {
   char *input;
   BYTE num, last;
 
-  cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
+  cprintf("\r Welcher Eintrag soll gel" oUML "scht werden?\r\n");
   if ((input = get_input()) == NULL || *input == '\0')
     return;
   num = atoi(input);
@@ -186,7 +188,7 @@ void credit_manager() {
       save_credits();
       return;
     default:
-      cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
+      cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
       get_input();
     }
   }
