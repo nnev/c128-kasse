@@ -11,6 +11,7 @@
 #include <string.h>
 #include <cbm.h>
 #include <c128.h>
+#include <6502.h>
 
 #include "general.h"
 #include "config.h"
@@ -19,6 +20,7 @@
 #include "c128time.h"
 #include "print.h"
 #include "version.h"
+#include "vdc_patch_charset.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 
@@ -32,7 +34,7 @@ void print_item(BYTE i) {
   textcolor(TC_YELLOW);
   cprintf("%2d", i);
   textcolor(TC_LIGHT_GRAY);
-  cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%s, %3dx ",
+  cprintf(": %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%s,   %3dx ",
           status.status[i].item_name, profit, status.status[i].times_sold);
 }
 
@@ -47,7 +49,7 @@ static void print_screen(void) {
     exit(1);
   }
   textcolor(TC_CYAN);
-  cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r) " GV "\r\n");
+  cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r, mxf) " GV "\r\n");
   textcolor(TC_LIGHT_GRAY);
   cprintf("\r\nUhrzeit:     %s (wird nicht aktualisiert)\r\n"
           "Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
@@ -175,7 +177,7 @@ static signed int buy(char *name, unsigned int price) {
       continue;
     }
     if (c == 27) {
-      cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
+      cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
       get_input();
       return 1;
     }
@@ -192,7 +194,7 @@ static signed int buy(char *name, unsigned int price) {
   einheiten = atoi(entered) * negative;
 
   if (einheiten > 100 || einheiten < -100 || einheiten == 0) {
-    cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, druecke "
+    cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, dr" uUML "cke "
             "RETURN...\r\n");
     cgetc();
     return 1;
@@ -304,7 +306,8 @@ static signed int buy(char *name, unsigned int price) {
       }
 
       textcolor(TC_LIGHT_GREEN);
-      cprintf("\r\nVerbleibendes Guthaben fuer %s: %s. Druecke RETURN...\r\n",
+      cprintf("\r\nVerbleibendes Guthaben f" uUML "r %s: %s. Dr" uUML
+              "cke RETURN...\r\n",
               nickname, rest);
       textcolor(TC_LIGHT_GRAY);
       get_input();
@@ -312,7 +315,7 @@ static signed int buy(char *name, unsigned int price) {
     } else {
       textcolor(TC_LIGHT_RED);
       cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, "
-              "druecke RETURN...\r\n");
+              "dr" uUML "cke RETURN...\r\n");
       textcolor(TC_LIGHT_GRAY);
       get_input();
       return 0;
@@ -364,7 +367,7 @@ void buy_custom(void) {
       break;
     cputc(c);
     if (c == 27) {
-      cprintf("Kauf abgebrochen, druecke RETURN...\r\n");
+      cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
       get_input();
       return;
     } else if (c == '-' && i == 0)
@@ -408,6 +411,14 @@ int main(void) {
 
   /* clock CPU at double the speed (a whopping 2 Mhz!) */
   fast();
+
+  /* Manipulate the VDC with IRQs turned off.
+   * KERNALs default IRQ handler will also try to read the VDC status
+   * register, which could interfere with our code trying to read it.
+   */
+  SEI();
+  vdc_patch_charset();
+  CLI();
 
   clrscr();
 
@@ -454,10 +465,14 @@ int main(void) {
     } else if (*c == 'f') {
       buy_custom();
     } else if (*c == 's') {
+      cprintf("\r\nsaving items.. ");
       save_items();
+      cprintf("ok\r\nsaving credits.. ");
       save_credits();
+      cprintf("ok\r\nflushing log.. ");
       log_flush();
-      cprintf("\r\nStatefile/Creditfile/Log gesichert, druecke RETURN...\r\n");
+      cprintf("ok\r\nStatefile/Creditfile/Log gesichert, dr" uUML
+              "cke RETURN...\r\n");
       get_input();
     } else if (*c == 'g') {
       credit_manager();
