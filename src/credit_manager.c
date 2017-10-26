@@ -39,7 +39,8 @@ static void credit_print_screen(void) {
        i++) {
     if (filter == NULL ||
         strncmp(credits.credits[i].nickname, filter, filter_len) == 0) {
-      if (format_euro(buffer, 10, credits.credits[i].credit) != buffer) {
+      if (format_euro(buffer, sizeof(buffer), credits.credits[i].credit) !=
+          buffer) {
         cprintf("Error: Could not format credit %d\r\n",
                 credits.credits[i].credit);
         exit(1);
@@ -98,7 +99,7 @@ static void new_credit(void) {
   char *time;
   int credit;
 
-  if (credits.num_items == 75) {
+  if (credits.num_items == MAX_CREDIT_ITEMS) {
     cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
             "gen erreicht, dr" uUML "cke RETURN...\r\n");
     cget_return();
@@ -127,7 +128,7 @@ static void new_credit(void) {
 }
 
 static void _delete_credit(BYTE num) {
-  memset(credits.credits[num].nickname, '\0', 11);
+  memset(credits.credits[num].nickname, '\0', NICKNAME_MAX_LEN + 1);
   credits.credits[num].credit = 0;
 }
 
@@ -181,7 +182,8 @@ void credit_manager() {
     case 'g':
       cprintf("Filter eingeben:\r\n");
       filter = get_input();
-      if (filter == NULL || *filter == 32 || (filter_len = strlen(filter)) == 0)
+      if (filter == NULL || *filter == PETSCII_SP ||
+          (filter_len = strlen(filter)) == 0)
         filter = NULL;
       break;
     case 'z':
