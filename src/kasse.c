@@ -348,15 +348,12 @@ void buy_custom(void) {
   BYTE c = 0, i = 0;
   int negative = 1;
   char entered[5] = {'1', 0, 0, 0, 0};
-  char *input, name[20];
+  char name[MAX_ITEM_NAME_LENGTH + 1];
   int price;
 
   clrscr();
-  memset(name, '\0', sizeof(name));
   cprintf("\r\nWas soll gekauft werden?\r\n");
-  input = get_input();
-  strncpy(name, input, sizeof(name));
-  if (*name == '\0')
+  if (cgetn_input(name, sizeof(name)) == 0)
     return;
 
   cprintf("\r\nWie teuer ist \"%s\" (in cents)?\r\n", name);

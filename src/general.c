@@ -66,7 +66,12 @@ char *get_input(void) {
   return output;
 }
 
-/* wait until user pressed RETURN, ignore all other input */
+BYTE cgetn_input(char *s, BYTE len) {
+  memset(s, '\0', len);
+  get_input_terminated_by(INPUT_TERMINATOR_RETURN, s, len);
+  return strlen(s);
+}
+
 void cget_return() {
   BYTE c;
   while (1) {
