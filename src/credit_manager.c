@@ -62,24 +62,13 @@ struct credits_t *find_credit(char *name) {
   return NULL;
 }
 
-/*
- * Deposits credit for a user. Called in the credit manager (with input ==
- * NULL) or interactively when the user does not have enough money for his
- * intended purchase (with input == nickname).
- *
- */
-void deposit_credit(char *input) {
+void deposit_credit(char *nickname) {
   char *time = get_time();
+  char *input;
   struct credits_t *credit;
   unsigned int deposit;
 
-  if (input == NULL) {
-    cprintf("\r\nName:\r\n");
-    if ((input = get_input()) == NULL || *input == '\0')
-      return; // no name given
-  }
-
-  if ((credit = find_credit(input)) == NULL)
+  if ((credit = find_credit(nickname)) == NULL)
     return; // cannot find named credit
 
   cprintf("\r\nEinzahlung in Cent:\r\n");
@@ -154,6 +143,7 @@ static void delete_credit(void) {
 }
 
 void credit_manager() {
+  char nickname[NICKNAME_MAX_LEN + 1];
   char *c;
   while (1) {
     credit_print_screen();
@@ -177,7 +167,9 @@ void credit_manager() {
         current_credits_page--;
       break;
     case 'p':
-      deposit_credit(NULL);
+      cputs("\rName?\r\n");
+      if (cgetn_input(nickname, sizeof(nickname)))
+        deposit_credit(nickname);
       break;
     case 'g':
       cprintf("Filter eingeben:\r\n");
