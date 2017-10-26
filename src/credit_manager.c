@@ -90,7 +90,7 @@ void deposit_credit(char *input) {
 
   print_the_buffer();
   cprintf("\r\nEinzahlung durchgef" uUML "hrt, dr" uUML "cke RETURN...\r\n");
-  input = get_input();
+  cget_return();
 }
 
 static void new_credit(void) {
@@ -101,7 +101,7 @@ static void new_credit(void) {
   if (credits.num_items == 75) {
     cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
             "gen erreicht, dr" uUML "cke RETURN...\r\n");
-    input = get_input();
+    cget_return();
     return;
   }
 
@@ -189,7 +189,7 @@ void credit_manager() {
       return;
     default:
       cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
-      get_input();
+      cget_return();
     }
   }
 }

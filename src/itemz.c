@@ -128,7 +128,7 @@ static void itemz_manager() {
       exit(0);
     default:
       cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
-      get_input();
+      cget_return();
     }
   }
 }

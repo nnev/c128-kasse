@@ -66,6 +66,17 @@ char *get_input(void) {
   return output;
 }
 
+/* wait until user pressed RETURN, ignore all other input */
+void cget_return() {
+  BYTE c;
+  while (1) {
+    c = cgetc();
+    if (c == PETSCII_CR) {
+      return;
+    }
+  }
+}
+
 char retry_or_quit(void) {
   char *c;
   do {

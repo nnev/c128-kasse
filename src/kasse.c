@@ -177,7 +177,7 @@ static signed int buy(char *name, unsigned int price) {
     }
     if (c == PETSCII_ESC) {
       cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
-      get_input();
+      cget_return();
       return 1;
     }
     if (c == '-' && i == 0) {
@@ -309,14 +309,14 @@ static signed int buy(char *name, unsigned int price) {
               "cke RETURN...\r\n",
               nickname, rest);
       textcolor(TC_LIGHT_GRAY);
-      get_input();
+      cget_return();
       matches++;
     } else {
       textcolor(TC_LIGHT_RED);
       cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, "
               "dr" uUML "cke RETURN...\r\n");
       textcolor(TC_LIGHT_GRAY);
-      get_input();
+      cget_return();
       return 0;
     }
   } else {
@@ -336,7 +336,7 @@ static signed int buy(char *name, unsigned int price) {
 void buy_stock(BYTE n) {
   if (n >= status.num_items || status.status[n].item_name == NULL) {
     cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
-    get_input();
+    cget_return();
     return;
   }
 
@@ -367,7 +367,7 @@ void buy_custom(void) {
     cputc(c);
     if (c == PETSCII_ESC) {
       cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
-      get_input();
+      cget_return();
       return;
     } else if (c == '-' && i == 0)
       negative = -1;
@@ -472,7 +472,7 @@ int main(void) {
       log_flush();
       cprintf("ok\r\nStatefile/Creditfile/Log gesichert, dr" uUML
               "cke RETURN...\r\n");
-      get_input();
+      cget_return();
     } else if (*c == 'g') {
       credit_manager();
     } else if (*c == 'z') {
