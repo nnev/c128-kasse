@@ -43,6 +43,8 @@ extern BYTE _oserror;
 #define PETSCII_CR 13
 /* Delete */
 #define PETSCII_DEL 20
+/* Escape */
+#define PETSCII_ESC 27
 /* Space */
 #define PETSCII_SP 32
 #define PETSCII_0 48

@@ -44,7 +44,7 @@ static void print_screen(void) {
   char *time = get_time();
   char profit[10];
   clrscr();
-  if (format_euro(profit, 10, money) == NULL) {
+  if (format_euro(profit, sizeof(profit), money) == NULL) {
     cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
     exit(1);
   }
@@ -126,7 +126,7 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
      + 7 leerzeichen
      --> 48 zeichen
      */
-  if (format_euro(price, 10, item_price) == NULL) {
+  if (format_euro(price, sizeof(price), item_price) == NULL) {
     cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
     exit(1);
   }
@@ -147,12 +147,11 @@ static signed int buy(char *name, unsigned int price) {
   BYTE c, x, y, nickname_len;
   int einheiten;
   char nickname[NICKNAME_MAX_LEN + 1];
-  char rest[11];
+  char rest[10];
   struct credits_t *credit;
 
   memset(nickname, '\0', sizeof(nickname));
-  memset(rest, ' ', sizeof(rest));
-  rest[8] = '\0';
+  memset(rest, '\0', sizeof(rest));
 
   clrscr();
   cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
@@ -160,7 +159,7 @@ static signed int buy(char *name, unsigned int price) {
   y = wherey();
   while (1) {
     /* Buffer-Ende erreicht? */
-    if (i == 4)
+    if (i == (sizeof(entered) - 1))
       break;
 
     c = cgetc();
@@ -176,7 +175,7 @@ static signed int buy(char *name, unsigned int price) {
       gotoxy(x + i, y);
       continue;
     }
-    if (c == 27) {
+    if (c == PETSCII_ESC) {
       cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
       get_input();
       return 1;
@@ -275,14 +274,14 @@ static signed int buy(char *name, unsigned int price) {
     }
   }
 
-  if (*nickname != '\0' && *nickname != 32) {
+  if (*nickname != '\0' && *nickname != PETSCII_SP) {
     nickname_len = strlen(nickname);
     /* go through credits and remove the amount of money or set nickname
      * to NULL if no such credit could be found */
     credit = find_credit(nickname);
     if (credit != NULL) {
       while ((signed int)credit->credit < ((signed int)price * einheiten)) {
-        if (format_euro(rest, 10, credit->credit) == NULL) {
+        if (format_euro(rest, sizeof(rest), credit->credit) == NULL) {
           cprintf("Preis %d konnte nicht umgerechnet werden\r\n",
                   credit->credit);
           exit(1);
@@ -300,7 +299,7 @@ static signed int buy(char *name, unsigned int price) {
       /* substract money */
       credit->credit -= (price * einheiten);
 
-      if (format_euro(rest, 10, credit->credit) == NULL) {
+      if (format_euro(rest, sizeof(rest), credit->credit) == NULL) {
         cprintf("Preis %d konnte nicht umgerechnet werden\r\n", credit->credit);
         exit(1);
       }
@@ -353,26 +352,26 @@ void buy_custom(void) {
   int price;
 
   clrscr();
-  memset(name, '\0', 20);
+  memset(name, '\0', sizeof(name));
   cprintf("\r\nWas soll gekauft werden?\r\n");
   input = get_input();
-  strncpy(name, input, 20);
+  strncpy(name, input, sizeof(name));
   if (*name == '\0')
     return;
 
   cprintf("\r\nWie teuer ist \"%s\" (in cents)?\r\n", name);
   while (1) {
     c = cgetc();
-    if (c == 13)
+    if (c == PETSCII_CR)
       break;
     cputc(c);
-    if (c == 27) {
+    if (c == PETSCII_ESC) {
       cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
       get_input();
       return;
     } else if (c == '-' && i == 0)
       negative = -1;
-    else if (c > 47 && c < 58)
+    else if (c >= PETSCII_0 && c <= PETSCII_9)
       entered[i++] = c;
   }
   price = atoi(entered) * negative;
@@ -458,7 +457,7 @@ int main(void) {
     print_screen();
     c = get_input();
     /* ...display dialogs eventually */
-    if (*c > 47 && *c < 58) {
+    if (*c >= PETSCII_0 && *c <= PETSCII_9) {
       /* if the input starts with a digit, we will interpret it as a number
        * for the item to be sold */
       buy_stock(atoi(c));
