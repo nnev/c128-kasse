@@ -16,6 +16,7 @@
 #include "config.h"
 #include "credit_manager.h"
 #include "version.h"
+#include "vdc_patch_charset.h"
 
 static void itemz_print_screen(void) {
   BYTE i;
@@ -32,8 +33,8 @@ static void itemz_print_screen(void) {
     cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n", i,
             status.status[i].item_name, buffer, status.status[i].times_sold);
   }
-  cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) "
-          "Beenden\r\nr) Reset des Verkauft-Zaehlers\r\n");
+  cprintf("\r\nn) Neu d) L" oUML "schen s) Speichern m) Credit Modus q) "
+          "Beenden\r\nr) Reset des Verkauft-Z" aUML "hlers\r\n");
 }
 
 static void new_item(void) {
@@ -41,8 +42,8 @@ static void new_item(void) {
   int price, times_sold;
 
   if (status.num_items == MAX_ITEMS) {
-    cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, "
-            "druecke RETURN...\r\n");
+    cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
+            "gen erreicht, dr" uUML "cke RETURN...\r\n");
     cget_return();
     return;
   }
