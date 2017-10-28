@@ -64,7 +64,6 @@ struct credits_t *find_credit(char *name) {
 
 void deposit_credit(char *nickname) {
   char *time = get_time();
-  char *input;
   struct credits_t *credit;
   unsigned int deposit;
 
@@ -72,8 +71,7 @@ void deposit_credit(char *nickname) {
     return; // cannot find named credit
 
   cprintf("\r\nEinzahlung in Cent:\r\n");
-  if ((input = get_input()) == NULL || *input == '\0' ||
-      (deposit = atoi(input)) == 0)
+  if (cget_number(0) == 0)
     return;
 
   credit->credit += deposit;
@@ -84,7 +82,7 @@ void deposit_credit(char *nickname) {
 }
 
 static void new_credit(void) {
-  char *input, *name;
+  char name[NICKNAME_MAX_LEN + 1];
   char *time;
   int credit;
 
@@ -97,12 +95,11 @@ static void new_credit(void) {
 
   clrscr();
   cprintf("\rNickname (max. 10 Zeichen):\r\n");
-  if ((input = get_input()) == NULL || *input == '\0')
+  if (cgetn_input(name, sizeof(name)) == 0)
     return;
-  name = strdup(input);
+
   cprintf("\r\nGuthaben in Cents:\r\n");
-  if ((input = get_input()) == NULL || *input == '\0' ||
-      (credit = atoi(input)) == 0)
+  if ((credit = cget_number(0)) == 0)
     return;
   strncpy(credits.credits[credits.num_items].nickname, name, NICKNAME_MAX_LEN);
   credits.credits[credits.num_items].credit = credit;

@@ -141,10 +141,8 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 
 /* dialog which is called for each bought item */
 static signed int buy(char *name, unsigned int price) {
-  int negative = 1;
-  char entered[5] = {'1', 0, 0, 0, 0};
-  BYTE i = 0, matches = 0;
-  BYTE c, x, y, nickname_len;
+  BYTE matches = 0;
+  BYTE c, nickname_len;
   int einheiten;
   char nickname[NICKNAME_MAX_LEN + 1];
   char rest[10];
@@ -155,42 +153,8 @@ static signed int buy(char *name, unsigned int price) {
 
   clrscr();
   cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
-  x = wherex();
-  y = wherey();
-  while (1) {
-    /* Buffer-Ende erreicht? */
-    if (i == (sizeof(entered) - 1))
-      break;
 
-    c = cgetc();
-    /* Enter */
-    if (c == PETSCII_CR)
-      break;
-    /* Backspace */
-    if (c == PETSCII_DEL) {
-      if (i == 0)
-        continue;
-      entered[--i] = '\0';
-      cputcxy(x + i, y, ' ');
-      gotoxy(x + i, y);
-      continue;
-    }
-    if (c == PETSCII_ESC) {
-      cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
-      cget_return();
-      return 1;
-    }
-    if (c == '-' && i == 0) {
-      negative = -1;
-      cputc(c);
-    } else if (c >= PETSCII_0 && c <= PETSCII_9) {
-      entered[i++] = c;
-      cputc(c);
-    }
-
-    /* Ungültige Eingabe (keine Ziffer), einfach ignorieren */
-  }
-  einheiten = atoi(entered) * negative;
+  einheiten = cget_number(1);
 
   if (einheiten > 100 || einheiten < -100 || einheiten == 0) {
     cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, dr" uUML "cke "
@@ -345,9 +309,6 @@ void buy_stock(BYTE n) {
 }
 
 void buy_custom(void) {
-  BYTE c = 0, i = 0;
-  int negative = 1;
-  char entered[5] = {'1', 0, 0, 0, 0};
   char name[MAX_ITEM_NAME_LENGTH + 1];
   int price;
 
@@ -357,23 +318,14 @@ void buy_custom(void) {
     return;
 
   cprintf("\r\nWie teuer ist \"%s\" (in cents)?\r\n", name);
-  while (1) {
-    c = cgetc();
-    if (c == PETSCII_CR)
-      break;
-    cputc(c);
-    if (c == PETSCII_ESC) {
-      cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
-      cget_return();
-      return;
-    } else if (c == '-' && i == 0)
-      negative = -1;
-    else if (c >= PETSCII_0 && c <= PETSCII_9)
-      entered[i++] = c;
-  }
-  price = atoi(entered) * negative;
 
-  cprintf("\r\n");
+  price = cget_number(0);
+
+  if (price == 0) {
+    cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
+    cget_return();
+    return;
+  }
 
   buy(name, price);
 }

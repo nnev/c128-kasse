@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
+#include <stdint.h>
 
 #include "general.h"
 #include "vdc_patch_charset.h"
@@ -72,14 +73,62 @@ BYTE cgetn_input(char *s, BYTE len) {
   return strlen(s);
 }
 
-void cget_return() {
-  BYTE c;
+int16_t cget_number(int16_t default_val) {
+  char c;
+  int x, y;
+  uint8_t num_chars = 0;
+  char buf[6] = {0, 0, 0, 0, 0, 0};
+  int i = 0;
+  x = wherex();
+  y = wherey();
   while (1) {
     c = cgetc();
-    if (c == PETSCII_CR) {
-      return;
+
+    /* Enter */
+    if (c == PETSCII_CR)
+      break;
+
+    /* Backspace */
+    if (c == PETSCII_DEL) {
+      if (i == 0)
+        continue;
+      buf[--i] = '\0';
+      cputcxy(x + i, y, ' ');
+      gotoxy(x + i, y);
+      continue;
+    }
+
+    /* Abort */
+    if (c == PETSCII_ESC) {
+      return default_val;
+    }
+
+    /* end of buffer? wait for user to press RETURN */
+    if (i == (sizeof(buf) - 1))
+      continue;
+
+    /* match either numbers or iff it's the first entered char a minus sign */
+    if ((c >= PETSCII_0 && c <= PETSCII_9) || (c == '-' && i == 0)) {
+      buf[i] = c;
+      ++i;
+      ++num_chars;
+      cputc(c);
     }
   }
+
+  if (num_chars == 0) {
+    return default_val;
+  } else if ((num_chars == 1) && (c == '-')) {
+    return default_val;
+  }
+
+  return atoi(buf);
+}
+
+void cget_return() {
+  while (cgetc() != PETSCII_CR) {
+  }
+  return;
 }
 
 char retry_or_quit(void) {

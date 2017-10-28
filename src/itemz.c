@@ -22,7 +22,7 @@ static void itemz_print_screen(void) {
   char buffer[10];
 
   clrscr();
-  cprintf("itemz (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
+  cprintf("itemz (phil_fry, sECuRE, sur5r, mxf) v:" GV "\r\n\r\n");
   cprintf("Datei: ITEMS\r\n\r\n");
   for (i = 0; i < max(status.num_items, 15); i++) {
     if (format_euro(buffer, 10, status.status[i].price) != buffer) {
@@ -37,35 +37,32 @@ static void itemz_print_screen(void) {
 }
 
 static void new_item(void) {
-  char *input, *name;
-  int price;
+  char name[MAX_ITEM_NAME_LENGTH + 1];
+  int price, times_sold;
 
   if (status.num_items == MAX_ITEMS) {
     cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, "
             "druecke RETURN...\r\n");
-    input = get_input();
+    cget_return();
     return;
   }
 
   cprintf("\rName des Eintrags:\r\n");
-  if ((input = get_input()) == NULL || *input == '\0')
+  if (cgetn_input(name, sizeof(name)) == 0)
     return;
-  name = strdup(input);
   cprintf("\r\nPreis in Cents:\r\n");
-  if ((input = get_input()) == NULL || *input == '\0' ||
-      (price = atoi(input)) == 0)
+  if ((price = cget_number(0)) <= 0)
     return;
   cprintf("\r\nWie oft schon verkauft? [0] \r\n");
-  if ((input = get_input()) == NULL)
+  if ((times_sold = cget_number(0)) < 0)
     return;
   memset(status.status[status.num_items].item_name, '\0',
          MAX_ITEM_NAME_LENGTH + 1);
   strncpy(status.status[status.num_items].item_name, name,
           MAX_ITEM_NAME_LENGTH);
   status.status[status.num_items].price = price;
-  status.status[status.num_items].times_sold = atoi(input);
+  status.status[status.num_items].times_sold = times_sold;
   status.num_items++;
-  free(name);
 }
 
 static void _delete_item(BYTE num) {
@@ -75,17 +72,17 @@ static void _delete_item(BYTE num) {
 }
 
 static void delete_item(void) {
-  char *input;
   BYTE num, last;
 
   cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
-  if ((input = get_input()) == NULL || *input == '\0')
+  if ((num = cget_number(-1)) < 0)
     return;
-  num = atoi(input);
+
   if (status.num_items > 1) {
     /* Swap last item with this one and delete the last one to avoid holes */
     last = (status.num_items - 1);
-    strcpy(status.status[num].item_name, status.status[last].item_name);
+    strncpy(status.status[num].item_name, status.status[last].item_name,
+            MAX_ITEM_NAME_LENGTH);
     status.status[num].price = status.status[last].price;
     status.status[num].times_sold = status.status[last].times_sold;
     _delete_item(last);

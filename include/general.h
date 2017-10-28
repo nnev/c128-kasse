@@ -13,6 +13,7 @@ input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators,
                                            char *out, BYTE outlen);
 char *get_input(void);
 BYTE cgetn_input(char *s, BYTE len);
+int16_t cget_number(int16_t default_val);
 void cget_return(void);
 char retry_or_quit(void);
 char *format_euro(char *s, int maxlen, int cent);
