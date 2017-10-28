@@ -17,6 +17,7 @@
 #include "credit_manager.h"
 #include "version.h"
 #include "vdc_patch_charset.h"
+#include "globals.h"
 
 static void itemz_print_screen(void) {
   BYTE i;

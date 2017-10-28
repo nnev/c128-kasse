@@ -4,7 +4,6 @@
  * See LICENSE for license information
  *
  */
-#define _IS_KASSE
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -21,6 +20,7 @@
 #include "print.h"
 #include "version.h"
 #include "vdc_patch_charset.h"
+#include "globals.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 
@@ -354,6 +354,8 @@ void set_time_interactive(void) {
 int main(void) {
   char *c;
   char *time;
+
+  init_globals();
 
   videomode(VIDEOMODE_80x25);
 

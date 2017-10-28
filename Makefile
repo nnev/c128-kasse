@@ -23,10 +23,10 @@ include/version.h:
 include/charset_umlauts.h:
 	./util/mkfont assets/umlauts.pbm chars_umlauts > $@
 
-kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o
+kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o build/globals.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
-itemz: build/config.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o
+itemz: build/config.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/globals.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 cat: build/general.o build/cat.o
