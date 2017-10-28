@@ -129,7 +129,8 @@ static void delete_credit(void) {
   if (credits.num_items > 1) {
     /* Swap last item with this one and delete the last one to avoid holes */
     last = (credits.num_items - 1);
-    strcpy(credits.credits[num].nickname, credits.credits[last].nickname);
+    strncpy(credits.credits[num].nickname, credits.credits[last].nickname,
+            NICKNAME_MAX_LEN);
     credits.credits[num].credit = credits.credits[last].credit;
     _delete_credit(last);
   } else {
