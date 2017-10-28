@@ -39,26 +39,26 @@ ascii: build/print_ascii.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 package: all
-	c1541 -format "${GV}",KA d64 kasse.d64
-	c1541 -attach kasse.d64 -write kasse
-	c1541 -attach kasse.d64 -write itemz
-	[ -e state ] && c1541 -attach kasse.d64 -write state || exit 0
-	[ -e items ] && c1541 -attach kasse.d64 -write items || exit 0
+	c1541 -format "${GV}",KA d71 kasse.d71
+	c1541 -attach kasse.d71 -write kasse
+	c1541 -attach kasse.d71 -write itemz
+	[ -e state ] && c1541 -attach kasse.d71 -write state || exit 0
+	[ -e items ] && c1541 -attach kasse.d71 -write items || exit 0
 
 test: build/config.o test/test.o build/general.o
 	cl65 -t c128 $^ -o build/test
 
 test-package: test
-	c1541 -format "test",TE d64 test.d64
-	c1541 -attach test.d64 -write test || exit 0
-	c1541 -attach test.d64 -write state || exit 0
-	c1541 -attach test.d64 -write items || exit 0
+	c1541 -format "test",TE d71 test.d71
+	c1541 -attach test.d71 -write test || exit 0
+	c1541 -attach test.d71 -write state || exit 0
+	c1541 -attach test.d71 -write items || exit 0
 
 clean:
 	rm -rf build/*.o build/*.s test/*.o test/*.s
 
 dist-clean: clean
-	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d64
+	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d71
 
 format:
 	clang-format-3.9 -i **/*.[ch]
