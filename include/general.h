@@ -1,5 +1,5 @@
-#ifndef GENERAL_H_
-#define GENERAL_H_
+#ifndef GENERAL_H
+#define GENERAL_H
 
 #include <peekpoke.h>
 #include <stdint.h>
@@ -78,4 +78,4 @@ extern BYTE _oserror;
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) > (b) ? (b) : (a))
 
-#endif /*GENERAL_H_*/
+#endif /* GENERAL_H */

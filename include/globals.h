@@ -1,9 +1,9 @@
-#ifndef _GLOBALS_H_
-#define _GLOBALS_H_
+#ifndef GLOBALS_H
+#define GLOBALS_H
 
 #include <stdint.h>
 
-#ifdef _IS_GLOBALS_C
+#ifdef IS_GLOBALS_C
 #define GLOBAL
 #else
 #define GLOBAL extern
@@ -13,4 +13,4 @@ void init_globals(void);
 
 GLOBAL uint8_t printing;
 
-#endif // _GLOBALS_H_
+#endif /*  GLOBALS_H */

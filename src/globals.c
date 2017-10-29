@@ -1,4 +1,4 @@
-#define _IS_GLOBALS_C
+#define IS_GLOBALS_C
 #include "globals.h"
 
 void init_globals(void) {

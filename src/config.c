@@ -4,7 +4,7 @@
  * See LICENSE for license information
  *
  */
-#define _IS_CONFIG_C
+#define IS_CONFIG_C
 
 #include <stdlib.h>
 #include <conio.h>

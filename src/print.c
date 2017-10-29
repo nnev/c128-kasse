@@ -10,7 +10,7 @@
 #include <cbm.h>
 
 #include "general.h"
-#define _IS_PRINT
+#define IS_PRINT_C
 #include "print.h"
 #include "globals.h"
 

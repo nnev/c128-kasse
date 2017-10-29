@@ -1,7 +1,7 @@
 #include "general.h"
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define MAX_ITEMS 32
 #define MAX_ITEM_NAME_LENGTH 9
@@ -41,7 +41,7 @@ struct credits_array_t {
   struct credits_t credits[MAX_CREDIT_ITEMS];
 };
 
-#ifndef _IS_CONFIG_C
+#ifndef IS_CONFIG_C
 extern struct status_array_t status;
 extern struct credits_array_t credits;
 #endif
@@ -54,4 +54,4 @@ void load_credits(void);
 
 void save_items(void);
 void save_credits(void);
-#endif /*CONFIG_H_*/
+#endif /* CONFIG_H */
