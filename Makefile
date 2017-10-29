@@ -16,6 +16,13 @@ build/%.o: src/%.c ${INCLUDES}
 build/%.o: src/%.s
 	${AS} ${CFLAGS} $< -o $@
 
+build/%.o: test/%.c ${INCLUDES}
+	${CC} ${CFLAGS} -O $< -o build/$(addsuffix .s,$(shell basename $< .c))
+	${AS} ${CFLAGS} build/$(addsuffix .s,$(shell basename $< .c)) -o $@
+
+build/%.o: test/%.s
+	${AS} ${CFLAGS} $< -o $@
+
 include/version.h:
 	mkdir -p build
 	echo "#define GV \"${GV}\"" > $@
@@ -45,17 +52,17 @@ package: all
 	[ -e state ] && c1541 -attach kasse.d71 -write state || exit 0
 	[ -e items ] && c1541 -attach kasse.d71 -write items || exit 0
 
-test: build/config.o test/test.o build/general.o
-	cl65 -t c128 $^ -o build/test
+test: build/config.o build/test.o build/general.o build/print.o build/globals.o
+	${LD} -Ln $@.lbl -t c128 $^ -o test/$@
 
 test-package: test
 	c1541 -format "test",TE d71 test.d71
-	c1541 -attach test.d71 -write test || exit 0
+	c1541 -attach test.d71 -write test/test || exit 0
 	c1541 -attach test.d71 -write state || exit 0
 	c1541 -attach test.d71 -write items || exit 0
 
 clean:
-	rm -rf build/*.o build/*.s test/*.o test/*.s
+	rm -rf build/*.o build/*.s test/test
 
 dist-clean: clean
 	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d71
