@@ -141,7 +141,7 @@ char retry_or_quit(void) {
 }
 
 char *format_euro(char *s, int maxlen, int cent) {
-  if (snprintf(s, maxlen, "%3d,%02d" EURSYM, cent / 100, cent % 100) > maxlen)
+  if (snprintf(s, maxlen, EUR_FORMAT, cent / 100, cent % 100) > maxlen)
     return NULL;
   return s;
 }

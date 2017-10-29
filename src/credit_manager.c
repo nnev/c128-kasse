@@ -24,7 +24,7 @@ static BYTE current_credits_page = 0;
 
 static void credit_print_screen(void) {
   BYTE i, pages;
-  char buffer[10];
+  char buffer[EUR_FORMAT_MINLEN];
 
   clrscr();
   cprintf("credit_manager (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");

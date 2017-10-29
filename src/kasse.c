@@ -25,7 +25,7 @@
 // graphic 4,0,10
 
 void print_item(BYTE i) {
-  char profit[10];
+  char profit[EUR_FORMAT_MINLEN];
   if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
     cprintf("Preis %ld konnte nicht umgerechnet werden\r\n",
             status.status[i].price);
@@ -42,7 +42,7 @@ void print_item(BYTE i) {
 static void print_screen(void) {
   BYTE i = 0;
   char *time = get_time();
-  char profit[10];
+  char profit[EUR_FORMAT_MINLEN];
   clrscr();
   if (format_euro(profit, sizeof(profit), money) == NULL) {
     cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
@@ -112,7 +112,7 @@ static void print_screen(void) {
 static void print_log(char *name, int item_price, int einheiten, char *nickname,
                       char *rest) {
   char *time = get_time();
-  char price[10];
+  char price[EUR_FORMAT_MINLEN];
   /* Format:
      Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
      -- 6-stellig
@@ -145,7 +145,7 @@ static signed int buy(char *name, unsigned int price) {
   BYTE c, nickname_len;
   int einheiten;
   char nickname[NICKNAME_MAX_LEN + 1];
-  char rest[10];
+  char rest[EUR_FORMAT_MINLEN];
   struct credits_t *credit;
 
   memset(nickname, '\0', sizeof(nickname));
@@ -159,7 +159,7 @@ static signed int buy(char *name, unsigned int price) {
   if (einheiten > 100 || einheiten < -100 || einheiten == 0) {
     cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, dr" uUML "cke "
             "RETURN...\r\n");
-    cgetc();
+    cget_return();
     return 1;
   }
 

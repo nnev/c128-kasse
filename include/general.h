@@ -2,6 +2,7 @@
 #define GENERAL_H_
 
 #include <peekpoke.h>
+#include "vdc_patch_charset.h"
 
 typedef unsigned char BYTE;
 typedef enum {
@@ -62,6 +63,9 @@ extern BYTE _oserror;
 #define PETSCII_9 57
 
 #define VIDEOMODE (((*(BYTE *)0xD7) == 0x80) ? 80 : 40)
+
+#define EUR_FORMAT "%3d,%02d" EURSYM
+#define EUR_FORMAT_MINLEN (sizeof("999,99" EURSYM) + 1)
 
 /* because there is no macro expansion when stringifying, we need to use two
  * levels of macros to stringify the value of a macro (for example

@@ -21,13 +21,13 @@
 
 static void itemz_print_screen(void) {
   BYTE i;
-  char buffer[10];
+  char buffer[EUR_FORMAT_MINLEN];
 
   clrscr();
   cprintf("itemz (phil_fry, sECuRE, sur5r, mxf) v:" GV "\r\n\r\n");
   cprintf("Datei: ITEMS\r\n\r\n");
   for (i = 0; i < max(status.num_items, 15); i++) {
-    if (format_euro(buffer, 10, status.status[i].price) != buffer) {
+    if (format_euro(buffer, sizeof(buffer), status.status[i].price) != buffer) {
       cprintf("Error: Could not format price %d\r\n", status.status[i].price);
       exit(1);
     }
