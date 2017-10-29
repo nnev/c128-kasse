@@ -74,10 +74,12 @@ static void _delete_item(BYTE num) {
 }
 
 static void delete_item(void) {
-  BYTE num, last;
-
+  int16_t num;
+  uint8_t last;
   cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
-  if ((num = cget_number(-1)) < 0)
+
+  num = cget_number(-1);
+  if (num < 0)
     return;
 
   if (status.num_items > 1) {
