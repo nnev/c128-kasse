@@ -113,28 +113,38 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
                       char *rest) {
   char *time = get_time();
   char price[EUR_FORMAT_MINLEN];
-  /* Format:
-     Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
-     -- 6-stellig
-     Uhrzeit -- 8-stellig
-     Eintragname (= Getränk) -- 9-stellig
-     Preis (in Cents) -- 9-stellig
-     Anzahl -- 2-stellig
-     Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig
-     restguthaben (9-stellig)
-
-     + 7 leerzeichen
-     --> 48 zeichen
-     */
   if (format_euro(price, sizeof(price), item_price) == NULL) {
     cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
     exit(1);
   }
 
-  sprintf(print_buffer, "%c[%3u] %s - %-" xstr(
-                            MAX_ITEM_NAME_LENGTH) "s - %s - %s - %d - an %s\r",
+  /* TODO: teach the EUR sign to the printer.
+   * Until then, we just overwrite it with "E" */
+  price[EUR_FORMAT_MINLEN - 1] = 'E';
+  rest[EUR_FORMAT_MINLEN - 1] = 'E';
+
+  /* clang-format off */
+  sprintf(print_buffer,
+          /* enable lower case letters */
+          "%c"
+          /*  Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
+              -- 5-stellig */
+          "[%3u] "
+          /* Uhrzeit -- 8-stellig */
+          "%8s - "
+          /*  Eintragname (= Getränk) -- 9-stellig */
+          "%-" xstr(MAX_ITEM_NAME_LENGTH) "s - "
+          /*  Preis (in Cents) -- 7-stellig */
+          "%" xstr(sizeof(price) - 1) "s - "
+          /*  restguthaben (7-stellig) */
+          "%" xstr(sizeof(rest) - 1) "s - "
+          /*  Anzahl -- 2-stellig */
+          "%2d - "
+          /*  Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig */
+          "an %" xstr(NICKNAME_MAX_LEN)"s\r",
           17, status.transaction_id, time, name, price, rest, einheiten,
           (*nickname != '\0' ? nickname : "Unbekannt"));
+  /* clang-format on */
   status.transaction_id++;
   print_the_buffer();
 }
