@@ -148,9 +148,6 @@ static signed int buy(char *name, unsigned int price) {
   char rest[EUR_FORMAT_MINLEN];
   struct credits_t *credit;
 
-  memset(nickname, '\0', sizeof(nickname));
-  memset(rest, '\0', sizeof(rest));
-
   clrscr();
   cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
 
@@ -164,82 +161,9 @@ static signed int buy(char *name, unsigned int price) {
   }
 
   cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
-  {
-    BYTE i;
-    BYTE x;
-    BYTE y;
-    BYTE matches;
-    char *uniquematch;
-    input_terminator_t terminator;
-    while (1) {
-      terminator = get_input_terminated_by(INPUT_TERMINATOR_RETURN |
-                                               INPUT_TERMINATOR_SPACE,
-                                           nickname, sizeof(nickname));
+  nickname_len = cget_nickname(nickname, sizeof(nickname));
 
-      /* Clear the screen from any previous completions */
-      x = wherex();
-      y = wherey();
-      for (i = 1; i < 7; i++) {
-        /* "Completion:" is longer than NICKNAME_MAX_LEN */
-        cclearxy(0, y + i, strlen("Completion:"));
-      }
-      gotoxy(x, y);
-
-      if (terminator != INPUT_TERMINATOR_SPACE) {
-        break;
-      }
-
-      matches = 0;
-      uniquematch = NULL;
-      for (i = 0; i < credits.num_items; i++) {
-        if (strncmp(nickname, credits.credits[i].nickname, strlen(nickname)) !=
-            0) {
-          continue;
-        }
-        matches++;
-        if (matches > 1) {
-          break;
-        }
-        uniquematch = credits.credits[i].nickname;
-      }
-      if (matches == 1) {
-        /* Display the rest of the nickname */
-        textcolor(TC_LIGHT_GREEN);
-        cprintf("%s", uniquematch + strlen(nickname));
-        textcolor(TC_LIGHT_GRAY);
-        strcat(nickname, uniquematch + strlen(nickname));
-      } else {
-        /* Multiple nicknames match what was entered so far. Abort and
-         * display all matches, then prompt the user again. */
-        char completion[NICKNAME_MAX_LEN + 1];
-        BYTE len = strlen(nickname);
-        x = wherex();
-        y = wherey();
-        cprintf("\r\nCompletion:\r\n");
-        matches = 0;
-        for (i = 0; i < credits.num_items; i++) {
-          if (strncmp(nickname, credits.credits[i].nickname, len) != 0) {
-            continue;
-          }
-          if (++matches == 5) {
-            cprintf("...\r\n");
-            break;
-          }
-          strcpy(completion, credits.credits[i].nickname);
-          *(completion + len) = '\0';
-          cprintf("%s", completion);
-          textcolor(TC_LIGHT_GREEN);
-          cprintf("%c", *(credits.credits[i].nickname + len));
-          textcolor(TC_LIGHT_GRAY);
-          cprintf("%s\r\n", completion + len + 1);
-        }
-        gotoxy(x, y);
-      }
-    }
-  }
-
-  if (*nickname != '\0' && *nickname != PETSCII_SP) {
-    nickname_len = strlen(nickname);
+  if (nickname_len && *nickname != '\0' && *nickname != PETSCII_SP) {
     /* go through credits and remove the amount of money or set nickname
      * to NULL if no such credit could be found */
     credit = find_credit(nickname);
@@ -283,10 +207,6 @@ static signed int buy(char *name, unsigned int price) {
       cget_return();
       return 0;
     }
-  } else {
-    /* Ensure that nickname is NULL if it's empty because it's used in print_log
-     */
-    *nickname = '\0';
   }
 
   money += price * einheiten;

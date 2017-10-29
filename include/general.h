@@ -2,6 +2,7 @@
 #define GENERAL_H_
 
 #include <peekpoke.h>
+#include <stdint.h>
 #include "vdc_patch_charset.h"
 
 typedef unsigned char BYTE;
@@ -16,6 +17,7 @@ char *get_input(void);
 BYTE cgetn_input(char *s, BYTE len);
 int16_t cget_number(int16_t default_val);
 void cget_return(void);
+uint8_t cget_nickname(char *buf, uint8_t len);
 char retry_or_quit(void);
 char *format_euro(char *s, int maxlen, int cent);
 void c128_perror(BYTE, char *);

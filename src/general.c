@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #include "general.h"
+#include "config.h"
 #include "vdc_patch_charset.h"
 
 /*
@@ -125,6 +126,80 @@ int16_t cget_number(int16_t default_val) {
   return atoi(buf);
 }
 
+uint8_t cget_nickname(char *nickname, uint8_t length) {
+  uint8_t i, x, y, matches;
+  char *uniquematch;
+  input_terminator_t terminator;
+
+  memset(nickname, '\0', length);
+
+  while (1) {
+    terminator = get_input_terminated_by(
+        INPUT_TERMINATOR_RETURN | INPUT_TERMINATOR_SPACE, nickname, length);
+
+    /* Clear the screen from any previous completions */
+    x = wherex();
+    y = wherey();
+    for (i = 1; i < 7; i++) {
+      /* "Completion:" is longer than NICKNAME_MAX_LEN */
+      cclearxy(0, y + i, strlen("Completion:"));
+    }
+    gotoxy(x, y);
+
+    if (terminator != INPUT_TERMINATOR_SPACE) {
+      return strlen(nickname);
+    }
+
+    matches = 0;
+    uniquematch = NULL;
+    for (i = 0; i < credits.num_items; i++) {
+      if (strncmp(nickname, credits.credits[i].nickname, strlen(nickname)) !=
+          0) {
+        continue;
+      }
+      matches++;
+      if (matches > 1) {
+        break;
+      }
+      uniquematch = credits.credits[i].nickname;
+    }
+    if (matches == 1) {
+      /* Display the rest of the nickname */
+      textcolor(TC_LIGHT_GREEN);
+      cprintf("%s", uniquematch + strlen(nickname));
+      textcolor(TC_LIGHT_GRAY);
+      strcat(nickname, uniquematch + strlen(nickname));
+    } else {
+      /* Multiple nicknames match what was entered so far. Abort and
+       * display all matches, then prompt the user again. */
+      char completion[NICKNAME_MAX_LEN + 1];
+      BYTE len = strlen(nickname);
+      x = wherex();
+      y = wherey();
+      cprintf("\r\nCompletion:\r\n");
+      matches = 0;
+      for (i = 0; i < credits.num_items; i++) {
+        if (strncmp(nickname, credits.credits[i].nickname, len) != 0) {
+          continue;
+        }
+        if (++matches == 5) {
+          cprintf("...\r\n");
+          break;
+        }
+        strcpy(completion, credits.credits[i].nickname);
+        *(completion + len) = '\0';
+        cprintf("%s", completion);
+        textcolor(TC_LIGHT_GREEN);
+        cprintf("%c", *(credits.credits[i].nickname + len));
+        textcolor(TC_LIGHT_GRAY);
+        cprintf("%s\r\n", completion + len + 1);
+      }
+      gotoxy(x, y);
+    }
+  }
+}
+
+/* wait until user pressed RETURN, ignore all other input */
 void cget_return() {
   while (cgetc() != PETSCII_CR) {
   }
