@@ -16,56 +16,55 @@
 #include "config.h"
 #include "credit_manager.h"
 #include "version.h"
+#include "vdc_patch_charset.h"
+#include "globals.h"
 
 static void itemz_print_screen(void) {
   BYTE i;
-  char buffer[10];
+  char buffer[EUR_FORMAT_MINLEN];
 
   clrscr();
-  cprintf("itemz (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
+  cprintf("itemz (phil_fry, sECuRE, sur5r, mxf) v:" GV "\r\n\r\n");
   cprintf("Datei: ITEMS\r\n\r\n");
   for (i = 0; i < max(status.num_items, 15); i++) {
-    if (format_euro(buffer, 10, status.status[i].price) != buffer) {
+    if (format_euro(buffer, sizeof(buffer), status.status[i].price) != buffer) {
       cprintf("Error: Could not format price %d\r\n", status.status[i].price);
       exit(1);
     }
     cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n", i,
             status.status[i].item_name, buffer, status.status[i].times_sold);
   }
-  cprintf("\r\nn) Neu d) Loeschen s) Speichern m) Credit Modus q) "
-          "Beenden\r\nr) Reset des Verkauft-Zaehlers\r\n");
+  cprintf("\r\nn) Neu d) L" oUML "schen s) Speichern m) Credit Modus q) "
+          "Beenden\r\nr) Reset des Verkauft-Z" aUML "hlers\r\n");
 }
 
 static void new_item(void) {
-  char *input, *name;
-  int price;
+  char name[MAX_ITEM_NAME_LENGTH + 1];
+  int price, times_sold;
 
   if (status.num_items == MAX_ITEMS) {
-    cprintf("\rEs ist bereits die maximale Anzahl an Eintraegen erreicht, "
-            "druecke RETURN...\r\n");
-    input = get_input();
+    cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
+            "gen erreicht, dr" uUML "cke RETURN...\r\n");
+    cget_return();
     return;
   }
 
   cprintf("\rName des Eintrags:\r\n");
-  if ((input = get_input()) == NULL || *input == '\0')
+  if (cgetn_input(name, sizeof(name)) == 0)
     return;
-  name = strdup(input);
   cprintf("\r\nPreis in Cents:\r\n");
-  if ((input = get_input()) == NULL || *input == '\0' ||
-      (price = atoi(input)) == 0)
+  if ((price = cget_number(0)) <= 0)
     return;
   cprintf("\r\nWie oft schon verkauft? [0] \r\n");
-  if ((input = get_input()) == NULL)
+  if ((times_sold = cget_number(0)) < 0)
     return;
   memset(status.status[status.num_items].item_name, '\0',
          MAX_ITEM_NAME_LENGTH + 1);
   strncpy(status.status[status.num_items].item_name, name,
           MAX_ITEM_NAME_LENGTH);
   status.status[status.num_items].price = price;
-  status.status[status.num_items].times_sold = atoi(input);
+  status.status[status.num_items].times_sold = times_sold;
   status.num_items++;
-  free(name);
 }
 
 static void _delete_item(BYTE num) {
@@ -75,17 +74,19 @@ static void _delete_item(BYTE num) {
 }
 
 static void delete_item(void) {
-  char *input;
-  BYTE num, last;
-
+  int16_t num;
+  uint8_t last;
   cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
-  if ((input = get_input()) == NULL || *input == '\0')
+
+  num = cget_number(-1);
+  if (num < 0)
     return;
-  num = atoi(input);
+
   if (status.num_items > 1) {
     /* Swap last item with this one and delete the last one to avoid holes */
     last = (status.num_items - 1);
-    strcpy(status.status[num].item_name, status.status[last].item_name);
+    strncpy(status.status[num].item_name, status.status[last].item_name,
+            MAX_ITEM_NAME_LENGTH);
     status.status[num].price = status.status[last].price;
     status.status[num].times_sold = status.status[last].times_sold;
     _delete_item(last);
@@ -128,7 +129,7 @@ static void itemz_manager() {
       exit(0);
     default:
       cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
-      get_input();
+      cget_return();
     }
   }
 }

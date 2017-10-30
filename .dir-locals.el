@@ -1,0 +1,5 @@
+((nil . ())
+ (c-mode . ((c-basic-offset . 2)
+            (indent-tabs-mode . nil)
+            (flycheck-clang-include-path . ("/usr/share/cc65/include"))
+            (flycheck-clang-language-standard . "c99"))))

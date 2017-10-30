@@ -4,7 +4,6 @@
  * See LICENSE for license information
  *
  */
-#define _IS_KASSE
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -21,11 +20,12 @@
 #include "print.h"
 #include "version.h"
 #include "vdc_patch_charset.h"
+#include "globals.h"
 // drucker 4 oder 5
 // graphic 4,0,10
 
 void print_item(BYTE i) {
-  char profit[10];
+  char profit[EUR_FORMAT_MINLEN];
   if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
     cprintf("Preis %ld konnte nicht umgerechnet werden\r\n",
             status.status[i].price);
@@ -42,9 +42,9 @@ void print_item(BYTE i) {
 static void print_screen(void) {
   BYTE i = 0;
   char *time = get_time();
-  char profit[10];
+  char profit[EUR_FORMAT_MINLEN];
   clrscr();
-  if (format_euro(profit, 10, money) == NULL) {
+  if (format_euro(profit, sizeof(profit), money) == NULL) {
     cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
     exit(1);
   }
@@ -112,177 +112,74 @@ static void print_screen(void) {
 static void print_log(char *name, int item_price, int einheiten, char *nickname,
                       char *rest) {
   char *time = get_time();
-  char price[10];
-  /* Format:
-     Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
-     -- 6-stellig
-     Uhrzeit -- 8-stellig
-     Eintragname (= Getränk) -- 9-stellig
-     Preis (in Cents) -- 9-stellig
-     Anzahl -- 2-stellig
-     Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig
-     restguthaben (9-stellig)
-
-     + 7 leerzeichen
-     --> 48 zeichen
-     */
-  if (format_euro(price, 10, item_price) == NULL) {
+  char price[EUR_FORMAT_MINLEN];
+  if (format_euro(price, sizeof(price), item_price) == NULL) {
     cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
     exit(1);
   }
 
-  sprintf(print_buffer, "%c[%3u] %s - %-" xstr(
-                            MAX_ITEM_NAME_LENGTH) "s - %s - %s - %d - an %s\r",
+  /* TODO: teach the EUR sign to the printer.
+   * Until then, we just overwrite it with "E" */
+  price[EUR_FORMAT_MINLEN - 1] = 'E';
+  rest[EUR_FORMAT_MINLEN - 1] = 'E';
+
+  /* clang-format off */
+  sprintf(print_buffer,
+          /* enable lower case letters */
+          "%c"
+          /*  Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
+              -- 5-stellig */
+          "[%3u] "
+          /* Uhrzeit -- 8-stellig */
+          "%8s - "
+          /*  Eintragname (= Getränk) -- 9-stellig */
+          "%-" xstr(MAX_ITEM_NAME_LENGTH) "s - "
+          /*  Preis (in Cents) -- 7-stellig */
+          "%" xstr(sizeof(price) - 1) "s - "
+          /*  restguthaben (7-stellig) */
+          "%" xstr(sizeof(rest) - 1) "s - "
+          /*  Anzahl -- 2-stellig */
+          "%2d - "
+          /*  Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig */
+          "an %" xstr(NICKNAME_MAX_LEN)"s\r",
           17, status.transaction_id, time, name, price, rest, einheiten,
           (*nickname != '\0' ? nickname : "Unbekannt"));
+  /* clang-format on */
   status.transaction_id++;
   print_the_buffer();
 }
 
 /* dialog which is called for each bought item */
 static signed int buy(char *name, unsigned int price) {
-  int negative = 1;
-  char entered[5] = {'1', 0, 0, 0, 0};
-  BYTE i = 0, matches = 0;
-  BYTE c, x, y, nickname_len;
+  BYTE matches = 0;
+  BYTE c, nickname_len;
   int einheiten;
   char nickname[NICKNAME_MAX_LEN + 1];
-  char rest[11];
+  char rest[EUR_FORMAT_MINLEN];
   struct credits_t *credit;
-
-  memset(nickname, '\0', sizeof(nickname));
-  memset(rest, ' ', sizeof(rest));
-  rest[8] = '\0';
 
   clrscr();
   cprintf("Wieviel Einheiten \"%s\"? [1] \r\n", name);
-  x = wherex();
-  y = wherey();
-  while (1) {
-    /* Buffer-Ende erreicht? */
-    if (i == 4)
-      break;
 
-    c = cgetc();
-    /* Enter */
-    if (c == PETSCII_CR)
-      break;
-    /* Backspace */
-    if (c == PETSCII_DEL) {
-      if (i == 0)
-        continue;
-      entered[--i] = '\0';
-      cputcxy(x + i, y, ' ');
-      gotoxy(x + i, y);
-      continue;
-    }
-    if (c == 27) {
-      cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
-      get_input();
-      return 1;
-    }
-    if (c == '-' && i == 0) {
-      negative = -1;
-      cputc(c);
-    } else if (c >= PETSCII_0 && c <= PETSCII_9) {
-      entered[i++] = c;
-      cputc(c);
-    }
-
-    /* Ungültige Eingabe (keine Ziffer), einfach ignorieren */
-  }
-  einheiten = atoi(entered) * negative;
+  einheiten = cget_number(1);
 
   if (einheiten > 100 || einheiten < -100 || einheiten == 0) {
     cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, dr" uUML "cke "
             "RETURN...\r\n");
-    cgetc();
+    cget_return();
     return 1;
   }
 
   cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
-  {
-    BYTE i;
-    BYTE x;
-    BYTE y;
-    BYTE matches;
-    char *uniquematch;
-    input_terminator_t terminator;
-    while (1) {
-      terminator = get_input_terminated_by(INPUT_TERMINATOR_RETURN |
-                                               INPUT_TERMINATOR_SPACE,
-                                           nickname, sizeof(nickname));
+  nickname_len = cget_nickname(nickname, sizeof(nickname));
 
-      /* Clear the screen from any previous completions */
-      x = wherex();
-      y = wherey();
-      for (i = 1; i < 7; i++) {
-        /* "Completion:" is longer than NICKNAME_MAX_LEN */
-        cclearxy(0, y + i, strlen("Completion:"));
-      }
-      gotoxy(x, y);
-
-      if (terminator != INPUT_TERMINATOR_SPACE) {
-        break;
-      }
-
-      matches = 0;
-      uniquematch = NULL;
-      for (i = 0; i < credits.num_items; i++) {
-        if (strncmp(nickname, credits.credits[i].nickname, strlen(nickname)) !=
-            0) {
-          continue;
-        }
-        matches++;
-        if (matches > 1) {
-          break;
-        }
-        uniquematch = credits.credits[i].nickname;
-      }
-      if (matches == 1) {
-        /* Display the rest of the nickname */
-        textcolor(TC_LIGHT_GREEN);
-        cprintf("%s", uniquematch + strlen(nickname));
-        textcolor(TC_LIGHT_GRAY);
-        strcat(nickname, uniquematch + strlen(nickname));
-      } else {
-        /* Multiple nicknames match what was entered so far. Abort and
-         * display all matches, then prompt the user again. */
-        char completion[NICKNAME_MAX_LEN + 1];
-        BYTE len = strlen(nickname);
-        x = wherex();
-        y = wherey();
-        cprintf("\r\nCompletion:\r\n");
-        matches = 0;
-        for (i = 0; i < credits.num_items; i++) {
-          if (strncmp(nickname, credits.credits[i].nickname, len) != 0) {
-            continue;
-          }
-          if (++matches == 5) {
-            cprintf("...\r\n");
-            break;
-          }
-          strcpy(completion, credits.credits[i].nickname);
-          *(completion + len) = '\0';
-          cprintf("%s", completion);
-          textcolor(TC_LIGHT_GREEN);
-          cprintf("%c", *(credits.credits[i].nickname + len));
-          textcolor(TC_LIGHT_GRAY);
-          cprintf("%s\r\n", completion + len + 1);
-        }
-        gotoxy(x, y);
-      }
-    }
-  }
-
-  if (*nickname != '\0' && *nickname != 32) {
-    nickname_len = strlen(nickname);
+  if (nickname_len && *nickname != '\0' && *nickname != PETSCII_SP) {
     /* go through credits and remove the amount of money or set nickname
      * to NULL if no such credit could be found */
     credit = find_credit(nickname);
     if (credit != NULL) {
       while ((signed int)credit->credit < ((signed int)price * einheiten)) {
-        if (format_euro(rest, 10, credit->credit) == NULL) {
+        if (format_euro(rest, sizeof(rest), credit->credit) == NULL) {
           cprintf("Preis %d konnte nicht umgerechnet werden\r\n",
                   credit->credit);
           exit(1);
@@ -300,7 +197,7 @@ static signed int buy(char *name, unsigned int price) {
       /* substract money */
       credit->credit -= (price * einheiten);
 
-      if (format_euro(rest, 10, credit->credit) == NULL) {
+      if (format_euro(rest, sizeof(rest), credit->credit) == NULL) {
         cprintf("Preis %d konnte nicht umgerechnet werden\r\n", credit->credit);
         exit(1);
       }
@@ -310,20 +207,16 @@ static signed int buy(char *name, unsigned int price) {
               "cke RETURN...\r\n",
               nickname, rest);
       textcolor(TC_LIGHT_GRAY);
-      get_input();
+      cget_return();
       matches++;
     } else {
       textcolor(TC_LIGHT_RED);
       cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, "
               "dr" uUML "cke RETURN...\r\n");
       textcolor(TC_LIGHT_GRAY);
-      get_input();
+      cget_return();
       return 0;
     }
-  } else {
-    /* Ensure that nickname is NULL if it's empty because it's used in print_log
-     */
-    *nickname = '\0';
   }
 
   money += price * einheiten;
@@ -337,7 +230,7 @@ static signed int buy(char *name, unsigned int price) {
 void buy_stock(BYTE n) {
   if (n >= status.num_items || status.status[n].item_name == NULL) {
     cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
-    get_input();
+    cget_return();
     return;
   }
 
@@ -346,38 +239,23 @@ void buy_stock(BYTE n) {
 }
 
 void buy_custom(void) {
-  BYTE c = 0, i = 0;
-  int negative = 1;
-  char entered[5] = {'1', 0, 0, 0, 0};
-  char *input, name[20];
+  char name[MAX_ITEM_NAME_LENGTH + 1];
   int price;
 
   clrscr();
-  memset(name, '\0', 20);
   cprintf("\r\nWas soll gekauft werden?\r\n");
-  input = get_input();
-  strncpy(name, input, 20);
-  if (*name == '\0')
+  if (cgetn_input(name, sizeof(name)) == 0)
     return;
 
   cprintf("\r\nWie teuer ist \"%s\" (in cents)?\r\n", name);
-  while (1) {
-    c = cgetc();
-    if (c == 13)
-      break;
-    cputc(c);
-    if (c == 27) {
-      cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
-      get_input();
-      return;
-    } else if (c == '-' && i == 0)
-      negative = -1;
-    else if (c > 47 && c < 58)
-      entered[i++] = c;
-  }
-  price = atoi(entered) * negative;
 
-  cprintf("\r\n");
+  price = cget_number(0);
+
+  if (price == 0) {
+    cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
+    cget_return();
+    return;
+  }
 
   buy(name, price);
 }
@@ -406,6 +284,8 @@ void set_time_interactive(void) {
 int main(void) {
   char *c;
   char *time;
+
+  init_globals();
 
   videomode(VIDEOMODE_80x25);
 
@@ -458,7 +338,7 @@ int main(void) {
     print_screen();
     c = get_input();
     /* ...display dialogs eventually */
-    if (*c > 47 && *c < 58) {
+    if (*c >= PETSCII_0 && *c <= PETSCII_9) {
       /* if the input starts with a digit, we will interpret it as a number
        * for the item to be sold */
       buy_stock(atoi(c));
@@ -473,7 +353,7 @@ int main(void) {
       log_flush();
       cprintf("ok\r\nStatefile/Creditfile/Log gesichert, dr" uUML
               "cke RETURN...\r\n");
-      get_input();
+      cget_return();
     } else if (*c == 'g') {
       credit_manager();
     } else if (*c == 'z') {

@@ -1,5 +1,5 @@
-#ifndef __VDC_PATCH_CHARSET_H_
-#define __VDC_PATCH_CHARSET_H_
+#ifndef VDC_PATCH_CHARSET_H
+#define VDC_PATCH_CHARSET_H
 
 void vdc_patch_charset(void);
 
@@ -12,4 +12,4 @@ void vdc_patch_charset(void);
 #define uUML "\xA9"
 #define szLIG "\xBF"
 
-#endif // __VDC_PATCH_CHARSET_H_
+#endif /* VDC_PATCH_CHARSET_H */

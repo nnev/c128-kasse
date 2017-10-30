@@ -1,7 +1,9 @@
-#ifndef GENERAL_H_
-#define GENERAL_H_
+#ifndef GENERAL_H
+#define GENERAL_H
 
 #include <peekpoke.h>
+#include <stdint.h>
+#include "vdc_patch_charset.h"
 
 typedef unsigned char BYTE;
 typedef enum {
@@ -12,6 +14,10 @@ typedef input_terminator_t input_terminator_mask_t;
 input_terminator_t get_input_terminated_by(input_terminator_mask_t terminators,
                                            char *out, BYTE outlen);
 char *get_input(void);
+BYTE cgetn_input(char *s, BYTE len);
+int16_t cget_number(int16_t default_val);
+void cget_return(void);
+uint8_t cget_nickname(char *buf, uint8_t len);
 char retry_or_quit(void);
 char *format_euro(char *s, int maxlen, int cent);
 void c128_perror(BYTE, char *);
@@ -43,6 +49,8 @@ extern BYTE _oserror;
 #define PETSCII_CR 13
 /* Delete */
 #define PETSCII_DEL 20
+/* Escape */
+#define PETSCII_ESC 27
 /* Space */
 #define PETSCII_SP 32
 #define PETSCII_0 48
@@ -58,6 +66,9 @@ extern BYTE _oserror;
 
 #define VIDEOMODE (((*(BYTE *)0xD7) == 0x80) ? 80 : 40)
 
+#define EUR_FORMAT "%3d,%02d" EURSYM
+#define EUR_FORMAT_MINLEN (sizeof("999,99" EURSYM) + 1)
+
 /* because there is no macro expansion when stringifying, we need to use two
  * levels of macros to stringify the value of a macro (for example
  * MAX_ITEM_NAME_LENGTH) */
@@ -67,4 +78,4 @@ extern BYTE _oserror;
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) > (b) ? (b) : (a))
 
-#endif /*GENERAL_H_*/
+#endif /* GENERAL_H */

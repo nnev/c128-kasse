@@ -1,0 +1,5 @@
+-I/usr/share/cc65/include
+-Iinclude
+-nostdlibinc
+-nobuiltininc
+-D__fastcall__=''

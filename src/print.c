@@ -10,8 +10,9 @@
 #include <cbm.h>
 
 #include "general.h"
-#define _IS_PRINT
+#define IS_PRINT_C
 #include "print.h"
+#include "globals.h"
 
 /* NOTE: undocumented function which scratches files
    We need to use this function because linking unistd.h
@@ -36,19 +37,34 @@ void init_log(void) {
 }
 
 void print_the_buffer(void) {
-  BYTE c;
+  BYTE status;
+  char *c;
+
+  if (!printing)
+    return;
+
 RETRY:
-  c = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
-  if (c != 0) {
-    c128_perror(c, "cbm_open(printer)");
-    if (retry_or_quit() == 'q')
+  status = cbm_open((BYTE)4, (BYTE)4, (BYTE)0, NULL);
+  if (status != 0) {
+    c128_perror(status, "cbm_open(printer)");
+
+    do {
+      cprintf("\r\nr)etry, c)ontinue or q)uit?\r\n");
+      c = get_input();
+    } while ((*c != 'r') && (*c != 'c') && (*c != 'q'));
+
+    if (*c == 'q')
       exit(1);
+    else if (*c == 'c') {
+      printing = 0;
+      return;
+    }
 
     goto RETRY;
   }
-  c = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
-  if (c != strlen(print_buffer)) {
-    c128_perror(c, "write(printer)");
+  status = cbm_write((BYTE)4, print_buffer, strlen(print_buffer));
+  if (status != strlen(print_buffer)) {
+    c128_perror(status, "write(printer)");
     if (retry_or_quit() == 'q')
       exit(1);
     goto RETRY;

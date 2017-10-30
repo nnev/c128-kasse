@@ -4,7 +4,7 @@ kasse
 build/
 *.P00
 itemz
-*.d64
+*.d71
 include/version.h
 include/charset_umlauts.h
 tags
@@ -14,3 +14,5 @@ cat
 charmap
 ascii
 *.lbl
+TAGS
+test/test

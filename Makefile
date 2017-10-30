@@ -16,6 +16,13 @@ build/%.o: src/%.c ${INCLUDES}
 build/%.o: src/%.s
 	${AS} ${CFLAGS} $< -o $@
 
+build/%.o: test/%.c ${INCLUDES}
+	${CC} ${CFLAGS} -O $< -o build/$(addsuffix .s,$(shell basename $< .c))
+	${AS} ${CFLAGS} build/$(addsuffix .s,$(shell basename $< .c)) -o $@
+
+build/%.o: test/%.s
+	${AS} ${CFLAGS} $< -o $@
+
 include/version.h:
 	mkdir -p build
 	echo "#define GV \"${GV}\"" > $@
@@ -23,13 +30,13 @@ include/version.h:
 include/charset_umlauts.h:
 	./util/mkfont assets/umlauts.pbm chars_umlauts > $@
 
-kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o
+kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o build/globals.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
-itemz: build/config.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o
+itemz: build/config.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/globals.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
-cat: build/general.o build/cat.o
+cat: build/general.o build/cat.o build/config.o build/print.o build/globals.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 charmap: build/print_charmap.o build/vdc_util.o build/vdc_patch_charset.o
@@ -39,26 +46,26 @@ ascii: build/print_ascii.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 package: all
-	c1541 -format "${GV}",KA d64 kasse.d64
-	c1541 -attach kasse.d64 -write kasse
-	c1541 -attach kasse.d64 -write itemz
-	[ -e state ] && c1541 -attach kasse.d64 -write state || exit 0
-	[ -e items ] && c1541 -attach kasse.d64 -write items || exit 0
+	c1541 -format "${GV}",KA d71 kasse.d71
+	c1541 -attach kasse.d71 -write kasse
+	c1541 -attach kasse.d71 -write itemz
+	[ -e state ] && c1541 -attach kasse.d71 -write state || exit 0
+	[ -e items ] && c1541 -attach kasse.d71 -write items || exit 0
 
-test: build/config.o test/test.o build/general.o
-	cl65 -t c128 $^ -o build/test
+test: build/config.o build/test.o build/general.o build/print.o build/globals.o
+	${LD} -Ln $@.lbl -t c128 $^ -o test/$@
 
 test-package: test
-	c1541 -format "test",TE d64 test.d64
-	c1541 -attach test.d64 -write test || exit 0
-	c1541 -attach test.d64 -write state || exit 0
-	c1541 -attach test.d64 -write items || exit 0
+	c1541 -format "test",TE d71 test.d71
+	c1541 -attach test.d71 -write test/test || exit 0
+	c1541 -attach test.d71 -write state || exit 0
+	c1541 -attach test.d71 -write items || exit 0
 
 clean:
-	rm -rf build/*.o build/*.s test/*.o test/*.s
+	rm -rf build/*.o build/*.s test/test
 
 dist-clean: clean
-	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d64
+	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d71
 
 format:
 	clang-format-3.9 -i **/*.[ch]

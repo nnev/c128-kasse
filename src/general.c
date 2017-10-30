@@ -8,8 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <conio.h>
+#include <stdint.h>
 
 #include "general.h"
+#include "config.h"
 #include "vdc_patch_charset.h"
 
 /*
@@ -66,6 +68,144 @@ char *get_input(void) {
   return output;
 }
 
+BYTE cgetn_input(char *s, BYTE len) {
+  memset(s, '\0', len);
+  get_input_terminated_by(INPUT_TERMINATOR_RETURN, s, len);
+  return strlen(s);
+}
+
+int16_t cget_number(int16_t default_val) {
+  char c;
+  int x, y;
+  uint8_t num_chars = 0;
+  char buf[6] = {0, 0, 0, 0, 0, 0};
+  int i = 0;
+  x = wherex();
+  y = wherey();
+  while (1) {
+    c = cgetc();
+
+    /* Enter */
+    if (c == PETSCII_CR)
+      break;
+
+    /* Backspace */
+    if (c == PETSCII_DEL) {
+      if (i == 0)
+        continue;
+      buf[--i] = '\0';
+      cputcxy(x + i, y, ' ');
+      gotoxy(x + i, y);
+      continue;
+    }
+
+    /* Abort */
+    if (c == PETSCII_ESC) {
+      return default_val;
+    }
+
+    /* end of buffer? wait for user to press RETURN */
+    if (i == (sizeof(buf) - 1))
+      continue;
+
+    /* match either numbers or iff it's the first entered char a minus sign */
+    if ((c >= PETSCII_0 && c <= PETSCII_9) || (c == '-' && i == 0)) {
+      buf[i] = c;
+      ++i;
+      ++num_chars;
+      cputc(c);
+    }
+  }
+
+  if (num_chars == 0) {
+    return default_val;
+  } else if ((num_chars == 1) && (c == '-')) {
+    return default_val;
+  }
+
+  return atoi(buf);
+}
+
+uint8_t cget_nickname(char *nickname, uint8_t length) {
+  uint8_t i, x, y, matches;
+  char *uniquematch;
+  input_terminator_t terminator;
+
+  memset(nickname, '\0', length);
+
+  while (1) {
+    terminator = get_input_terminated_by(
+        INPUT_TERMINATOR_RETURN | INPUT_TERMINATOR_SPACE, nickname, length);
+
+    /* Clear the screen from any previous completions */
+    x = wherex();
+    y = wherey();
+    for (i = 1; i < 7; i++) {
+      /* "Completion:" is longer than NICKNAME_MAX_LEN */
+      cclearxy(0, y + i, strlen("Completion:"));
+    }
+    gotoxy(x, y);
+
+    if (terminator != INPUT_TERMINATOR_SPACE) {
+      return strlen(nickname);
+    }
+
+    matches = 0;
+    uniquematch = NULL;
+    for (i = 0; i < credits.num_items; i++) {
+      if (strncmp(nickname, credits.credits[i].nickname, strlen(nickname)) !=
+          0) {
+        continue;
+      }
+      matches++;
+      if (matches > 1) {
+        break;
+      }
+      uniquematch = credits.credits[i].nickname;
+    }
+    if (matches == 1) {
+      /* Display the rest of the nickname */
+      textcolor(TC_LIGHT_GREEN);
+      cprintf("%s", uniquematch + strlen(nickname));
+      textcolor(TC_LIGHT_GRAY);
+      strcat(nickname, uniquematch + strlen(nickname));
+    } else {
+      /* Multiple nicknames match what was entered so far. Abort and
+       * display all matches, then prompt the user again. */
+      char completion[NICKNAME_MAX_LEN + 1];
+      BYTE len = strlen(nickname);
+      x = wherex();
+      y = wherey();
+      cprintf("\r\nCompletion:\r\n");
+      matches = 0;
+      for (i = 0; i < credits.num_items; i++) {
+        if (strncmp(nickname, credits.credits[i].nickname, len) != 0) {
+          continue;
+        }
+        if (++matches == 5) {
+          cprintf("...\r\n");
+          break;
+        }
+        strcpy(completion, credits.credits[i].nickname);
+        *(completion + len) = '\0';
+        cprintf("%s", completion);
+        textcolor(TC_LIGHT_GREEN);
+        cprintf("%c", *(credits.credits[i].nickname + len));
+        textcolor(TC_LIGHT_GRAY);
+        cprintf("%s\r\n", completion + len + 1);
+      }
+      gotoxy(x, y);
+    }
+  }
+}
+
+/* wait until user pressed RETURN, ignore all other input */
+void cget_return() {
+  while (cgetc() != PETSCII_CR) {
+  }
+  return;
+}
+
 char retry_or_quit(void) {
   char *c;
   do {
@@ -76,7 +216,7 @@ char retry_or_quit(void) {
 }
 
 char *format_euro(char *s, int maxlen, int cent) {
-  if (snprintf(s, maxlen, "%3d,%02d" EURSYM, cent / 100, cent % 100) > maxlen)
+  if (snprintf(s, maxlen, EUR_FORMAT, cent / 100, cent % 100) > maxlen)
     return NULL;
   return s;
 }

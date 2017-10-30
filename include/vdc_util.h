@@ -1,5 +1,5 @@
-#ifndef __VDC_UTIL_H_
-#define __VDC_UTIL_H_
+#ifndef VDC_UTIL_H
+#define VDC_UTIL_H
 
 extern void __fastcall__ vdc_load_thinfont(void);
 extern unsigned char __fastcall__ vdc_read_reg(unsigned char reg);
@@ -11,4 +11,4 @@ extern void __fastcall__ vdc_write_mem(unsigned dest, const void *src,
                                        unsigned n);
 extern void __fastcall__ vdc_load_thinfont(void);
 
-#endif // __VDC_UTIL_H_
+#endif /* VDC_UTIL_H */
