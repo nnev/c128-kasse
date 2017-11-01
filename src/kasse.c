@@ -25,7 +25,7 @@
 // graphic 4,0,10
 
 void print_item(BYTE i) {
-  char profit[EUR_FORMAT_MINLEN];
+  char profit[EUR_FORMAT_MINLEN + 1];
   if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
     cprintf("Preis %ld konnte nicht umgerechnet werden\r\n",
             status.status[i].price);
@@ -42,7 +42,7 @@ void print_item(BYTE i) {
 static void print_screen(void) {
   BYTE i = 0;
   char *time = get_time();
-  char profit[EUR_FORMAT_MINLEN];
+  char profit[EUR_FORMAT_MINLEN + 1];
   clrscr();
   if (format_euro(profit, sizeof(profit), money) == NULL) {
     cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
@@ -112,7 +112,8 @@ static void print_screen(void) {
 static void print_log(char *name, int item_price, int einheiten, char *nickname,
                       char *rest) {
   char *time = get_time();
-  char price[EUR_FORMAT_MINLEN];
+  uint8_t n;
+  char price[EUR_FORMAT_MINLEN + 1];
   if (format_euro(price, sizeof(price), item_price) == NULL) {
     cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
     exit(1);
@@ -124,27 +125,34 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
   rest[EUR_FORMAT_MINLEN - 1] = 'E';
 
   /* clang-format off */
-  sprintf(print_buffer,
-          /* enable lower case letters */
-          "%c"
-          /*  Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
-              -- 5-stellig */
-          "[%3u] "
-          /* Uhrzeit -- 8-stellig */
-          "%8s - "
-          /*  Eintragname (= Getränk) -- 9-stellig */
-          "%-" xstr(MAX_ITEM_NAME_LENGTH) "s - "
-          /*  Preis (in Cents) -- 7-stellig */
-          "%" xstr(sizeof(price) - 1) "s - "
-          /*  restguthaben (7-stellig) */
-          "%" xstr(sizeof(rest) - 1) "s - "
-          /*  Anzahl -- 2-stellig */
-          "%2d - "
-          /*  Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig */
-          "an %" xstr(NICKNAME_MAX_LEN)"s\r",
-          17, status.transaction_id, time, name, price, rest, einheiten,
-          (*nickname != '\0' ? nickname : "Unbekannt"));
+  n = snprintf(print_buffer, sizeof(print_buffer),
+        /* enable lower case letters -- 1 */
+        "%c"
+        /*  Transaction-ID (Anzahl verkaufter Einträge, inklusive des zu druckenden!)
+            -- 6-stellig */
+        "[%3u] "
+        /* Uhrzeit -- 8-stellig + 3 */
+        "%8s - "
+        /*  Eintragname (= Getränk) -- 9-stellig + 3 */
+        "%-" xstr(MAX_ITEM_NAME_LENGTH) "s - "
+        /*  Preis (in Cents) -- 7-stellig  + 3 */
+        "%" xstr(EUR_FORMAT_MINLEN) "s - "
+        /*  restguthaben (7-stellig) + 3 */
+        "%" xstr(EUR_FORMAT_MINLEN) "s - "
+        /*  Anzahl -- 2-stellig + 3 */
+        "%2d - "
+        /*  Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig + 4 */
+        "an %" xstr(NICKNAME_MAX_LEN)"s\r",
+        17, status.transaction_id, time, name, price, rest, einheiten,
+        (*nickname != '\0' ? nickname : "Unbekannt"));
   /* clang-format on */
+  if (n > sizeof(print_buffer)) {
+    cprintf("\r\nprint_log(): print_buffer overflowed!\r\n"
+            "Wanted to write %d bytes\r\n%s\r\n",
+            n, print_buffer);
+    exit(1);
+  }
+
   status.transaction_id++;
   print_the_buffer();
 }
@@ -155,7 +163,7 @@ static signed int buy(char *name, unsigned int price) {
   BYTE c, nickname_len;
   int einheiten;
   char nickname[NICKNAME_MAX_LEN + 1];
-  char rest[EUR_FORMAT_MINLEN];
+  char rest[EUR_FORMAT_MINLEN + 1];
   struct credits_t *credit;
 
   clrscr();

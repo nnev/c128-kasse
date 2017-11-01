@@ -21,7 +21,7 @@
 
 static void itemz_print_screen(void) {
   BYTE i;
-  char buffer[EUR_FORMAT_MINLEN];
+  char buffer[EUR_FORMAT_MINLEN + 1];
 
   clrscr();
   cprintf("itemz (phil_fry, sECuRE, sur5r, mxf) v:" GV "\r\n\r\n");
