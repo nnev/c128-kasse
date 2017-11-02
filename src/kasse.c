@@ -41,7 +41,6 @@ void print_item(BYTE i) {
 /* Hauptbildschirm ausgeben */
 static void print_screen(void) {
   BYTE i = 0;
-  char *time = get_time();
   char profit[EUR_FORMAT_MINLEN + 1];
   clrscr();
   if (format_euro(profit, sizeof(profit), money) == NULL) {
@@ -51,9 +50,9 @@ static void print_screen(void) {
   textcolor(TC_CYAN);
   cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r, mxf) " GV "\r\n");
   textcolor(TC_LIGHT_GRAY);
-  cprintf("\r\nUhrzeit:     %s (wird nicht aktualisiert)\r\n"
-          "Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
-          time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
+  cprintf("\r\n\r\n"
+          "Ertrag: %s (%ld Artikel); Drucken: %s\r\n",
+          profit, items_sold, (printing == 1 ? "ein" : "aus"));
   textcolor(TC_LIGHT_GRAY);
   cprintf("      \xB0"
           "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB2"
@@ -313,6 +312,8 @@ int main(void) {
 
   clrscr();
 
+  install_daytime_irq();
+
   /* Allocate logging buffer memory */
   init_log();
 
@@ -347,7 +348,9 @@ int main(void) {
 
   while (1) {
     print_screen();
+    kasse_menu = MENU_MAIN;
     c = get_input();
+    kasse_menu = MENU_UNDEFINED;
     /* ...display dialogs eventually */
     if (*c >= PETSCII_0 && *c <= PETSCII_9) {
       /* if the input starts with a digit, we will interpret it as a number

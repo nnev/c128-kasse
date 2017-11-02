@@ -9,23 +9,35 @@
 #include <stdio.h>
 #include <c128.h>
 #include <stdint.h>
+#include <6502.h>
+#include <conio.h>
 
 #include "bcd2dec.h"
 #include "general.h"
 #include "globals.h"
 
+/* This file uses the CIA TOD (Complex Interface Adapter, Time of Day)
+ * for timekeeping, see https://www.c64-wiki.com/wiki/CIA and its Links section
+ * for a bit more information */
+
+/* the Time of Day PM bit is set for hours >= 12 */
+#define TOD_PM 0x80
+
+#define DAYTIME_IRQ_STACK_SIZE 32
+uint8_t daytime_irq_stack[DAYTIME_IRQ_STACK_SIZE];
+
 void update_time(void) {
-  uint8_t bcd_hour, hour, min, sec, tenth;
+  volatile static uint8_t bcd_hour, hour, min, sec, tenth;
 
   /* Read the hour register first to stop the clock from updating the external
    * registers from the internal (still ticking!) CIA registers. */
 
   bcd_hour = CIA1.tod_hour;
 
-  /* if high bit is set, it is pm */
-  if (bcd_hour & 0x80) {
-    hour = bcd2dec(bcd_hour ^ 0x80);
-    /* adjust for 24h clock, 12:??pm is still 12:?? */
+  /* hour is >= 12 if TOD_PM is set */
+  if (bcd_hour & TOD_PM) {
+    hour = bcd2dec(bcd_hour ^ TOD_PM);
+    /* adjust for 24h clock, 12:??pm should still be 12:?? */
     if (hour != 12) {
       hour += 12;
     }
@@ -39,6 +51,7 @@ void update_time(void) {
   /* MUST read tod_10 to enable the clock latch again */
   tenth = CIA1.tod_10;
 
+  /* it's a new day when hour wraps */
   if (daytime.hour > hour) {
     daytime.day++;
   }
@@ -49,29 +62,31 @@ void update_time(void) {
 }
 
 char *get_time(void) {
-  static char buffer[9];
+  static char buffer[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
   update_time();
   sprintf(buffer, "%02d:%02d:%02d", daytime.hour, daytime.min, daytime.sec);
   return buffer;
 }
 
-/* divide by 10; put quotient in high nibble, reminder in low nibble */
-uint8_t dec2bcd(uint8_t dec) { return (((dec / 10) << 4) | (dec % 10)); }
+/* divide by 10; put quotient in high nibble, remainder in low nibble */
+uint8_t dec2bcd(const uint8_t dec) { return (((dec / 10) << 4) | (dec % 10)); }
 
 void set_time(uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
   uint8_t bcd_hour;
 
-  /* CIA TOD will always flip the pm bit
-   * when either 0 or 12 is written to the hour register */
+  /* CIA TOD will always flip the PM bit
+   * when we either want to write the 0th or 12th hour.
+   * So we need to write the hour with the PM bit inverted,
+   * for the CIA to flip it again */
   if (hour == 0) {
-    /* bcd 12 with high bit (pm) set */
-    bcd_hour = 0x92;
+    /* the 0th hour is 12am in 12h clock format, 0x12 is BCD for 12 */
+    bcd_hour = 0x12 ^ TOD_PM;
   } else if (hour > 12) {
-    /* convert 24h clock to 12h with pm bit set */
+    /* convert 24h clock to 12h with PM bit set */
     bcd_hour = dec2bcd(hour - 12);
-    bcd_hour = bcd_hour ^ 0x80;
+    bcd_hour = bcd_hour ^ TOD_PM;
   } else {
-    /* includes 12pm since the bit gets automatically flipped */
+    /* includes 12pm since the PM bit gets automatically flipped */
     bcd_hour = dec2bcd(hour);
   }
 
@@ -86,4 +101,26 @@ void set_time(uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
 
   /* set CIA1.tod_10 and program "Control Timer A" */
   __asm__("jsr initsystime");
+}
+
+uint8_t _daytime_irq(void) {
+  static char *t;
+  static uint8_t x, y;
+  /* We are called 60 times a second. We only want to draw a clock
+   * when we are a) on the mainscreen and b) the seconds changed */
+  if (kasse_menu == MENU_MAIN && CIA1.tod_sec != daytime.sec) {
+    t = get_time();
+    x = wherex();
+    y = wherey();
+    cputsxy(70, 3, t);
+    gotoxy(x, y);
+  }
+  /* always call additional handlers */
+  return (IRQ_NOT_HANDLED);
+}
+
+void install_daytime_irq(void) {
+  SEI();
+  set_irq(&_daytime_irq, daytime_irq_stack, DAYTIME_IRQ_STACK_SIZE);
+  CLI();
 }

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "c128time.h"
+#include "kasse.h"
 
 #ifdef IS_GLOBALS_C
 #define GLOBAL
@@ -13,6 +14,7 @@
 void init_globals(void);
 
 GLOBAL uint8_t printing;
+GLOBAL enum kasse_menu kasse_menu;
 GLOBAL struct daytime_t daytime;
 
 #endif /*  GLOBALS_H */
