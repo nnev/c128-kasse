@@ -1,6 +1,6 @@
 /*
  * RGB2R-C128-Kassenprogramm
- * © 2007-2009 phil_fry, sECuRE, sur5r
+ * © 2007-2017 phil_fry, sECuRE, sur5r, mxf
  * See LICENSE for license information
  *
  */
@@ -15,6 +15,7 @@
 #include "bcd2dec.h"
 #include "general.h"
 #include "globals.h"
+#include "vdc_util.h"
 
 /* This file uses the CIA TOD (Complex Interface Adapter, Time of Day)
  * for timekeeping, see https://www.c64-wiki.com/wiki/CIA and its Links section
@@ -23,11 +24,17 @@
 /* the Time of Day PM bit is set for hours >= 12 */
 #define TOD_PM 0x80
 
+/* VDC charmap starts at 0x0000; 80 chars per line.
+ * We want to draw at 72 chars on the 1st line.
+ */
+#define CLOCK_ADDR 72
+
+/* arbitrarly chosen stack size, should be large enough */
 #define DAYTIME_IRQ_STACK_SIZE 32
 uint8_t daytime_irq_stack[DAYTIME_IRQ_STACK_SIZE];
 
 void update_time(void) {
-  volatile static uint8_t bcd_hour, hour, min, sec, tenth;
+  uint8_t bcd_hour, hour, min, sec, dummy;
 
   /* Read the hour register first to stop the clock from updating the external
    * registers from the internal (still ticking!) CIA registers. */
@@ -49,7 +56,7 @@ void update_time(void) {
   min = bcd2dec(CIA1.tod_min);
 
   /* MUST read tod_10 to enable the clock latch again */
-  tenth = CIA1.tod_10;
+  dummy = CIA1.tod_10;
 
   /* it's a new day when hour wraps */
   if (daytime.hour > hour) {
@@ -104,16 +111,12 @@ void set_time(uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
 }
 
 uint8_t _daytime_irq(void) {
-  static char *t;
-  static uint8_t x, y;
+  char *t;
   /* We are called 60 times a second. We only want to draw a clock
    * when we are a) on the mainscreen and b) the seconds changed */
   if (kasse_menu == MENU_MAIN && CIA1.tod_sec != daytime.sec) {
     t = get_time();
-    x = wherex();
-    y = wherey();
-    cputsxy(70, 3, t);
-    gotoxy(x, y);
+    vdc_write_mem(CLOCK_ADDR, t, 8);
   }
   /* always call additional handlers */
   return (IRQ_NOT_HANDLED);

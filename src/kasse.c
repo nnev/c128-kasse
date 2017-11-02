@@ -48,9 +48,10 @@ static void print_screen(void) {
     profit[0] = '\0';
   }
   textcolor(TC_CYAN);
-  cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r, mxf) " GV "\r\n");
+  /* fill whole line with cyan, so color bits are set up for the clock */
+  cprintf("%-80s", "C128-Kasse (phil_fry, sECuRE, sur5r, mxf) " GV);
   textcolor(TC_LIGHT_GRAY);
-  cprintf("\r\n\r\n"
+  cprintf("\r\n\r\n\r\n"
           "Ertrag: %s (%ld Artikel); Drucken: %s\r\n",
           profit, items_sold, (printing == 1 ? "ein" : "aus"));
   textcolor(TC_LIGHT_GRAY);
@@ -272,7 +273,8 @@ void set_time_interactive(void) {
   uint8_t day, tp1, tp2, tp3;
   char *time_input, *time;
   cprintf("Gib den aktuellen Tag des Events und Uhrzeit ein\r\n"
-          "(Format DHHMMSS):\r\n");
+          "Format DHHMMSS, 0-indexiert, z.B. 0174259 für \"erster Tag um "
+          "17:42:59\":\r\n");
   time_input = get_input();
   part[0] = time_input[0];
   day = atoi(part);
@@ -295,7 +297,10 @@ int main(void) {
   char *c;
   char *time;
 
-  init_globals();
+  printing = 1;
+  /* initialize daytime global, start the CIA TOD */
+  set_time(0, 0, 0, 0);
+  kasse_menu = MENU_UNDEFINED;
 
   videomode(VIDEOMODE_80x25);
 

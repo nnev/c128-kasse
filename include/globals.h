@@ -11,8 +11,6 @@
 #define GLOBAL extern
 #endif
 
-void init_globals(void);
-
 GLOBAL uint8_t printing;
 GLOBAL enum kasse_menu kasse_menu;
 GLOBAL struct daytime_t daytime;
