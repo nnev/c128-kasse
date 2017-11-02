@@ -14,9 +14,8 @@
 #include "general.h"
 #include "globals.h"
 
-char *get_time(void) {
-  static char buffer[9];
-  uint8_t bcd_hour, hour, bcd_min, bcd_sec, tenth;
+void update_time(void) {
+  uint8_t bcd_hour, hour, min, sec, tenth;
 
   /* Read the hour register first to stop the clock from updating the external
    * registers from the internal (still ticking!) CIA registers. */
@@ -34,20 +33,32 @@ char *get_time(void) {
     hour = bcd2dec(bcd_hour);
   }
 
-  bcd_sec = CIA1.tod_sec;
-  bcd_min = CIA1.tod_min;
+  sec = bcd2dec(CIA1.tod_sec);
+  min = bcd2dec(CIA1.tod_min);
 
   /* MUST read tod_10 to enable the clock latch again */
   tenth = CIA1.tod_10;
 
-  sprintf(buffer, "%02d:%02x:%02x", hour, bcd_min, bcd_sec);
+  if (daytime.hour > hour) {
+    daytime.day++;
+  }
+
+  daytime.hour = hour;
+  daytime.min = min;
+  daytime.sec = sec;
+}
+
+char *get_time(void) {
+  static char buffer[9];
+  update_time();
+  sprintf(buffer, "%02d:%02d:%02d", daytime.hour, daytime.min, daytime.sec);
   return buffer;
 }
 
 /* divide by 10; put quotient in high nibble, reminder in low nibble */
 uint8_t dec2bcd(uint8_t dec) { return (((dec / 10) << 4) | (dec % 10)); }
 
-void set_time(uint8_t hour, uint8_t min, uint8_t sec) {
+void set_time(uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
   uint8_t bcd_hour;
 
   /* CIA TOD will always flip the pm bit
@@ -63,6 +74,11 @@ void set_time(uint8_t hour, uint8_t min, uint8_t sec) {
     /* includes 12pm since the bit gets automatically flipped */
     bcd_hour = dec2bcd(hour);
   }
+
+  daytime.day = day;
+  daytime.hour = hour;
+  daytime.min = min;
+  daytime.sec = sec;
 
   CIA1.tod_hour = bcd_hour;
   CIA1.tod_min = dec2bcd(min);

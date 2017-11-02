@@ -269,21 +269,24 @@ void buy_custom(void) {
 }
 
 void set_time_interactive(void) {
-  BYTE part[3] = {'0', '0', '\0'};
-  BYTE tp1, tp2, tp3;
+  char part[3] = {'\0', '\0', '\0'};
+  uint8_t day, tp1, tp2, tp3;
   char *time_input, *time;
-  cprintf("Gib die aktuelle Uhrzeit ein (Format HHMMSS):\r\n");
+  cprintf("Gib den aktuellen Tag des Events und Uhrzeit ein\r\n"
+          "(Format DHHMMSS):\r\n");
   time_input = get_input();
   part[0] = time_input[0];
-  part[1] = time_input[1];
+  day = atoi(part);
+  part[0] = time_input[1];
+  part[1] = time_input[2];
   tp1 = atoi(part);
-  part[0] = time_input[2];
-  part[1] = time_input[3];
+  part[0] = time_input[3];
+  part[1] = time_input[4];
   tp2 = atoi(part);
-  part[0] = time_input[4];
-  part[1] = time_input[5];
+  part[0] = time_input[5];
+  part[1] = time_input[6];
   tp3 = atoi(part);
-  set_time(tp1, tp2, tp3);
+  set_time(day, tp1, tp2, tp3);
 
   time = get_time();
   cprintf("\r\nZeit gesetzt: %s\r\n", time);
