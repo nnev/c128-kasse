@@ -81,7 +81,7 @@ void deposit_credit(char *nickname) {
     return; // cannot find named credit
 
   cprintf("\r\nEinzahlung in Cent:\r\n");
-  if (cget_number(0) == 0)
+  if ((deposit = cget_number(0)) == 0)
     return;
 
   credit->credit += deposit;
