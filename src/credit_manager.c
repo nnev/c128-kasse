@@ -54,11 +54,21 @@ static void credit_print_screen(void) {
           "z) Zur" uUML "ck\r\n");
 }
 
+static int8_t find_credit_idx(char *name) {
+  int8_t i;
+  for (i = 0; i < credits.num_items; ++i) {
+    if (strncmp(name, credits.credits[i].nickname, NICKNAME_MAX_LEN + 1) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 struct credits_t *find_credit(char *name) {
   int i;
-  for (i = 0; i < credits.num_items; i++)
-    if (strncmp(name, credits.credits[i].nickname, NICKNAME_MAX_LEN + 1) == 0)
-      return &credits.credits[i];
+  if ((i = find_credit_idx(name)) >= 0) {
+    return &credits.credits[i];
+  }
   return NULL;
 }
 
@@ -85,7 +95,6 @@ static void new_credit(void) {
   char name[NICKNAME_MAX_LEN + 1];
   char *time;
   int credit;
-  int i;
 
   if (credits.num_items == MAX_CREDIT_ITEMS) {
     cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
@@ -99,10 +108,7 @@ static void new_credit(void) {
   if (cgetn_input(name, sizeof(name)) == 0)
     return;
 
-  for (i = 0; i < credits.num_items; i++) {
-    if (strncmp(credits.credits[i].nickname, name, NICKNAME_MAX_LEN) != 0) {
-      continue;
-    }
+  if (find_credit_idx(name) >= 0) {
     cprintf("\rNickname existiert bereits, dr" uUML "cke RETURN...\r\n");
     cget_return();
     return;
@@ -122,31 +128,21 @@ static void new_credit(void) {
   credits.num_items++;
 }
 
-static void _delete_credit(BYTE num) {
-  memset(credits.credits[num].nickname, '\0', NICKNAME_MAX_LEN + 1);
-  credits.credits[num].credit = 0;
-}
-
-static void delete_credit(void) {
+static void delete_credit(char *nickname) {
   char *input;
-  BYTE num, last;
-
-  cprintf("\r Welcher Eintrag soll gel" oUML "scht werden?\r\n");
-  if ((input = get_input()) == NULL || *input == '\0')
+  int8_t i;
+  if ((i = find_credit_idx(nickname)) < 0) {
+    cprintf("\r Nick existiert nicht\r\n");
     return;
-  num = atoi(input);
-  if (credits.num_items > 1) {
-    /* Swap last item with this one and delete the last one to avoid holes */
-    last = (credits.num_items - 1);
-    strncpy(credits.credits[num].nickname, credits.credits[last].nickname,
-            NICKNAME_MAX_LEN);
-    credits.credits[num].credit = credits.credits[last].credit;
-    _delete_credit(last);
-  } else {
-    /* Just delete it */
-    _delete_credit(num);
   }
-  credits.num_items--;
+  --credits.num_items;
+  if (i != credits.num_items) {
+    credits.credits[i] = credits.credits[credits.num_items];
+  }
+  memset(credits.credits[credits.num_items].nickname, '\0',
+         NICKNAME_MAX_LEN + 1);
+  credits.credits[credits.num_items].credit = 0;
+  return;
 }
 
 void credit_manager() {
@@ -160,7 +156,10 @@ void credit_manager() {
       new_credit();
       break;
     case 'd':
-      delete_credit();
+      cputs("\rName?\r\n");
+      if (cget_nickname(nickname, sizeof(nickname))) {
+        delete_credit(nickname);
+      }
       break;
     case 's':
       save_credits();
@@ -175,8 +174,9 @@ void credit_manager() {
       break;
     case 'p':
       cputs("\rName?\r\n");
-      if (cgetn_input(nickname, sizeof(nickname)))
+      if (cget_nickname(nickname, sizeof(nickname))) {
         deposit_credit(nickname);
+      }
       break;
     case 'g':
       cprintf("Filter eingeben:\r\n");
