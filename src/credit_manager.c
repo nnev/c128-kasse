@@ -85,6 +85,7 @@ static void new_credit(void) {
   char name[NICKNAME_MAX_LEN + 1];
   char *time;
   int credit;
+  int i;
 
   if (credits.num_items == MAX_CREDIT_ITEMS) {
     cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
@@ -97,6 +98,15 @@ static void new_credit(void) {
   cprintf("\rNickname (max. 10 Zeichen):\r\n");
   if (cgetn_input(name, sizeof(name)) == 0)
     return;
+
+  for (i = 0; i < credits.num_items; i++) {
+    if (strncmp(credits.credits[i].nickname, name, NICKNAME_MAX_LEN) != 0) {
+      continue;
+    }
+    cprintf("\rNickname existiert bereits, dr" uUML "cke RETURN...\r\n");
+    cget_return();
+    return;
+  }
 
   cprintf("\r\nGuthaben in Cents:\r\n");
   if ((credit = cget_number(0)) == 0)
