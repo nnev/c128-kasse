@@ -50,8 +50,7 @@ static void credit_print_screen(void) {
     }
   }
   cprintf("\r\nn) Neu d) L" oUML "schen p) Einzahlen b) Seite hoch "
-          "f) Seite runter\r\ng) Filtern e) " AUML "ndern s) Speichern "
-          "z) Zur" uUML "ck\r\n");
+          "f) Seite runter\r\ng) Filtern s) Speichern z) Zur" uUML "ck\r\n");
 }
 
 static int8_t find_credit_idx(char *name) {
@@ -129,7 +128,6 @@ static void new_credit(void) {
 }
 
 static void delete_credit(char *nickname) {
-  char *input;
   int8_t i;
   if ((i = find_credit_idx(nickname)) < 0) {
     cprintf("\r Nick existiert nicht\r\n");
