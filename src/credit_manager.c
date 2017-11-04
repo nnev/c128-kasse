@@ -110,7 +110,6 @@ static void new_credit(void) {
   print_the_buffer();
 
   credits.num_items++;
-  free(name);
 }
 
 static void _delete_credit(BYTE num) {
