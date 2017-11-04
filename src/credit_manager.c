@@ -38,7 +38,7 @@ static void credit_print_screen(void) {
        i < ((current_credits_page + 1) * CREDITS_PER_PAGE);
        i++) {
     if (filter == NULL ||
-        strncmp(credits.credits[i].nickname, filter, filter_len) == 0) {
+        strncasecmp(credits.credits[i].nickname, filter, filter_len) == 0) {
       if (format_euro(buffer, sizeof(buffer), credits.credits[i].credit) !=
           buffer) {
         cprintf("Error: Could not format credit %d\r\n",
@@ -56,7 +56,8 @@ static void credit_print_screen(void) {
 static int8_t find_credit_idx(char *name) {
   int8_t i;
   for (i = 0; i < credits.num_items; ++i) {
-    if (strncmp(name, credits.credits[i].nickname, NICKNAME_MAX_LEN + 1) == 0) {
+    if (strncasecmp(name, credits.credits[i].nickname, NICKNAME_MAX_LEN + 1) ==
+        0) {
       return i;
     }
   }
