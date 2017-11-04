@@ -9,8 +9,8 @@
 #define CREDITS_PER_PAGE 10
 
 /* Eingenommes Geld in Cent */
-extern unsigned long int money;
-extern unsigned long int items_sold;
+extern int32_t money;
+extern int32_t items_sold;
 extern BYTE printer_port;
 
 /* Datenstruktur der verkauften Einträge */

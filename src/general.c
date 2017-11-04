@@ -215,8 +215,11 @@ char retry_or_quit(void) {
   return *c;
 }
 
-char *format_euro(char *s, int maxlen, int cent) {
-  if (snprintf(s, maxlen, EUR_FORMAT, cent / 100, cent % 100) > maxlen)
+char *format_euro(char *s, int maxlen, int32_t cent) {
+  int32_t euros, cents;
+  euros = cent / 100;
+  cents = abs(cent % 100);
+  if (snprintf(s, maxlen, EUR_FORMAT, euros, cents) > maxlen)
     return NULL;
   return s;
 }

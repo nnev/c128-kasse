@@ -19,7 +19,7 @@ int16_t cget_number(int16_t default_val);
 void cget_return(void);
 uint8_t cget_nickname(char *buf, uint8_t len);
 char retry_or_quit(void);
-char *format_euro(char *s, int maxlen, int cent);
+char *format_euro(char *s, int maxlen, int32_t cent);
 void c128_perror(BYTE, char *);
 extern BYTE _oserror;
 
@@ -66,9 +66,9 @@ extern BYTE _oserror;
 
 #define VIDEOMODE (((*(BYTE *)0xD7) == 0x80) ? 80 : 40)
 
-/* "999,99€" */
-#define EUR_FORMAT "%3d,%02d" EURSYM
-#define EUR_FORMAT_MINLEN 7
+/* "-999,99€" */
+#define EUR_FORMAT "%3ld,%02lu" EURSYM
+#define EUR_FORMAT_MINLEN 8
 
 /* because there is no macro expansion when stringifying, we need to use two
  * levels of macros to stringify the value of a macro (for example
