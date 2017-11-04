@@ -153,8 +153,8 @@ uint8_t cget_nickname(char *nickname, uint8_t length) {
     matches = 0;
     uniquematch = NULL;
     for (i = 0; i < credits.num_items; i++) {
-      if (strncmp(nickname, credits.credits[i].nickname, strlen(nickname)) !=
-          0) {
+      if (strncasecmp(nickname, credits.credits[i].nickname,
+                      strlen(nickname)) != 0) {
         continue;
       }
       matches++;
@@ -179,7 +179,7 @@ uint8_t cget_nickname(char *nickname, uint8_t length) {
       cprintf("\r\nCompletion:\r\n");
       matches = 0;
       for (i = 0; i < credits.num_items; i++) {
-        if (strncmp(nickname, credits.credits[i].nickname, len) != 0) {
+        if (strncasecmp(nickname, credits.credits[i].nickname, len) != 0) {
           continue;
         }
         if (++matches == 5) {
