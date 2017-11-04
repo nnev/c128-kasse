@@ -16,3 +16,4 @@ ascii
 *.lbl
 TAGS
 test/test
+print.dump

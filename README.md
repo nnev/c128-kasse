@@ -8,7 +8,11 @@ On Debian and derivatives, install the `vice` package:
 apt install vice
 ```
 
-Install `/usr/lib/vice/C128/kernal*` and `/usr/lib/vice/C128/charg*` (ask contributors for a copy).
+Then, install the (not-included) ROMs:
+```
+wget http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/VICE/vice-3.1.tar.gz
+tar xf vice-3.1.tar.gz -C ~/.vice/ vice-3.1/data --strip-components=2
+```
 
 ### Emulator configuration
 
@@ -20,15 +24,22 @@ Enable the following options in x128:
 Alternatively, configure the following values in `~/.vice/vicerc` (which you
 can create by selecting the menu entry “Settings” → “Save settings”):
 ```
+[C128]
 IECDevice4=1
 IECDevice8=1
 Printer4=1
 ```
 
+### Compiling the software into an image
+
+```
+make package
+```
+
 ### Running the emulator
 
 ```
-x128 -autostart kasse.d64
+x128 -config vicerc -autostart kasse.d71 +go64 -80col
 ```
 
 ## Reading files from the floppy (disk image)
