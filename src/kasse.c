@@ -46,7 +46,7 @@ static void print_screen(void) {
   clrscr();
   if (format_euro(profit, sizeof(profit), money) == NULL) {
     cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
-    exit(1);
+    profit[0]='\0';
   }
   textcolor(TC_CYAN);
   cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r, mxf) " GV "\r\n");
