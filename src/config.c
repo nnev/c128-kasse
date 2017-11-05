@@ -23,8 +23,8 @@
  */
 unsigned char __fastcall__ _sysremove(const char *name);
 
-unsigned long int money = 0;
-unsigned long int items_sold = 0;
+int32_t money = 0;
+int32_t items_sold = 0;
 BYTE printer_port = 4;
 static bool items_exists = false;
 static bool credits_exists = false;
@@ -88,7 +88,8 @@ void load_items(void) {
     cbm_load("items", (BYTE)8, &status);
     for (c = 0; c < status.num_items; c++) {
       items_sold += status.status[c].times_sold;
-      money += (status.status[c].price * status.status[c].times_sold);
+      money += (((int32_t)status.status[c].price) *
+                ((int32_t)status.status[c].times_sold));
     }
   } else
     memset(&status, 0, sizeof(struct status_array_t));

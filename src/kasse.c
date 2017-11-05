@@ -46,7 +46,7 @@ static void print_screen(void) {
   clrscr();
   if (format_euro(profit, sizeof(profit), money) == NULL) {
     cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
-    exit(1);
+    profit[0] = '\0';
   }
   textcolor(TC_CYAN);
   cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r, mxf) " GV "\r\n");
@@ -109,8 +109,8 @@ static void print_screen(void) {
  * Prints a line and logs it to file. Every line can be at max 80 characters.
  *
  */
-static void print_log(char *name, int item_price, int einheiten, char *nickname,
-                      char *rest) {
+static void print_log(char *name, int32_t item_price, int16_t einheiten,
+                      char *nickname, char *rest) {
   char *time = get_time();
   uint8_t n;
   char price[EUR_FORMAT_MINLEN + 1];
@@ -135,9 +135,9 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
         "%8s - "
         /*  Eintragname (= Getränk) -- 9-stellig + 3 */
         "%-" xstr(MAX_ITEM_NAME_LENGTH) "s - "
-        /*  Preis (in Cents) -- 7-stellig  + 3 */
+        /*  Preis (in Cents) -- 8-stellig  + 3 */
         "%" xstr(EUR_FORMAT_MINLEN) "s - "
-        /*  restguthaben (7-stellig) + 3 */
+        /*  restguthaben (8-stellig) + 3 */
         "%" xstr(EUR_FORMAT_MINLEN) "s - "
         /*  Anzahl -- 2-stellig + 3 */
         "%2d - "
@@ -158,10 +158,10 @@ static void print_log(char *name, int item_price, int einheiten, char *nickname,
 }
 
 /* dialog which is called for each bought item */
-static signed int buy(char *name, unsigned int price) {
+static signed int buy(char *name, int32_t price) {
   BYTE matches = 0;
   BYTE c, nickname_len;
-  int einheiten;
+  int16_t einheiten;
   char nickname[NICKNAME_MAX_LEN + 1];
   char rest[EUR_FORMAT_MINLEN + 1];
   struct credits_t *credit;
@@ -186,7 +186,7 @@ static signed int buy(char *name, unsigned int price) {
      * to NULL if no such credit could be found */
     credit = find_credit(nickname);
     if (credit != NULL) {
-      while ((signed int)credit->credit < ((signed int)price * einheiten)) {
+      while ((int32_t)credit->credit < (price * einheiten)) {
         if (format_euro(rest, sizeof(rest), credit->credit) == NULL) {
           cprintf("Preis %d konnte nicht umgerechnet werden\r\n",
                   credit->credit);
