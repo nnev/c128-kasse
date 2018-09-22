@@ -5,7 +5,7 @@ INCLUDES:=$(wildcard include/*.h) include/version.h include/charset_umlauts.h
 GV:=$(shell git describe --tags --always)
 CFLAGS= -I include -t c128 -g
 
-.PHONY: include/version.h include/charset_umlauts.h clean dist-clean format
+.PHONY: clean dist-clean format
 
 all: kasse itemz cat
 
@@ -23,11 +23,13 @@ build/%.o: test/%.c ${INCLUDES}
 build/%.o: test/%.s
 	${AS} ${CFLAGS} $< -o $@
 
-include/version.h:
+.git/index:
+
+include/version.h: .git/index
 	mkdir -p build
 	echo "#define GV \"${GV}\"" > $@
 
-include/charset_umlauts.h:
+include/charset_umlauts.h: assets/umlauts.pbm
 	./util/mkfont assets/umlauts.pbm chars_umlauts > $@
 
 kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o build/globals.o
