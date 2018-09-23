@@ -3,3 +3,5 @@
 -nostdlibinc
 -nobuiltininc
 -D__fastcall__=''
+-D__C128__
+-D__CBM__

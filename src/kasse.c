@@ -41,7 +41,6 @@ void print_item(BYTE i) {
 /* Hauptbildschirm ausgeben */
 static void print_screen(void) {
   BYTE i = 0;
-  char *time = get_time();
   char profit[EUR_FORMAT_MINLEN + 1];
   clrscr();
   if (format_euro(profit, sizeof(profit), money) == NULL) {
@@ -49,11 +48,12 @@ static void print_screen(void) {
     profit[0] = '\0';
   }
   textcolor(TC_CYAN);
-  cprintf("C128-Kassenprogramm (phil_fry, sECuRE, sur5r, mxf) " GV "\r\n");
+  /* fill whole line with cyan, so color bits are set up for the clock */
+  cprintf("%-80s", "C128-Kasse (phil_fry, sECuRE, sur5r, mxf) " GV);
   textcolor(TC_LIGHT_GRAY);
-  cprintf("\r\nUhrzeit:     %s (wird nicht aktualisiert)\r\n"
-          "Eingenommen: %s, Verkauft: %ld Dinge, Drucken: %s\r\n",
-          time, profit, items_sold, (printing == 1 ? "ein" : "aus"));
+  cprintf("\r\n\r\n"
+          "Ertrag: %s (%ld Artikel); Drucken: %s\r\n",
+          profit, items_sold, (printing == 1 ? "ein" : "aus"));
   textcolor(TC_LIGHT_GRAY);
   cprintf("      \xB0"
           "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB2"
@@ -269,21 +269,25 @@ void buy_custom(void) {
 }
 
 void set_time_interactive(void) {
-  BYTE part[3] = {'0', '0', '\0'};
-  BYTE tp1, tp2, tp3;
+  char part[3] = {'\0', '\0', '\0'};
+  uint8_t day, tp1, tp2, tp3;
   char *time_input, *time;
-  cprintf("Gib die aktuelle Uhrzeit ein (Format HHMMSS):\r\n");
+  cprintf("Gib den aktuellen Tag des Events und Uhrzeit ein\r\n"
+          "Format DHHMMSS, 0-indexiert, z.B. 0174259 für \"erster Tag um "
+          "17:42:59\":\r\n");
   time_input = get_input();
   part[0] = time_input[0];
-  part[1] = time_input[1];
+  day = atoi(part);
+  part[0] = time_input[1];
+  part[1] = time_input[2];
   tp1 = atoi(part);
-  part[0] = time_input[2];
-  part[1] = time_input[3];
+  part[0] = time_input[3];
+  part[1] = time_input[4];
   tp2 = atoi(part);
-  part[0] = time_input[4];
-  part[1] = time_input[5];
+  part[0] = time_input[5];
+  part[1] = time_input[6];
   tp3 = atoi(part);
-  set_time(tp1, tp2, tp3);
+  set_time(day, tp1, tp2, tp3);
 
   time = get_time();
   cprintf("\r\nZeit gesetzt: %s\r\n", time);
@@ -293,7 +297,10 @@ int main(void) {
   char *c;
   char *time;
 
-  init_globals();
+  printing = 1;
+  /* initialize daytime global, start the CIA TOD */
+  set_time(0, 0, 0, 0);
+  kasse_menu = MENU_UNDEFINED;
 
   videomode(VIDEOMODE_80x25);
 
@@ -309,6 +316,8 @@ int main(void) {
   CLI();
 
   clrscr();
+
+  install_daytime_irq();
 
   /* Allocate logging buffer memory */
   init_log();
@@ -344,7 +353,9 @@ int main(void) {
 
   while (1) {
     print_screen();
+    kasse_menu = MENU_MAIN;
     c = get_input();
+    kasse_menu = MENU_UNDEFINED;
     /* ...display dialogs eventually */
     if (*c >= PETSCII_0 && *c <= PETSCII_9) {
       /* if the input starts with a digit, we will interpret it as a number
