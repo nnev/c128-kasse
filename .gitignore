@@ -8,8 +8,9 @@ itemz
 include/version.h
 include/charset_umlauts.h
 tags
-items
-credits
+/log-*
+/items
+/credits
 cat
 charmap
 ascii
