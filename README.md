@@ -11,6 +11,7 @@ apt install vice
 Then, install the (not-included) ROMs:
 ```
 wget http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/VICE/vice-3.1.tar.gz
+mkdir -p ~/.vice
 tar xf vice-3.1.tar.gz -C ~/.vice/ vice-3.1/data --strip-components=2
 ```
 
