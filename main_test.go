@@ -169,8 +169,8 @@ func logic() error {
 	}
 	//defer os.RemoveAll(tmpdir)
 
-	for _, fn := range []string{"kasse", "kasse.lbl", "vicerc", "items", "log-0"} {
-		if err := copyFile(filepath.Join(tmpdir, fn), fn); err != nil {
+	for _, fn := range []string{"kasse", "kasse.lbl", "vicerc", "testdata/items", "testdata/log-0", "testdata/credits"} {
+		if err := copyFile(filepath.Join(tmpdir, filepath.Base(fn)), fn); err != nil {
 			return err
 		}
 	}
