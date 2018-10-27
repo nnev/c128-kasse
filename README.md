@@ -15,22 +15,6 @@ mkdir -p ~/.vice
 tar xf vice-3.1.tar.gz -C ~/.vice/ vice-3.1/data --strip-components=2
 ```
 
-### Emulator configuration
-
-Enable the following options in x128:
-* Settings → Drive settings → drive #8 options → enable IEC device
-* Settings → Printer settings → Printer #4 enable IEC device
-* Settings → Printer settings → Printer #4 emulation → File system access
-
-Alternatively, configure the following values in `~/.vice/vicerc` (which you
-can create by selecting the menu entry “Settings” → “Save settings”):
-```
-[C128]
-IECDevice4=1
-IECDevice8=1
-Printer4=1
-```
-
 ### Compiling the software into an image
 
 ```
