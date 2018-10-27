@@ -112,17 +112,13 @@ static void print_screen(void) {
 static void print_log(char *name, int32_t item_price, int16_t einheiten,
                       char *nickname, char *rest) {
   char *time = get_time();
+  char *ptr = NULL;
   uint8_t n;
   char price[EUR_FORMAT_MINLEN + 1];
   if (format_euro(price, sizeof(price), item_price) == NULL) {
     cprintf("Preis %d konnte nicht umgerechnet werden\r\n", item_price);
     exit(1);
   }
-
-  /* TODO: teach the EUR sign to the printer.
-   * Until then, we just overwrite it with "E" */
-  price[EUR_FORMAT_MINLEN - 1] = 'E';
-  rest[EUR_FORMAT_MINLEN - 1] = 'E';
 
   /* clang-format off */
   n = snprintf(print_buffer, sizeof(print_buffer),
@@ -146,6 +142,14 @@ static void print_log(char *name, int32_t item_price, int16_t einheiten,
         17, status.transaction_id, time, name, price, rest, einheiten,
         (*nickname != '\0' ? nickname : "Unbekannt"));
   /* clang-format on */
+
+  /* TODO: teach the EUR sign to the printer.
+   * Until then, we just overwrite it with "E" */
+  ptr = print_buffer;
+  while (ptr = strchr(ptr, EURSYM[0])) {
+    *ptr = 'E';
+  }
+
   if (n > sizeof(print_buffer)) {
     cprintf("\r\nprint_log(): print_buffer overflowed!\r\n"
             "Wanted to write %d bytes\r\n%s\r\n",
