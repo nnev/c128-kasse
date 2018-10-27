@@ -42,6 +42,8 @@ make package
 x128 -config vicerc -autostart kasse.d71 +go64 -80col
 ```
 
+Then, type `run`, followed by enter.
+
 ## Reading files from the floppy (disk image)
 
 To view the contents of a file within a disk image (e.g. the logfile), use:
