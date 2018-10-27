@@ -2,7 +2,7 @@
 //
 // Launches x128, connects to its monitor, verifies the data files have the
 // expected contents.
-package main
+package main_test
 
 import (
 	"fmt"
@@ -10,11 +10,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"testing"
 	"time"
 
 	_ "net/http/pprof"
@@ -247,10 +247,10 @@ func logic() error {
 	return nil
 }
 
-func main() {
-	go http.ListenAndServe(":8038", nil)
+func TestSave(t *testing.T) {
+	//go http.ListenAndServe(":8038", nil)
 	if err := logic(); err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
-	select {} // hang for debugging
+	//select {} // hang for debugging
 }
