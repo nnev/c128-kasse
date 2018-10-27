@@ -237,6 +237,10 @@ func logic() error {
 		return err
 	}
 
+	if err := inputStep(conn, "quit", 1); err != nil {
+		return err
+	}
+
 	log.Printf("DONE")
 
 	// TODO: validate output file
