@@ -53,6 +53,8 @@ func discardUntilPrompt(r io.Reader) error {
 }
 
 func screenshot(conn io.ReadWriter) error {
+	// Wait until the graphic buffer is updated from the frame buffer
+	time.Sleep(500 * time.Millisecond)
 	log.Printf("taking screenshot")
 	step++
 	if _, err := conn.Write([]byte("x\n")); err != nil {
