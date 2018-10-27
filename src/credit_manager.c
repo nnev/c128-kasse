@@ -22,6 +22,17 @@ static BYTE filter_len;
 
 static BYTE current_credits_page = 0;
 
+static void print_entry(BYTE i, const char *nickname, unsigned int credit) {
+  char buffer[EUR_FORMAT_MINLEN + 1];
+
+  if (format_euro(buffer, sizeof(buffer), credit) != buffer) {
+    cprintf("Error: Could not format credit %d\r\n", credit);
+    exit(1);
+  }
+
+  cprintf("%d: %s: %s\r\n", i, nickname, buffer);
+}
+
 static void credit_print_screen(void) {
   BYTE i, pages;
   char buffer[EUR_FORMAT_MINLEN + 1];
@@ -33,20 +44,19 @@ static void credit_print_screen(void) {
     current_credits_page = pages;
   cprintf("Datei: CREDITS (Seite %d von %d)\r\n\r\n", current_credits_page,
           pages);
-  for (i = (current_credits_page * CREDITS_PER_PAGE);
-       i < credits.num_items &&
-       i < ((current_credits_page + 1) * CREDITS_PER_PAGE);
-       i++) {
-    if (filter == NULL ||
-        strncasecmp(credits.credits[i].nickname, filter, filter_len) == 0) {
-      if (format_euro(buffer, sizeof(buffer), credits.credits[i].credit) !=
-          buffer) {
-        cprintf("Error: Could not format credit %d\r\n",
-                credits.credits[i].credit);
-        exit(1);
+  if (filter != NULL) {
+    for (i = 0; i < credits.num_items; i++) {
+      if (strncasecmp(credits.credits[i].nickname, filter, filter_len) != 0) {
+        continue;
       }
-
-      cprintf("%d: %s: %s\r\n", i, credits.credits[i].nickname, buffer);
+      print_entry(i, credits.credits[i].nickname, credits.credits[i].credit);
+    }
+  } else {
+    for (i = (current_credits_page * CREDITS_PER_PAGE);
+         i < credits.num_items &&
+         i < ((current_credits_page + 1) * CREDITS_PER_PAGE);
+         i++) {
+      print_entry(i, credits.credits[i].nickname, credits.credits[i].credit);
     }
   }
   cprintf("\r\nn) Neu d) L" oUML "schen p) Einzahlen b) Seite hoch "
