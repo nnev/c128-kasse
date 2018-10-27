@@ -39,7 +39,7 @@ make package
 ### Running the emulator
 
 ```
-x128 -config vicerc -autostart kasse.d71 +go64 -80col
+make vice
 ```
 
 Then, type `run`, followed by enter.

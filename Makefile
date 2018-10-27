@@ -71,3 +71,6 @@ dist-clean: clean
 
 format:
 	clang-format-3.9 -i **/*.[ch]
+
+vice:
+	x128 -config vicerc -autostart kasse.d71 +go64 -80col
