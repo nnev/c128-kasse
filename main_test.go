@@ -237,6 +237,8 @@ func logic() error {
 		return err
 	}
 
+	time.Sleep(1 * time.Second) // allow for the last screenshot to be flushed to disk
+
 	if err := inputStep(conn, "quit", 1); err != nil {
 		return err
 	}
