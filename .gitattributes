@@ -1,0 +1,3 @@
+testdata/log-0 diff=petscii
+testdata/credits diff=credits
+testdata/items diff=items

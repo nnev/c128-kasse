@@ -36,3 +36,16 @@ To view the contents of a file within a disk image (e.g. the logfile), use:
 ```
 c1541 -attach kasse.d64 -read "log-2" >(petcat -nh) >&-
 ```
+
+## .git/config
+
+To make git display contents of https://en.wikipedia.org/wiki/PETSCII files:
+
+```
+[diff "petscii"]
+	textconv = /bin/sh -c 'petcat -nc -nh "$0"'
+[diff "items"]
+	textconv = /bin/sh -c "petcat -nc -nh \"$0\" | hexdump -e '8/1 \"%_p\"\"\n\"'"
+[diff "credits"]
+	textconv = /bin/sh -c "petcat -nc -nh \"$0\" | hexdump -e '8/1 \"%_p\"\"\n\"'"
+```
