@@ -182,7 +182,7 @@ static signed int buy(char *name, int32_t price) {
     return 1;
   }
 
-  cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben:\r\n");
+  cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben (space completed):\r\n");
   nickname_len = cget_nickname(nickname, sizeof(nickname));
 
   if (nickname_len && *nickname != '\0' && *nickname != PETSCII_SP) {
