@@ -73,7 +73,8 @@ format:
 	clang-format-3.9 -i **/*.[ch]
 
 vice: package
-	x128 -config vicerc -autostart kasse.d71 +go64 -remotemonitor -80col
+	go run quickload.go &
+	x128 -config vicerc +go64 -80col -initbreak 0xc262 -remotemonitor
 
 check:
 	go test -v
