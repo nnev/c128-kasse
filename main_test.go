@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -160,14 +161,14 @@ func (l *loggingReadWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
-func logic() error {
+func logic(script string) error {
 	// Copy the kasse executable into a temporary directory. This is also where
 	// the program writes its data files to.
 	tmpdir, err := ioutil.TempDir("", "c128kasse")
 	if err != nil {
 		return err
 	}
-	//defer os.RemoveAll(tmpdir)
+	defer os.RemoveAll(tmpdir)
 
 	for _, fn := range []string{"kasse", "kasse.lbl", "vicerc", "testdata/items", "testdata/log-0", "testdata/credits"} {
 		if err := copyFile(filepath.Join(tmpdir, filepath.Base(fn)), fn); err != nil {
@@ -213,28 +214,26 @@ func logic() error {
 		return err
 	}
 
-	if err := inputStep(conn, "keybuf run\"kasse\\n", 1); err != nil {
+	b, err := ioutil.ReadFile("testdata/" + script)
+	if err != nil {
 		return err
 	}
+	lines := strings.Split(strings.TrimSpace(string(b)), "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "#") {
+			continue // skip comments
+		}
+		breaks := 1
+		if !strings.HasPrefix(line, `run"`) {
+			breaks = len(line) + len("\n") + 1
+		}
+		if err := inputStep(conn, "keybuf "+line+"\\n", breaks); err != nil {
+			return err
+		}
 
-	if err := screenshot(conn); err != nil {
-		return err
-	}
-
-	if err := inputStep(conn, "keybuf 180012\\n", len("180012\n")+1); err != nil {
-		return err
-	}
-
-	if err := screenshot(conn); err != nil {
-		return err
-	}
-
-	if err := inputStep(conn, "keybuf s\\n", len("s\n")+1); err != nil {
-		return err
-	}
-
-	if err := screenshot(conn); err != nil {
-		return err
+		if err := screenshot(conn); err != nil {
+			return err
+		}
 	}
 
 	time.Sleep(1 * time.Second) // allow for the last screenshot to be flushed to disk
@@ -245,14 +244,44 @@ func logic() error {
 
 	log.Printf("DONE")
 
+	// copy screenshots to testscreenshots/save.script/
+	scrdir := filepath.Join("testscreenshots/" + script)
+	if err := os.MkdirAll(scrdir, 0755); err != nil {
+		return err
+	}
+
+	fis, err := ioutil.ReadDir(tmpdir)
+	if err != nil {
+		return err
+	}
+	for _, fi := range fis {
+		if !strings.HasSuffix(fi.Name(), ".png") {
+			continue
+		}
+		if err := copyFile(filepath.Join(scrdir, fi.Name()), filepath.Join(tmpdir, fi.Name())); err != nil {
+			return err
+		}
+	}
+
 	// TODO: validate output file
 	return nil
 }
 
-func TestSave(t *testing.T) {
+func TestScript(t *testing.T) {
 	//go http.ListenAndServe(":8038", nil)
-	if err := logic(); err != nil {
+	fis, err := ioutil.ReadDir("testdata")
+	if err != nil {
 		t.Fatal(err)
+	}
+	for _, fi := range fis {
+		if !strings.HasSuffix(fi.Name(), ".script") {
+			continue
+		}
+		t.Run(fi.Name(), func(t *testing.T) {
+			if err := logic(fi.Name()); err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 	//select {} // hang for debugging
 }
