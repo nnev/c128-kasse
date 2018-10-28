@@ -277,7 +277,7 @@ void set_time_interactive(void) {
   uint8_t day, tp1, tp2, tp3;
   char *time_input, *time;
   cprintf("Gib den aktuellen Tag des Events und Uhrzeit ein\r\n"
-          "Format DHHMMSS, 0-indexiert, z.B. 0174259 für \"erster Tag um "
+          "Format DHHMMSS, 0-indexiert, z.B. 0174259 f" uUML "r \"erster Tag um "
           "17:42:59\":\r\n");
   time_input = get_input();
   part[0] = time_input[0];
