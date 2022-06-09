@@ -107,7 +107,7 @@ void set_time(uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
   CIA1.tod_sec = dec2bcd(sec);
 
   /* set CIA1.tod_10 and program "Control Timer A" */
-  __asm__("jsr initsystime");
+  __asm__("jsr inittime");
 }
 
 uint8_t _daytime_irq(void) {
