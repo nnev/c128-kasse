@@ -30,7 +30,7 @@ static void print_entry(BYTE i, const char *nickname, unsigned int credit) {
     exit(1);
   }
 
-  cprintf("%d: %s: %s\r\n", i, nickname, buffer);
+  cprintf("%d: %10s: %s\r\n", i, nickname, buffer);
 }
 
 static void credit_print_screen(void) {
