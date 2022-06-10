@@ -183,7 +183,7 @@ void credit_manager(void) {
       new_credit();
       break;
     case 'd':
-      cputs("\rName?\r\n");
+      cputs("\rName? (press space to complete)\r\n");
       if (cget_nickname(nickname, sizeof(nickname))) {
         delete_credit(nickname);
       }
