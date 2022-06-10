@@ -44,8 +44,14 @@ static void credit_print_screen(void) {
   pages = (credits.num_items / CREDITS_PER_PAGE);
   if (current_credits_page > pages)
     current_credits_page = pages;
-  cprintf("Datei: CREDITS (Seite %d von %d)\r\n\r\n", current_credits_page,
+  cprintf("Datei: CREDITS (Seite %d von %d), ", current_credits_page,
           pages);
+  if (filter != NULL) {
+    cprintf("Filter: %s", filter);
+  } else {
+    cprintf("Alle Eintr" aUML "ge");
+  }
+  cprintf("\r\n\r\n");
   if (filter != NULL) {
     for (i = 0; i < credits.num_items; i++) {
       if (strncasecmp(credits.credits[i].nickname, filter, filter_len) != 0) {
