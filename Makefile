@@ -51,7 +51,7 @@ package: all
 	c1541 -format "${GV}",KA d71 kasse.d71
 	c1541 -attach kasse.d71 -write kasse
 	c1541 -attach kasse.d71 -write itemz
-	[ -e state ] && c1541 -attach kasse.d71 -write state || exit 0
+	[ -e credits ] && c1541 -attach kasse.d71 -write credits || exit 0
 	[ -e items ] && c1541 -attach kasse.d71 -write items || exit 0
 
 test: build/config.o build/test.o build/general.o build/print.o build/globals.o
@@ -60,7 +60,7 @@ test: build/config.o build/test.o build/general.o build/print.o build/globals.o
 test-package: test
 	c1541 -format "test",TE d71 test.d71
 	c1541 -attach test.d71 -write test/test || exit 0
-	c1541 -attach test.d71 -write state || exit 0
+	c1541 -attach test.d71 -write credits || exit 0
 	c1541 -attach test.d71 -write items || exit 0
 
 clean:
