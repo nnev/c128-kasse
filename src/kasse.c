@@ -168,7 +168,8 @@ static signed int buy(char *name, int32_t price) {
     return 1;
   }
 
-  cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben (press space to complete):\r\n");
+  cprintf("\r\nAuf ein Guthaben kaufen? Wenn ja, Nickname eingeben (press "
+          "space to complete):\r\n");
   nickname_len = cget_nickname(nickname, sizeof(nickname));
 
   if (nickname_len && *nickname != '\0' && *nickname != PETSCII_SP) {
@@ -263,7 +264,8 @@ void set_time_interactive(void) {
   uint8_t day, tp1, tp2, tp3;
   char *time_input, *time;
   cprintf("Gib den aktuellen Tag des Events und Uhrzeit ein\r\n"
-          "Format DHHMMSS, 0-indexiert, z.B. 0174259 f" uUML "r \"erster Tag um "
+          "Format DHHMMSS, 0-indexiert, z.B. 0174259 f" uUML
+          "r \"erster Tag um "
           "17:42:59\":\r\n");
   time_input = get_input();
   part[0] = time_input[0];
@@ -327,8 +329,9 @@ int main(void) {
   load_credits();
 
   time = get_time();
-  sprintf(print_buffer, "%c----------------------------------------------------"
-                        "----------------------------\r",
+  sprintf(print_buffer,
+          "%c----------------------------------------------------"
+          "----------------------------\r",
           17);
   print_the_buffer();
   sprintf(print_buffer, "%cC128-Kasse Version " GV "\r", 17);
