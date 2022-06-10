@@ -83,26 +83,12 @@ static void print_screen(void) {
           "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xB1"
           "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xBD"
           "\r\n");
-  textcolor(TC_YELLOW);
-  cprintf("   s");
-  textcolor(TC_LIGHT_GRAY);
-  cprintf(") Daten sichern                                  ");
-  textcolor(TC_YELLOW);
-  cprintf("g");
-  textcolor(TC_LIGHT_GRAY);
-  cprintf(") Guthabenverwaltung\r\n");
-  textcolor(TC_YELLOW);
-  cprintf("   z");
-  textcolor(TC_LIGHT_GRAY);
-  cprintf(") Zeit setzen         ");
-  textcolor(TC_YELLOW);
-  cprintf("f");
-  textcolor(TC_LIGHT_GRAY);
-  cprintf(") Freitext verkaufen      ");
-  textcolor(TC_YELLOW);
-  cprintf("q");
-  textcolor(TC_LIGHT_GRAY);
-  cprintf(") Beenden\r\n");
+
+  MENU_KEY("   s", "Daten sichern                                  ");
+  MENU_KEY("g", "Guthabenverwaltung\r\n");
+  MENU_KEY("   z", "Zeit setzen         ");
+  MENU_KEY("f", "Freitext verkaufen      ");
+  MENU_KEY("q", "Beenden\r\n");
 }
 
 /*

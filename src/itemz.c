@@ -24,7 +24,9 @@ static void itemz_print_screen(void) {
   char buffer[EUR_FORMAT_MINLEN + 1];
 
   clrscr();
+  textcolor(TC_CYAN);
   cprintf("itemz (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
+  textcolor(TC_LIGHT_GRAY);
   cprintf("Datei: ITEMS\r\n\r\n");
   for (i = 0; i < max(status.num_items, 15); i++) {
     if (format_euro(buffer, sizeof(buffer), status.status[i].price) != buffer) {
@@ -34,8 +36,16 @@ static void itemz_print_screen(void) {
     cprintf("Eintrag %2d: %s (%s, %d mal verkauft)\r\n", i,
             status.status[i].item_name, buffer, status.status[i].times_sold);
   }
-  cprintf("\r\nn) Neu d) L" oUML "schen s) Speichern m) Credit Modus q) "
-          "Beenden\r\nr) Reset des Verkauft-Z" aUML "hlers\r\n");
+
+  cprintf("\r\n");
+  MENU_KEY("  n", "Neu");
+  MENU_KEY("      d", "L" oUML "schen");
+  MENU_KEY("  s", "Speichern");
+  MENU_KEY("  g", "Guthabenverwaltung");
+  cprintf("\r\n");
+  MENU_KEY("  q", "Beenden");
+  MENU_KEY("  r", "Reset des Verkauft-Z" aUML "hlers");
+  cprintf("\r\n");
 }
 
 static void new_item(void) {
@@ -123,7 +133,7 @@ static void itemz_manager() {
     case 'r':
       reset_counters();
       break;
-    case 'm':
+    case 'g':
       return; // switch to credit mode
     case 'q':
       exit(0);

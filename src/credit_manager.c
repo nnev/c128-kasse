@@ -38,7 +38,9 @@ static void credit_print_screen(void) {
   char buffer[EUR_FORMAT_MINLEN + 1];
 
   clrscr();
+  textcolor(TC_CYAN);
   cprintf("credit_manager (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
+  textcolor(TC_LIGHT_GRAY);
   pages = (credits.num_items / CREDITS_PER_PAGE);
   if (current_credits_page > pages)
     current_credits_page = pages;
@@ -59,8 +61,18 @@ static void credit_print_screen(void) {
       print_entry(i, credits.credits[i].nickname, credits.credits[i].credit);
     }
   }
-  cprintf("\r\nn) Neu d) L" oUML "schen p) Einzahlen b) Seite hoch "
-          "f) Seite runter\r\ng) Filtern s) Speichern z) Zur" uUML "ck\r\n");
+
+  cprintf("\r\n");
+  MENU_KEY("  n", "Neu");
+  MENU_KEY("      d", "L" oUML "schen");
+  MENU_KEY("    p", "Einzahlen");
+  MENU_KEY("  b", "Seite hoch");
+  MENU_KEY("  f", "Seite runter");
+  cprintf("\r\n");
+  MENU_KEY("  g", "Filtern");
+  MENU_KEY("  s", "Speichern");
+  MENU_KEY("  z", "Zur" uUML "ck");
+  cprintf("\r\n");
 }
 
 static int8_t find_credit_idx(char *name) {

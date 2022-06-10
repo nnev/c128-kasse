@@ -25,6 +25,14 @@ extern BYTE _oserror;
 
 #define KASSE_AUTHORS "phil_fry, sECuRE, sur5r, mxf"
 
+#define MENU_KEY(key, label) do {		\
+    textcolor(TC_YELLOW);			\
+    cprintf(key);				\
+    textcolor(TC_LIGHT_GRAY);			\
+    cprintf(") " label);			\
+  } while (0)
+
+
 /* C128 color codes, see PDF page 127 of
  * http://www.pagetable.com/docs/Commodore%20128%20Programmer%27s%20Reference%20Guide.pdf
  */
