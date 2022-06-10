@@ -76,7 +76,7 @@ static void credit_print_screen(void) {
   if (filter != NULL) {
     cprintf("Filter: %s", filter);
   } else {
-    cprintf("Alle Eintr" aUML "ge");
+    cprintf("Kein Filter");
   }
   cprintf("\r\n\r\n");
   // clang-format off
