@@ -44,8 +44,8 @@ static void credit_print_screen(void) {
   pages = (credits.num_items / CREDITS_PER_PAGE);
   if (current_credits_page > pages)
     current_credits_page = pages;
-  cprintf("Datei: CREDITS (Seite %d von %d), ", current_credits_page,
-          pages);
+  cprintf("Datei: CREDITS (Seite %d von %d), ", current_credits_page + 1,
+          pages + 1);
   if (filter != NULL) {
     cprintf("Filter: %s", filter);
   } else {
