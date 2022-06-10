@@ -45,20 +45,20 @@ static void print_item(BYTE i) {
 }
 
 static void print_line(BYTE i) {
-    cprintf("\xDD");
-    print_item(i);
-    cprintf("\xDD");
+  cprintf("\xDD");
+  print_item(i);
+  cprintf("\xDD");
 
-    /* if we have more than 15 items, use the second column */
-    if ((i + 15) < credits.num_items) {
-      print_item(i + 15);
-      cprintf("\xDD");
-    } else {
-      // TODO: switch to MAX_CREDIT_NAME_LENGTH once that is increased
-      cprintf("   %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD        \xDD", "");
-    }
+  /* if we have more than 15 items, use the second column */
+  if ((i + 15) < credits.num_items) {
+    print_item(i + 15);
+    cprintf("\xDD");
+  } else {
+    // TODO: switch to MAX_CREDIT_NAME_LENGTH once that is increased
+    cprintf("   %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD        \xDD", "");
+  }
 
-    cprintf("\r\n");
+  cprintf("\r\n");
 }
 
 static void credit_print_screen(void) {
@@ -148,8 +148,8 @@ static void credit_print_screen(void) {
 int8_t find_credit_idx(char *name) {
   int8_t i;
   for (i = 0; i < credits.num_items; ++i) {
-    if (strncasecmp(name, credits.credits[i].nickname, MAX_CREDIT_NAME_LENGTH + 1) ==
-        0) {
+    if (strncasecmp(name, credits.credits[i].nickname,
+                    MAX_CREDIT_NAME_LENGTH + 1) == 0) {
       return i;
     }
   }
@@ -208,7 +208,8 @@ static void new_credit(void) {
   cprintf("\r\nGuthaben in Cents:\r\n");
   if ((credit = cget_number(0)) == 0)
     return;
-  strncpy(credits.credits[credits.num_items].nickname, name, MAX_CREDIT_NAME_LENGTH);
+  strncpy(credits.credits[credits.num_items].nickname, name,
+          MAX_CREDIT_NAME_LENGTH);
   credits.credits[credits.num_items].credit = credit;
 
   time = get_time();
