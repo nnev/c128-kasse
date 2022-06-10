@@ -172,7 +172,7 @@ static void delete_credit(char *nickname) {
   return;
 }
 
-void credit_manager() {
+void credit_manager(void) {
   char nickname[NICKNAME_MAX_LEN + 1];
   char *c;
   while (1) {

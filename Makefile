@@ -7,7 +7,7 @@ CFLAGS= -I include -t c128 -g
 
 .PHONY: clean dist-clean format
 
-all: kasse itemz cat
+all: kasse cat
 
 build/%.o: src/%.c ${INCLUDES}
 	${CC} ${CFLAGS} -O $< -o build/$(addsuffix .s,$(shell basename $< .c))
@@ -32,10 +32,7 @@ include/version.h: .git/index
 include/charset_umlauts.h: assets/umlauts.pbm
 	./util/mkfont assets/umlauts.pbm chars_umlauts > $@
 
-kasse: build/config.o build/kasse.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o build/globals.o build/bcd2dec.o
-	${LD} -Ln $@.lbl -t c128 $^ -o $@
-
-itemz: build/config.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/globals.o build/bcd2dec.o build/vdc_util.o
+kasse: build/config.o build/kasse.o build/itemz.o build/general.o build/credit_manager.o build/c128time.o build/print.o build/vdc_patch_charset.o build/vdc_util.o build/globals.o build/bcd2dec.o
 	${LD} -Ln $@.lbl -t c128 $^ -o $@
 
 cat: build/general.o build/cat.o build/config.o build/print.o build/globals.o
@@ -50,7 +47,6 @@ ascii: build/print_ascii.o
 package: all
 	c1541 -format "${GV}",KA d71 kasse.d71
 	c1541 -attach kasse.d71 -write kasse
-	c1541 -attach kasse.d71 -write itemz
 	[ -e credits ] && c1541 -attach kasse.d71 -write credits || exit 0
 	[ -e items ] && c1541 -attach kasse.d71 -write items || exit 0
 
@@ -67,7 +63,7 @@ clean:
 	rm -rf build/*.o build/*.s test/test
 
 dist-clean: clean
-	rm -f kasse kasse.lbl itemz itemz.lbl cat cat.lbl kasse.d71
+	rm -f kasse kasse.lbl cat cat.lbl kasse.d71
 
 format:
 	clang-format-3.9 -i **/*.[ch]

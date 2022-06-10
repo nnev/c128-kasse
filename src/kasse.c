@@ -16,6 +16,7 @@
 #include "config.h"
 #include "kasse.h"
 #include "credit_manager.h"
+#include "itemz.h"
 #include "c128time.h"
 #include "print.h"
 #include "version.h"
@@ -84,7 +85,8 @@ static void print_screen(void) {
           "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xBD"
           "\r\n");
 
-  MENU_KEY("   s", "Daten sichern                                  ");
+  MENU_KEY("   s", "Daten sichern       ");
+  MENU_KEY("i", "Itemzverwaltung         ");
   MENU_KEY("g", "Guthabenverwaltung\r\n");
   MENU_KEY("   z", "Zeit setzen         ");
   MENU_KEY("f", "Freitext verkaufen      ");
@@ -368,6 +370,9 @@ int main(void) {
       cget_return();
     } else if (*c == 'g') {
       credit_manager();
+    } else if (*c == 'i') {
+      itemz_manager();
+      load_items();
     } else if (*c == 'z') {
       set_time_interactive();
     } else if (*c == 'q')

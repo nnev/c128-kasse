@@ -25,7 +25,7 @@ static void itemz_print_screen(void) {
 
   clrscr();
   textcolor(TC_CYAN);
-  cprintf("itemz (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
+  cprintf("itemz_manager (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
   textcolor(TC_LIGHT_GRAY);
   cprintf("Datei: ITEMS\r\n\r\n");
   for (i = 0; i < max(status.num_items, 15); i++) {
@@ -39,12 +39,11 @@ static void itemz_print_screen(void) {
 
   cprintf("\r\n");
   MENU_KEY("  n", "Neu");
-  MENU_KEY("      d", "L" oUML "schen");
+  MENU_KEY("    d", "L" oUML "schen");
   MENU_KEY("  s", "Speichern");
-  MENU_KEY("  g", "Guthabenverwaltung");
   cprintf("\r\n");
-  MENU_KEY("  q", "Beenden");
-  MENU_KEY("  r", "Reset des Verkauft-Z" aUML "hlers");
+  MENU_KEY("  z", "Zur" uUML "ck");
+  MENU_KEY(" r", "Reset des Verkauft-Z" aUML "hlers");
   cprintf("\r\n");
 }
 
@@ -115,7 +114,7 @@ static void reset_counters(void) {
   }
 }
 
-static void itemz_manager() {
+void itemz_manager() {
   char *c;
   while (1) {
     itemz_print_screen();
@@ -133,34 +132,12 @@ static void itemz_manager() {
     case 'r':
       reset_counters();
       break;
-    case 'g':
-      return; // switch to credit mode
-    case 'q':
-      exit(0);
+    case 'z':
+      save_items();
+      return;
     default:
       cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
       cget_return();
     }
   }
-}
-
-int main(void) {
-  videomode(VIDEOMODE_80x25);
-
-  /*  clock CPU at double the speed (a whopping 2 Mhz!) */
-  fast();
-
-  credits.num_items = 0;
-  status.num_items = 0;
-  cprintf("itemz loading...\n");
-  load_config();
-  cprintf("itemz: loading ITEMS...\n");
-  load_items();
-  cprintf("itemz: loading CREDITS...\n");
-  load_credits();
-  while (1) {
-    itemz_manager();
-    credit_manager();
-  }
-  return 0;
 }
