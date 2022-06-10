@@ -33,8 +33,9 @@ static void itemz_print_screen(void) {
       cprintf("Error: Could not format price %d\r\n", status.status[i].price);
       exit(1);
     }
-    cprintf("Eintrag %2d: % 9s (%s, %d mal verkauft)\r\n", i,
-            status.status[i].item_name, buffer, status.status[i].times_sold);
+    cprintf("Eintrag %2d: % " xstr(
+                MAX_ITEM_NAME_LENGTH) "s (%s, %d mal verkauft)\r\n",
+            i, status.status[i].item_name, buffer, status.status[i].times_sold);
   }
 
   cprintf("\r\n");
