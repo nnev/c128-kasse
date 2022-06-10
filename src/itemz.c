@@ -19,24 +19,14 @@
 #include "vdc_patch_charset.h"
 #include "globals.h"
 
-static void itemz_print_screen(void) {
-  BYTE i;
-  char buffer[EUR_FORMAT_MINLEN + 1];
-
+static void itemz_print_screen(BYTE current_selection) {
   clrscr();
   textcolor(TC_CYAN);
   cprintf("itemz_manager (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
   textcolor(TC_LIGHT_GRAY);
   cprintf("Datei: ITEMS\r\n\r\n");
-  for (i = 0; i < max(status.num_items, 15); i++) {
-    if (format_euro(buffer, sizeof(buffer), status.status[i].price) != buffer) {
-      cprintf("Error: Could not format price %d\r\n", status.status[i].price);
-      exit(1);
-    }
-    cprintf("Eintrag %2d: % " xstr(
-                MAX_ITEM_NAME_LENGTH) "s (%s, %d mal verkauft)\r\n",
-            i, status.status[i].item_name, buffer, status.status[i].times_sold);
-  }
+
+  print_kasse_screen_items(current_selection);
 
   cprintf("\r\n");
   MENU_KEY("  n", "Neu");
@@ -44,7 +34,7 @@ static void itemz_print_screen(void) {
   MENU_KEY("  s", "Speichern");
   cprintf("\r\n");
   MENU_KEY("  z", "Zur" uUML "ck");
-  MENU_KEY(" r", "Reset des Verkauft-Z" aUML "hlers");
+  MENU_KEY(" r", "Reset aller Verkauft-Z" aUML "hler");
   cprintf("\r\n");
 }
 
@@ -83,15 +73,8 @@ static void _delete_item(BYTE num) {
   status.status[num].times_sold = 0;
 }
 
-static void delete_item(void) {
-  int16_t num;
+static void delete_item_idx(BYTE num) {
   uint8_t last;
-  cprintf("\r Welcher Eintrag soll geloescht werden?\r\n");
-
-  num = cget_number(-1);
-  if (num < 0)
-    return;
-
   if (status.num_items > 1) {
     /* Swap last item with this one and delete the last one to avoid holes */
     last = (status.num_items - 1);
@@ -107,6 +90,16 @@ static void delete_item(void) {
   status.num_items--;
 }
 
+static void delete_item(void) {
+  int16_t num;
+  cprintf("\r Welcher Eintrag soll gel" oUML "scht werden?\r\n");
+
+  num = cget_number(-1);
+  if (num < 0)
+    return;
+  delete_item_idx(num);
+}
+
 static void reset_counters(void) {
   BYTE i;
 
@@ -117,28 +110,43 @@ static void reset_counters(void) {
 
 void itemz_manager() {
   char *c;
+  BYTE current_selection = 0xFF;
   while (1) {
-    itemz_print_screen();
+    itemz_print_screen(current_selection);
     c = get_input();
-    switch (*c) {
-    case 'n':
-      new_item();
-      break;
-    case 'd':
-      delete_item();
-      break;
-    case 's':
-      save_items();
-      break;
-    case 'r':
-      reset_counters();
-      break;
-    case 'z':
-      save_items();
-      return;
-    default:
-      cprintf("Unbekannter Befehl, druecke RETURN...\r\n");
-      cget_return();
+    if (*c >= PETSCII_0 && *c <= PETSCII_9) {
+      /* if the input starts with a digit, we will interpret it as a number
+       * for the item to be selected */
+      current_selection = atoi(c);
+    } else {
+      switch (*c) {
+      case '\0':
+        current_selection = 0xFF;
+        break;
+      case 'n':
+        new_item();
+        break;
+      case 'd':
+        if (current_selection != 0xFF) {
+          delete_item_idx(current_selection);
+          current_selection = 0xFF;
+        } else {
+          delete_item();
+        }
+        break;
+      case 's':
+        save_items();
+        break;
+      case 'r':
+        reset_counters();
+        break;
+      case 'z':
+        save_items();
+        return;
+      default:
+        cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
+        cget_return();
+      }
     }
   }
 }

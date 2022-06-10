@@ -25,37 +25,27 @@
 // drucker 4 oder 5
 // graphic 4,0,10
 
-void print_item(BYTE i) {
+void print_item(BYTE i, BYTE current_selection) {
   char profit[EUR_FORMAT_MINLEN + 1];
   if (format_euro(profit, sizeof(profit), status.status[i].price) == NULL) {
     cprintf("Preis %ld konnte nicht umgerechnet werden\r\n",
             status.status[i].price);
     exit(1);
   }
-  textcolor(TC_YELLOW);
+  if (current_selection == i) {
+    textcolor(TC_LIGHT_RED);
+  } else {
+    textcolor(TC_YELLOW);
+  }
   cprintf("%2d", i);
   textcolor(TC_LIGHT_GRAY);
   cprintf(" %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%3dx %s",
           status.status[i].item_name, status.status[i].times_sold, profit);
 }
 
-/* Hauptbildschirm ausgeben */
-static void print_screen(void) {
+void print_kasse_screen_items(BYTE current_selection) {
   BYTE i = 0;
-  char profit[EUR_FORMAT_MINLEN + 1];
-  clrscr();
-  if (format_euro(profit, sizeof(profit), money) == NULL) {
-    cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
-    profit[0] = '\0';
-  }
-  textcolor(TC_CYAN);
-  /* fill whole line with cyan, so color bits are set up for the clock */
-  cprintf("%-80s", "C128-Kasse (" KASSE_AUTHORS ") " GV);
-  textcolor(TC_LIGHT_GRAY);
-  cprintf("\r\n\r\n"
-          "Ertrag: %s (%ld Artikel); Drucken: %s\r\n",
-          profit, items_sold, (printing == 1 ? "ein" : "aus"));
-  textcolor(TC_LIGHT_GRAY);
+
   // clang-format off
   cprintf("\xB0"
           "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
@@ -73,12 +63,12 @@ static void print_screen(void) {
   for (; i < min(status.num_items, 15); ++i) {
 
     cprintf("\xDD");
-    print_item(i);
+    print_item(i, current_selection);
     cprintf("\xDD");
 
     /* if we have more than 15 items, use the second column */
     if ((i + 15) < status.num_items) {
-      print_item(i + 15);
+      print_item(i + 15, current_selection);
       cprintf("\xDD");
     } else {
       cprintf("   %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD            \xDD", "");
@@ -100,6 +90,26 @@ static void print_screen(void) {
           "\xBD"
           "\r\n");
   // clang-format on
+}
+
+/* Hauptbildschirm ausgeben */
+static void print_kasse_screen(void) {
+  char profit[EUR_FORMAT_MINLEN + 1];
+  clrscr();
+  if (format_euro(profit, sizeof(profit), money) == NULL) {
+    cprintf("Einnahme %ld konnte nicht umgerechnet werden\r\n", money);
+    profit[0] = '\0';
+  }
+  textcolor(TC_CYAN);
+  /* fill whole line with cyan, so color bits are set up for the clock */
+  cprintf("%-80s", "C128-Kasse (" KASSE_AUTHORS ") " GV);
+  textcolor(TC_LIGHT_GRAY);
+  cprintf("\r\n\r\n"
+          "Ertrag: %s (%ld Artikel); Drucken: %s\r\n",
+          profit, items_sold, (printing == 1 ? "ein" : "aus"));
+  textcolor(TC_LIGHT_GRAY);
+
+  print_kasse_screen_items(0xFF);
 
   MENU_KEY("   s", "Daten sichern       ");
   MENU_KEY("i", "Itemzverwaltung         ");
@@ -365,7 +375,7 @@ int main(void) {
   print_header();
 
   while (1) {
-    print_screen();
+    print_kasse_screen();
     kasse_menu = MENU_MAIN;
     c = get_input();
     kasse_menu = MENU_UNDEFINED;
