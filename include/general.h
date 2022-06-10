@@ -23,6 +23,8 @@ char *format_euro(char *s, int maxlen, int32_t cent);
 void c128_perror(BYTE, char *);
 extern BYTE _oserror;
 
+#define KASSE_AUTHORS "phil_fry, sECuRE, sur5r, mxf"
+
 /* C128 color codes, see PDF page 127 of
  * http://www.pagetable.com/docs/Commodore%20128%20Programmer%27s%20Reference%20Guide.pdf
  */

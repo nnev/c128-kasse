@@ -24,7 +24,7 @@ static void itemz_print_screen(void) {
   char buffer[EUR_FORMAT_MINLEN + 1];
 
   clrscr();
-  cprintf("itemz (phil_fry, sECuRE, sur5r, mxf) v:" GV "\r\n\r\n");
+  cprintf("itemz (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
   cprintf("Datei: ITEMS\r\n\r\n");
   for (i = 0; i < max(status.num_items, 15); i++) {
     if (format_euro(buffer, sizeof(buffer), status.status[i].price) != buffer) {

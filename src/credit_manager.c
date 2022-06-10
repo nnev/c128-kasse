@@ -38,7 +38,7 @@ static void credit_print_screen(void) {
   char buffer[EUR_FORMAT_MINLEN + 1];
 
   clrscr();
-  cprintf("credit_manager (phil_fry, sECuRE, sur5r) v:" GV "\r\n\r\n");
+  cprintf("credit_manager (" KASSE_AUTHORS ") v:" GV "\r\n\r\n");
   pages = (credits.num_items / CREDITS_PER_PAGE);
   if (current_credits_page > pages)
     current_credits_page = pages;

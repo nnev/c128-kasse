@@ -49,7 +49,7 @@ static void print_screen(void) {
   }
   textcolor(TC_CYAN);
   /* fill whole line with cyan, so color bits are set up for the clock */
-  cprintf("%-80s", "C128-Kasse (phil_fry, sECuRE, sur5r, mxf) " GV);
+  cprintf("%-80s", "C128-Kasse (" KASSE_AUTHORS ") " GV);
   textcolor(TC_LIGHT_GRAY);
   cprintf("\r\n\r\n"
           "Ertrag: %s (%ld Artikel); Drucken: %s\r\n",
