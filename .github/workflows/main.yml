@@ -15,10 +15,10 @@ jobs:
       run: |
         sudo apt-get update && sudo apt-get install -y clang-format cc65
 
-    - name:
+    - name: Check code is formatted per clang-format
       run: |
         ./travis/check-formatting.sh
 
-    - name:
+    - name: Check code compiles with cc65
       run: |
         make
