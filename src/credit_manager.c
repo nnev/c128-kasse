@@ -194,7 +194,7 @@ void credit_manager() {
         current_credits_page--;
       break;
     case 'p':
-      cputs("\rName? (space completed)\r\n");
+      cputs("\rName? (press space to complete)\r\n");
       if (cget_nickname(nickname, sizeof(nickname))) {
         deposit_credit(nickname);
       }
