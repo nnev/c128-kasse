@@ -5,8 +5,6 @@
 
 #define MAX_ITEMS 30
 #define MAX_ITEM_NAME_LENGTH 19
-#define MAX_CREDIT_ITEMS 75
-#define CREDITS_PER_PAGE 10
 
 /* Eingenommes Geld in Cent */
 extern int32_t money;
@@ -29,9 +27,11 @@ struct status_array_t {
 };
 
 /* Datenstruktur für die Guthaben */
-#define NICKNAME_MAX_LEN 10
+#define MAX_CREDIT_ITEMS 75
+#define MAX_CREDIT_NAME_LENGTH 10
+#define CREDITS_PER_PAGE 30
 struct credits_t {
-  char nickname[NICKNAME_MAX_LEN + 1];
+  char nickname[MAX_CREDIT_NAME_LENGTH + 1];
   /* Guthaben (in Cent) */
   unsigned int credit;
 };

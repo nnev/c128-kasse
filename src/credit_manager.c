@@ -21,21 +21,48 @@ static char *filter = NULL;
 static BYTE filter_len;
 
 static BYTE current_credits_page = 0;
+static BYTE current_selection = 0xFF;
 
-static void print_entry(BYTE i, const char *nickname, unsigned int credit) {
+static void print_item(BYTE i) {
   char buffer[EUR_FORMAT_MINLEN + 1];
+  const unsigned int credit = credits.credits[i].credit;
 
   if (format_euro(buffer, sizeof(buffer), credit) != buffer) {
     cprintf("Error: Could not format credit %d\r\n", credit);
     exit(1);
   }
 
-  cprintf("%d: %10s: %s\r\n", i, nickname, buffer);
+  if (current_selection == i) {
+    textcolor(TC_LIGHT_RED);
+  } else {
+    textcolor(TC_YELLOW);
+  }
+  cprintf("%2d", i);
+  textcolor(TC_LIGHT_GRAY);
+  // TODO: switch to MAX_CREDIT_NAME_LENGTH once that is increased
+  cprintf(" %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%3s ",
+          credits.credits[i].nickname, buffer);
+}
+
+static void print_line(BYTE i) {
+    cprintf("\xDD");
+    print_item(i);
+    cprintf("\xDD");
+
+    /* if we have more than 15 items, use the second column */
+    if ((i + 15) < credits.num_items) {
+      print_item(i + 15);
+      cprintf("\xDD");
+    } else {
+      // TODO: switch to MAX_CREDIT_NAME_LENGTH once that is increased
+      cprintf("   %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD        \xDD", "");
+    }
+
+    cprintf("\r\n");
 }
 
 static void credit_print_screen(void) {
   BYTE i, pages;
-  char buffer[EUR_FORMAT_MINLEN + 1];
 
   clrscr();
   textcolor(TC_CYAN);
@@ -52,21 +79,58 @@ static void credit_print_screen(void) {
     cprintf("Alle Eintr" aUML "ge");
   }
   cprintf("\r\n\r\n");
+  // clang-format off
+  cprintf("\xB0"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xB2"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xB2"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xB2"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xAE"
+          "\r\n");
+  // clang-format on
+
   if (filter != NULL) {
     for (i = 0; i < credits.num_items; i++) {
       if (strncasecmp(credits.credits[i].nickname, filter, filter_len) != 0) {
         continue;
       }
-      print_entry(i, credits.credits[i].nickname, credits.credits[i].credit);
+      cprintf("\xDD");
+      print_item(i);
+      cprintf("\xDD\r\n");
     }
   } else {
-    for (i = (current_credits_page * CREDITS_PER_PAGE);
-         i < credits.num_items &&
-         i < ((current_credits_page + 1) * CREDITS_PER_PAGE);
-         i++) {
-      print_entry(i, credits.credits[i].nickname, credits.credits[i].credit);
+    const BYTE offset = (current_credits_page * CREDITS_PER_PAGE);
+    BYTE last = ((current_credits_page + 1) * CREDITS_PER_PAGE);
+    if (last > credits.num_items) {
+      last = credits.num_items;
+    }
+    if (last > (offset + 15)) {
+      last = (offset + 15);
+    }
+    for (i = offset; i < last; i++) {
+      print_line(i);
     }
   }
+
+  // clang-format off
+  cprintf("\xAD"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xB1"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xB1"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xB1"
+          "\xC0\xC0\xC0\xC0\xC0\xC0\xC0\xC0"
+          "\xBD"
+          "\r\n");
+  // clang-format on
 
   cprintf("\r\n");
   MENU_KEY("  n", "Neu");
@@ -81,10 +145,10 @@ static void credit_print_screen(void) {
   cprintf("\r\n");
 }
 
-static int8_t find_credit_idx(char *name) {
+int8_t find_credit_idx(char *name) {
   int8_t i;
   for (i = 0; i < credits.num_items; ++i) {
-    if (strncasecmp(name, credits.credits[i].nickname, NICKNAME_MAX_LEN + 1) ==
+    if (strncasecmp(name, credits.credits[i].nickname, MAX_CREDIT_NAME_LENGTH + 1) ==
         0) {
       return i;
     }
@@ -92,21 +156,10 @@ static int8_t find_credit_idx(char *name) {
   return -1;
 }
 
-struct credits_t *find_credit(char *name) {
-  int i;
-  if ((i = find_credit_idx(name)) >= 0) {
-    return &credits.credits[i];
-  }
-  return NULL;
-}
-
-void deposit_credit(char *nickname) {
+static void deposit_credit_idx(int8_t i) {
   char *time = get_time();
-  struct credits_t *credit;
+  struct credits_t *credit = &credits.credits[i];
   unsigned int deposit;
-
-  if ((credit = find_credit(nickname)) == NULL)
-    return; // cannot find named credit
 
   cprintf("\r\nEinzahlung in Cent:\r\n");
   if ((deposit = cget_number(0)) == 0)
@@ -119,8 +172,18 @@ void deposit_credit(char *nickname) {
   cget_return();
 }
 
+void deposit_credit(char *nickname) {
+  int8_t i;
+
+  if ((i = find_credit_idx(nickname)) == -1) {
+    return; // cannot find named credit
+  }
+
+  deposit_credit_idx(i);
+}
+
 static void new_credit(void) {
-  char name[NICKNAME_MAX_LEN + 1];
+  char name[MAX_CREDIT_NAME_LENGTH + 1];
   char *time;
   int credit;
 
@@ -145,7 +208,7 @@ static void new_credit(void) {
   cprintf("\r\nGuthaben in Cents:\r\n");
   if ((credit = cget_number(0)) == 0)
     return;
-  strncpy(credits.credits[credits.num_items].nickname, name, NICKNAME_MAX_LEN);
+  strncpy(credits.credits[credits.num_items].nickname, name, MAX_CREDIT_NAME_LENGTH);
   credits.credits[credits.num_items].credit = credit;
 
   time = get_time();
@@ -156,68 +219,91 @@ static void new_credit(void) {
   credits.num_items++;
 }
 
+static void delete_credit_idx(int8_t i) {
+  --credits.num_items;
+  if (i != credits.num_items) {
+    credits.credits[i] = credits.credits[credits.num_items];
+  }
+  memset(credits.credits[credits.num_items].nickname, '\0',
+         MAX_CREDIT_NAME_LENGTH + 1);
+  credits.credits[credits.num_items].credit = 0;
+}
+
 static void delete_credit(char *nickname) {
   int8_t i;
   if ((i = find_credit_idx(nickname)) < 0) {
     cprintf("\r Nick existiert nicht\r\n");
     return;
   }
-  --credits.num_items;
-  if (i != credits.num_items) {
-    credits.credits[i] = credits.credits[credits.num_items];
-  }
-  memset(credits.credits[credits.num_items].nickname, '\0',
-         NICKNAME_MAX_LEN + 1);
-  credits.credits[credits.num_items].credit = 0;
-  return;
+  delete_credit_idx(i);
 }
 
 void credit_manager(void) {
-  char nickname[NICKNAME_MAX_LEN + 1];
+  char nickname[MAX_CREDIT_NAME_LENGTH + 1];
   char *c;
+  current_selection = 0xFF;
   while (1) {
     credit_print_screen();
     c = get_input();
-    switch (*c) {
-    case 'n':
-      new_credit();
-      break;
-    case 'd':
-      cputs("\rName? (press space to complete)\r\n");
-      if (cget_nickname(nickname, sizeof(nickname))) {
-        delete_credit(nickname);
+    if (*c >= PETSCII_0 && *c <= PETSCII_9) {
+      /* if the input starts with a digit, we will interpret it as a number
+       * for the item to be selected */
+      current_selection = atoi(c);
+    } else {
+      switch (*c) {
+      case '\0':
+        current_selection = 0xFF;
+        break;
+      case 'n':
+        new_credit();
+        break;
+      case 'd':
+        if (current_selection != 0xFF) {
+          delete_credit_idx(current_selection);
+          current_selection = 0xFF;
+        } else {
+          cputs("\rName? (press space to complete)\r\n");
+          if (cget_nickname(nickname, sizeof(nickname))) {
+            delete_credit(nickname);
+          }
+        }
+        break;
+      case 's':
+        save_credits();
+        break;
+      case 'f':
+        if (current_credits_page < (credits.num_items / CREDITS_PER_PAGE))
+          current_credits_page++;
+        break;
+      case 'b':
+        if (current_credits_page > 0)
+          current_credits_page--;
+        break;
+      case 'p':
+        if (current_selection != 0xFF) {
+          deposit_credit_idx(current_selection);
+          current_selection = 0xFF;
+        } else {
+          cputs("\rName? (press space to complete)\r\n");
+          if (cget_nickname(nickname, sizeof(nickname))) {
+            deposit_credit(nickname);
+          }
+        }
+        break;
+      case 'g':
+        cprintf("Filter eingeben:\r\n");
+        filter = get_input();
+        if (filter == NULL || *filter == PETSCII_SP ||
+            (filter_len = strlen(filter)) == 0)
+          filter = NULL;
+        break;
+      case 'z':
+        save_credits();
+        return;
+      default:
+        cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
+        cget_return();
       }
-      break;
-    case 's':
-      save_credits();
-      break;
-    case 'f':
-      if (current_credits_page < (credits.num_items / CREDITS_PER_PAGE))
-        current_credits_page++;
-      break;
-    case 'b':
-      if (current_credits_page > 0)
-        current_credits_page--;
-      break;
-    case 'p':
-      cputs("\rName? (press space to complete)\r\n");
-      if (cget_nickname(nickname, sizeof(nickname))) {
-        deposit_credit(nickname);
-      }
-      break;
-    case 'g':
-      cprintf("Filter eingeben:\r\n");
-      filter = get_input();
-      if (filter == NULL || *filter == PETSCII_SP ||
-          (filter_len = strlen(filter)) == 0)
-        filter = NULL;
-      break;
-    case 'z':
-      save_credits();
-      return;
-    default:
-      cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
-      cget_return();
     }
   }
 }

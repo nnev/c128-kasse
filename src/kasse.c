@@ -142,7 +142,7 @@ static void print_log(char *name, int32_t item_price, int16_t einheiten,
         /*  Anzahl -- 2-stellig + 3 */
         "%2d - "
         /*  Nickname (falls es vom Guthaben abgezogen wird) -- 10-stellig + 4 */
-        "an %" xstr(NICKNAME_MAX_LEN)"s\r",
+        "an %" xstr(MAX_CREDIT_NAME_LENGTH)"s\r",
         17, status.transaction_id, time, name, price, rest, einheiten,
         (*nickname != '\0' ? nickname : "Unbekannt"));
   /* clang-format on */
@@ -170,7 +170,8 @@ static signed int buy(char *name, int32_t price) {
   BYTE matches = 0;
   BYTE c, nickname_len;
   int16_t einheiten;
-  char nickname[NICKNAME_MAX_LEN + 1];
+  int8_t i;
+  char nickname[MAX_CREDIT_NAME_LENGTH + 1];
   char rest[EUR_FORMAT_MINLEN + 1];
   struct credits_t *credit;
 
@@ -193,8 +194,9 @@ static signed int buy(char *name, int32_t price) {
   if (nickname_len && *nickname != '\0' && *nickname != PETSCII_SP) {
     /* go through credits and remove the amount of money or set nickname
      * to NULL if no such credit could be found */
-    credit = find_credit(nickname);
-    if (credit != NULL) {
+    i = find_credit_idx(nickname);
+    if (i != -1) {
+      credit = &credits.credits[i];
       while ((int32_t)credit->credit < (price * einheiten)) {
         if (format_euro(rest, sizeof(rest), credit->credit) == NULL) {
           cprintf("Preis %d konnte nicht umgerechnet werden\r\n",

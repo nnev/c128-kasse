@@ -141,7 +141,7 @@ uint8_t cget_nickname(char *nickname, uint8_t length) {
     x = wherex();
     y = wherey();
     for (i = 1; i < 7; i++) {
-      /* "Completion:" is longer than NICKNAME_MAX_LEN */
+      /* "Completion:" is longer than MAX_CREDIT_NAME_LENGTH */
       cclearxy(0, y + i, strlen("Completion:"));
     }
     gotoxy(x, y);
@@ -172,7 +172,7 @@ uint8_t cget_nickname(char *nickname, uint8_t length) {
     } else {
       /* Multiple nicknames match what was entered so far. Abort and
        * display all matches, then prompt the user again. */
-      char completion[NICKNAME_MAX_LEN + 1];
+      char completion[MAX_CREDIT_NAME_LENGTH + 1];
       BYTE len = strlen(nickname);
       x = wherex();
       y = wherey();
