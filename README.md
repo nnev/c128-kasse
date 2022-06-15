@@ -8,11 +8,13 @@ On Debian and derivatives, install the `vice` package:
 apt install vice
 ```
 
-Then, install the (not-included) ROMs:
+Then, install the ROMs, which are not included in the Debian package (they are
+however included in the `vice` package on Arch Linux, for example):
+
 ```
-wget http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/VICE/vice-3.1.tar.gz
-mkdir -p ~/.vice
-tar xf vice-3.1.tar.gz -C ~/.vice/ vice-3.1/data --strip-components=2
+wget https://downloads.sourceforge.net/project/vice-emu/releases/vice-3.6.1.tar.gz
+mkdir -p ~/.local/share/vice
+tar xf vice-3.6.1.tar.gz -C ~/.local/share/vice/ vice-3.6.1/data --strip-components=2
 ```
 
 ### Compiling the software into an image
