@@ -23,7 +23,7 @@ char *format_euro(char *s, int maxlen, int32_t cent);
 void c128_perror(BYTE, char *);
 extern BYTE _oserror;
 
-#define KASSE_AUTHORS "phil_fry, sECuRE, sur5r, mxf"
+#define KASSE_AUTHORS "phil_fry, sECuRE, sur5r, mxf, ada"
 
 #define MENU_KEY(key, label)                                                   \
   do {                                                                         \
@@ -79,6 +79,7 @@ extern BYTE _oserror;
 /* "-999,99€" */
 #define EUR_FORMAT "%3ld,%02lu" EURSYM
 #define EUR_FORMAT_MINLEN 8
+#define EUR_FORMAT_NEG " -%ld,%02lu" EURSYM
 
 /* because there is no macro expansion when stringifying, we need to use two
  * levels of macros to stringify the value of a macro (for example

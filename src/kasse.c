@@ -213,12 +213,14 @@ static signed int buy(char *name, int32_t price) {
                   credit->credit);
           exit(1);
         }
-        cprintf(
-            "\r\n%s hat nicht genug Geld (%s). e) einzahlen a) abbruch \r\n",
-            nickname, rest);
+        cprintf("\r\n%s hat nicht genug Geld (%s). e) einzahlen a) abbruch t) "
+                "trotzdem\r\n",
+                nickname, rest);
         c = cgetc();
         if (c == 'e') {
           deposit_credit(nickname);
+        } else if (c == 't') {
+          break;
         } else {
           return 0;
         }

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <c128.h>
 
-//#include "vdc_patch_charset.h"
+// #include "vdc_patch_charset.h"
 
 int main(void) {
   int i = 80;
