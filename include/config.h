@@ -33,7 +33,7 @@ struct status_array_t {
 struct credits_t {
   char nickname[MAX_CREDIT_NAME_LENGTH + 1];
   /* Guthaben (in Cent) */
-  unsigned int credit;
+  signed int credit;
 };
 
 struct credits_array_t {

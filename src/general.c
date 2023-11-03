@@ -219,8 +219,13 @@ char *format_euro(char *s, int maxlen, int32_t cent) {
   int32_t euros, cents;
   euros = cent / 100;
   cents = abs(cent % 100);
-  if (snprintf(s, maxlen, EUR_FORMAT, euros, cents) > maxlen)
-    return NULL;
+  if (cent < 0 && cent > -100) {
+    if (snprintf(s, maxlen, EUR_FORMAT_NEG, euros, cents) > maxlen)
+      return NULL;
+  } else {
+    if (snprintf(s, maxlen, EUR_FORMAT, euros, cents) > maxlen)
+      return NULL;
+  }
   return s;
 }
 

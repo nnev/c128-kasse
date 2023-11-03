@@ -25,7 +25,7 @@ static BYTE current_selection = 0xFF;
 
 static void print_item(BYTE i) {
   char buffer[EUR_FORMAT_MINLEN + 1];
-  const unsigned int credit = credits.credits[i].credit;
+  const signed int credit = credits.credits[i].credit;
 
   if (format_euro(buffer, sizeof(buffer), credit) != buffer) {
     cprintf("Error: Could not format credit %d\r\n", credit);
@@ -165,7 +165,7 @@ static void deposit_credit_idx(int8_t i) {
   if ((deposit = cget_number(0)) == 0)
     return;
 
-  credit->credit += deposit;
+  credit->credit += (signed int)deposit;
 
   print_the_buffer();
   cprintf("\r\nEinzahlung durchgef" uUML "hrt, dr" uUML "cke RETURN...\r\n");
@@ -206,8 +206,12 @@ static void new_credit(void) {
   }
 
   cprintf("\r\nGuthaben in Cents:\r\n");
-  if ((credit = cget_number(0)) == 0)
+  credit = cget_number(0);
+  if (credit < 0) {
+    cprintf("\r\nLege mit 0 an und verkaufe Waren oder Freitext\r\n");
+    cget_return();
     return;
+  }
   strncpy(credits.credits[credits.num_items].nickname, name,
           MAX_CREDIT_NAME_LENGTH);
   credits.credits[credits.num_items].credit = credit;
