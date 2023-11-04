@@ -9,8 +9,6 @@ include/version.h
 include/charset_umlauts.h
 tags
 /log-*
-/items
-/credits
 cat
 charmap
 ascii
