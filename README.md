@@ -2,6 +2,17 @@
 
 ### Emulator installation
 
+#### Fedora
+
+1. [Enable the RPM Fusion nonfree repository](https://docs.fedoraproject.org/en-US/quick-docs/rpmfusion-setup/)
+2. Install the X128 VICE emulator:
+
+   ```
+   sudo dnf install vice-x128
+   ```
+
+#### Debian and derivatives
+
 On Debian and derivatives, install the `vice` package:
 
 ```
