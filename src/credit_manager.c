@@ -40,8 +40,17 @@ static void print_item(BYTE i) {
   cprintf("%2d", i);
   textcolor(TC_LIGHT_GRAY);
   // TODO: switch to MAX_CREDIT_NAME_LENGTH once that is increased
-  cprintf(" %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%3s ",
-          credits.credits[i].nickname, buffer);
+  if (credit < 0) {
+    textcolor(TC_LIGHT_RED);
+  }
+  cprintf(" %-" xstr(MAX_ITEM_NAME_LENGTH) "s ", credits.credits[i].nickname);
+  textcolor(TC_LIGHT_GRAY);
+  cprintf("\xDD");
+  if (credit < 0) {
+    textcolor(TC_LIGHT_RED);
+  }
+  cprintf("%3s ", buffer);
+  textcolor(TC_LIGHT_GRAY);
 }
 
 static void print_line(BYTE i) {
