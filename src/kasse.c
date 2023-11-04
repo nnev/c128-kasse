@@ -389,15 +389,10 @@ int main(void) {
     } else if (*c == 'f') {
       buy_custom();
     } else if (*c == 's') {
-      cprintf("\r\nsaving items.. ");
       save_items();
-      cprintf("ok\r\nsaving credits.. ");
       save_credits();
-      cprintf("ok\r\nflushing log.. ");
       log_flush();
-      cprintf("ok\r\nStatefile/Creditfile/Log gesichert, dr" uUML
-              "cke RETURN...\r\n");
-      cget_return();
+      cprintf("\r\nDr" uUML "cke RETURN...\r\n");
     } else if (*c == 'g') {
       credit_manager();
     } else if (*c == 'i') {
@@ -405,8 +400,14 @@ int main(void) {
       load_items();
     } else if (*c == 'z') {
       set_time_interactive();
-    } else if (*c == 'q')
+    } else if (*c == 'q') {
+      save_items();
+      save_credits();
+      log_flush();
+      cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+      cget_return();
       break;
+    }
   }
   clrscr();
   cprintf("\r\nBYEBYE\r\n");

@@ -275,6 +275,8 @@ void credit_manager(void) {
         break;
       case 's':
         save_credits();
+        cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+        cget_return();
         break;
       case 'f':
         if (current_credits_page < (credits.num_items / CREDITS_PER_PAGE))
@@ -304,6 +306,8 @@ void credit_manager(void) {
         break;
       case 'z':
         save_credits();
+        cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+        cget_return();
         return;
       default:
         cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");

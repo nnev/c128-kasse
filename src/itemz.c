@@ -142,6 +142,8 @@ void itemz_manager() {
         break;
       case 'z':
         save_items();
+        cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+        cget_return();
         return;
       default:
         cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
