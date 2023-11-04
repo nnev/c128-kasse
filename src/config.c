@@ -103,17 +103,21 @@ void load_credits(void) {
 }
 
 void save_items(void) {
+  cprintf("\r\nspeichere items.. ");
   if (items_exists)
     _sysremove("items");
   cbm_save("items", (BYTE)8, &status, sizeof(struct status_array_t));
   items_exists = true;
+  cprintf("ok");
 }
 
 void save_credits(void) {
+  cprintf("\r\nspeichere credits.. ");
   if (credits_exists)
     _sysremove("credits");
   cbm_save("credits", (BYTE)8, &credits, sizeof(struct credits_array_t));
   credits_exists = true;
+  cprintf("ok");
 }
 
 void load_config(void) { lookup_needed_files(); }

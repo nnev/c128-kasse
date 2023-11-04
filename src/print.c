@@ -101,6 +101,7 @@ void print_header(void) {
 void log_flush(void) {
   int c;
   static char filename[8];
+  cprintf("\r\nspeichere log.. ");
   sprintf(filename, "log-%d", log_num);
 
   /* If we have written to this logfile before, we need to remove it first */
@@ -123,6 +124,7 @@ void log_flush(void) {
   cbm_close((BYTE)8);
 
   log_heap_flushed = log_heap_offset;
+  cprintf("ok");
 }
 
 /*
