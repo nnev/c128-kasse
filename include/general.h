@@ -26,11 +26,23 @@ extern BYTE _oserror;
 #define KASSE_AUTHORS "phil_fry, sECuRE, sur5r, mxf, ada"
 
 #define MENU_KEY(key, label)                                                   \
+  textcolor(TC_YELLOW);                                                        \
+  cprintf(key);                                                                \
+  textcolor(TC_LIGHT_GRAY);                                                    \
+  cprintf(") " label);
+
+#define ERROR(message)                                                         \
   do {                                                                         \
-    textcolor(TC_YELLOW);                                                      \
-    cprintf(key);                                                              \
+    textcolor(TC_RED);                                                         \
+    cprintf(message);                                                          \
     textcolor(TC_LIGHT_GRAY);                                                  \
-    cprintf(") " label);                                                       \
+  } while (0)
+
+#define GOOD(message)                                                          \
+  do {                                                                         \
+    textcolor(TC_GREEN);                                                       \
+    cprintf(message);                                                          \
+    textcolor(TC_LIGHT_GRAY);                                                  \
   } while (0)
 
 /* C128 color codes, see PDF page 127 of

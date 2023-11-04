@@ -43,8 +43,8 @@ static void new_item(void) {
   int price, times_sold;
 
   if (status.num_items == MAX_ITEMS) {
-    cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
-            "gen erreicht, dr" uUML "cke RETURN...\r\n");
+    ERROR("\rEs ist bereits die maximale Anzahl an Eintr" aUML
+          "gen erreicht, dr" uUML "cke RETURN...\r\n");
     cget_return();
     return;
   }
@@ -142,11 +142,11 @@ void itemz_manager() {
         break;
       case 'z':
         save_items();
-        cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+        GOOD("\r\nDr" uUML "cke RETURN...\r\n");
         cget_return();
         return;
       default:
-        cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
+        ERROR("\r\nUnbekannter Befehl, dr" uUML "cke RETURN...\r\n");
         cget_return();
       }
     }
