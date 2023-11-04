@@ -191,8 +191,8 @@ static signed int buy(char *name, int32_t price) {
   einheiten = cget_number(1);
 
   if (einheiten > 100 || einheiten < -100 || einheiten == 0) {
-    cprintf("\r\nEinheit nicht in [-100, 100] oder 0, Abbruch, dr" uUML "cke "
-            "RETURN...\r\n");
+    ERROR("\r\n\r\nEinheit nicht in [-100, 100] oder 0, Abbruch");
+    GOOD("\r\nDr" uUML "cke RETURN...\r\n");
     cget_return();
     return 1;
   }
@@ -213,7 +213,7 @@ static signed int buy(char *name, int32_t price) {
                   credit->credit);
           exit(1);
         }
-        cprintf("\r\n%s hat nicht genug Geld (%s)", nickname, rest);
+        cprintf("\r\n%s hat nicht genug Guthaben (%s)", nickname, rest);
         MENU_KEY(" e", "einzahlen");
         MENU_KEY(" a", "abbruch");
         MENU_KEY(" t", "trotzdem");
@@ -234,18 +234,15 @@ static signed int buy(char *name, int32_t price) {
         exit(1);
       }
 
-      textcolor(TC_LIGHT_GREEN);
-      cprintf("\r\nVerbleibendes Guthaben f" uUML "r %s: %s. Dr" uUML
-              "cke RETURN...\r\n",
-              nickname, rest);
-      textcolor(TC_LIGHT_GRAY);
+      cprintf("\r\n\r\nVerbleibendes Guthaben f" uUML "r %s: %s.", nickname,
+              rest);
+      GOOD("\r\nDr" uUML "cke RETURN...\r\n");
       cget_return();
       matches++;
     } else {
-      textcolor(TC_LIGHT_RED);
-      cprintf("\r\nNickname nicht gefunden in der Guthabenverwaltung! Abbruch, "
-              "dr" uUML "cke RETURN...\r\n");
-      textcolor(TC_LIGHT_GRAY);
+      ERROR("\r\n\r\nNickname nicht gefunden in der Guthabenverwaltung! "
+            "Abbruch!");
+      GOOD("\r\nDr" uUML "cke RETURN...\r\n");
       cget_return();
       return 0;
     }
@@ -261,7 +258,8 @@ static signed int buy(char *name, int32_t price) {
 
 void buy_stock(BYTE n) {
   if (n >= status.num_items || status.status[n].item_name == NULL) {
-    cprintf("FEHLER: Diese Einheit existiert nicht.\r\n");
+    ERROR("\r\nDiese Einheit existiert nicht.");
+    GOOD("\r\nDr" uUML "cke RETURN\r\n");
     cget_return();
     return;
   }
@@ -284,7 +282,8 @@ void buy_custom(void) {
   price = cget_number(0);
 
   if (price == 0) {
-    cprintf("Kauf abgebrochen, dr" uUML "cke RETURN...\r\n");
+    ERROR("\r\nKauf abgebrochen");
+    GOOD("\r\nDr" uUML "cke RETURN\r\n");
     cget_return();
     return;
   }
@@ -393,7 +392,8 @@ int main(void) {
       save_items();
       save_credits();
       log_flush();
-      cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+      GOOD("\r\nDr" uUML "cke RETURN...\r\n");
+      cget_return();
     } else if (*c == 'g') {
       credit_manager();
     } else if (*c == 'i') {
@@ -405,9 +405,12 @@ int main(void) {
       save_items();
       save_credits();
       log_flush();
-      cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+      GOOD("\r\nDr" uUML "cke RETURN...\r\n");
       cget_return();
       break;
+    } else {
+      ERROR("\r\nUnbekannter Befehl, dr" uUML "cke RETURN...\r\n");
+      cget_return();
     }
   }
   clrscr();

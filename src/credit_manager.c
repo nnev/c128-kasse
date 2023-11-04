@@ -168,7 +168,8 @@ static void deposit_credit_idx(int8_t i) {
   credit->credit += (signed int)deposit;
 
   print_the_buffer();
-  cprintf("\r\nEinzahlung durchgef" uUML "hrt, dr" uUML "cke RETURN...\r\n");
+  cprintf("\r\n\r\nEinzahlung durchgef" uUML "hrt");
+  GOOD("\r\nDr" uUML "cke RETURN...\r\n");
   cget_return();
 }
 
@@ -188,8 +189,8 @@ static void new_credit(void) {
   int credit;
 
   if (credits.num_items == MAX_CREDIT_ITEMS) {
-    cprintf("\rEs ist bereits die maximale Anzahl an Eintr" aUML
-            "gen erreicht, dr" uUML "cke RETURN...\r\n");
+    ERROR("\rEs ist bereits die maximale Anzahl an Eintr" aUML
+          "gen erreicht, dr" uUML "cke RETURN...\r\n");
     cget_return();
     return;
   }
@@ -200,7 +201,7 @@ static void new_credit(void) {
     return;
 
   if (find_credit_idx(name) >= 0) {
-    cprintf("\rNickname existiert bereits, dr" uUML "cke RETURN...\r\n");
+    ERROR("\r\nNickname existiert bereits, dr" uUML "cke RETURN...\r\n");
     cget_return();
     return;
   }
@@ -209,6 +210,7 @@ static void new_credit(void) {
   credit = cget_number(0);
   if (credit < 0) {
     cprintf("\r\nLege mit 0 an und verkaufe Waren oder Freitext\r\n");
+    GOOD("\r\nDr" uUML "cke RETURN...\r\n");
     cget_return();
     return;
   }
@@ -275,7 +277,7 @@ void credit_manager(void) {
         break;
       case 's':
         save_credits();
-        cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+        GOOD("\r\nDr" uUML "cke RETURN...\r\n");
         cget_return();
         break;
       case 'f':
@@ -306,11 +308,11 @@ void credit_manager(void) {
         break;
       case 'z':
         save_credits();
-        cprintf("\r\nDr" uUML "cke RETURN...\r\n");
+        GOOD("\r\nDr" uUML "cke RETURN...\r\n");
         cget_return();
         return;
       default:
-        cprintf("Unbekannter Befehl, dr" uUML "cke RETURN...\r\n");
+        ERROR("\r\nUnbekannter Befehl, dr" uUML "cke RETURN...\r\n");
         cget_return();
       }
     }
