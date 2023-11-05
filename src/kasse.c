@@ -39,7 +39,7 @@ void print_item(BYTE i, BYTE current_selection) {
   }
   cprintf("%2d", i);
   textcolor(TC_LIGHT_GRAY);
-  cprintf(" %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%3dx %s",
+  cprintf(" %-" xstr(MAX_ITEM_NAME_LENGTH) "s \xDD%3dx%s ",
           status.status[i].item_name, status.status[i].times_sold, profit);
 }
 
