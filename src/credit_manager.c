@@ -168,13 +168,13 @@ int8_t find_credit_idx(char *name) {
 static void deposit_credit_idx(int8_t i) {
   char *time = get_time();
   struct credits_t *credit = &credits.credits[i];
-  unsigned int deposit;
+  int deposit;
 
   cprintf("\r\nEinzahlung in Cent:\r\n");
   if ((deposit = cget_number(0)) == 0)
     return;
 
-  credit->credit += (signed int)deposit;
+  credit->credit += deposit;
 
   sprintf(print_buffer,
           "%c%s - %d Cent f" uUML "r %s eingezahlt, total: %d Cent\r", 17, time,
