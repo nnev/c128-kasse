@@ -176,6 +176,9 @@ static void deposit_credit_idx(int8_t i) {
 
   credit->credit += (signed int)deposit;
 
+  sprintf(print_buffer,
+          "%c%s - %d Cent f" uUML "r %s eingezahlt, total: %d Cent\r", 17, time,
+          deposit, credit->nickname, credit->credit);
   print_the_buffer();
   cprintf("\r\n\r\nEinzahlung durchgef" uUML "hrt");
   GOOD("\r\nDr" uUML "cke RETURN...\r\n");
