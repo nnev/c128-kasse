@@ -69,7 +69,7 @@ format:
 	clang-format-3.9 -i **/*.[ch]
 
 setup-vice:
-	./.devcontainer/vice-setup.sh
+	./.devcontainer/setup-vice.sh
 
 vice: package
 	x128 -config vicerc -autostart kasse.d71 +go64 -remotemonitor -80col -speed 200
