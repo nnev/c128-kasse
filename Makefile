@@ -5,7 +5,7 @@ INCLUDES:=$(wildcard include/*.h) include/version.h include/charset_umlauts.h
 GV:=$(shell git describe --tags --always)
 CFLAGS= -I include -t c128 -g
 
-.PHONY: clean dist-clean format vice xpra
+.PHONY: clean dist-clean format vice setup-vice xpra
 
 all: kasse cat
 
@@ -67,6 +67,9 @@ dist-clean: clean
 
 format:
 	clang-format-3.9 -i **/*.[ch]
+
+setup-vice:
+	./.devcontainer/vice-setup.sh
 
 vice: package
 	x128 -config vicerc -autostart kasse.d71 +go64 -remotemonitor -80col -speed 200
