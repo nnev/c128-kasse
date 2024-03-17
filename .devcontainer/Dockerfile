@@ -5,4 +5,6 @@ RUN sed -i '0,/Components: main/{s/^Components: main/Components: main contrib no
 RUN apt-get update && apt-get -y install --no-install-recommends vice cc65 emacs vim && apt-get -y install xpra
 
 ADD vice-setup.sh /vice-setup.sh
+
+USER vscode
 RUN bash -x /vice-setup.sh
