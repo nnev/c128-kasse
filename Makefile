@@ -77,6 +77,7 @@ vice: package
 xpra:
 	echo '#!/bin/bash' > make-vice.bash
 	echo 'make vice' >> make-vice.bash
+	chmod +x make-vice.bash
 	xpra start --start=./make-vice.bash --bind-tcp=0.0.0.0:10000
 
 check:
