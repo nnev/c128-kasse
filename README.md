@@ -23,9 +23,10 @@ Then, install the ROMs, which are not included in the Debian package (they are
 however included in the `vice` package on Arch Linux, for example):
 
 ```
-wget https://downloads.sourceforge.net/project/vice-emu/releases/vice-3.6.1.tar.gz
+VICEVERSION=$(x128 --version | sed -e 's,x128 (VICE ,,g;s,),,g')
+wget https://downloads.sourceforge.net/project/vice-emu/releases/vice-${VICEVERSION?}.tar.gz
 mkdir -p ~/.local/share/vice
-tar xf vice-3.6.1.tar.gz -C ~/.local/share/vice/ vice-3.6.1/data --strip-components=2
+tar xf vice-${VICEVERSION?}.tar.gz -C ~/.local/share/vice/ vice-${VICEVERSION?}/data --strip-components=2
 ```
 
 ### Compiling the software into an image
