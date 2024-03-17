@@ -1,3 +1,31 @@
+## Using GitHub Codespaces
+
+Press `.` to open the web editor, then click the command field at the top and
+enter `> Create New Codespace`. To verify the environment works once it loaded, enter:
+
+```
+make
+```
+
+To run the VICE emulator in xpra, run:
+
+```
+make xpra
+```
+
+Then wait for the popup to appear for the newly exposed port (10000) and click
+the “Open in browser” button.
+
+## Compiler
+
+### Fedora
+
+### Debian and derivatives
+
+```
+apt install cc65
+```
+
 ## Emulator
 
 ### Emulator installation
